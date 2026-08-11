@@ -954,6 +954,10 @@
         showPanel('login');
       }
     });
+  } else {
+    showMsg('Firebase ainda não configurado neste arquivo. Preencha o objeto firebaseConfig no código para ativar o login real.', 'error');
+  }
+
   // ============================================================
   // KANBAN + AGENDA + NOTIFICAÇÕES
   // ============================================================
