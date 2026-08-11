@@ -311,12 +311,13 @@
   }
   .app-alert.show{display:block;}
 
-  /* -- SPLIT LAYOUT (Kanban + Agenda lado a lado) -- */
+  /* -- SPLIT LAYOUT (Kanban + Agenda + Dashboard lado a lado) -- */
   .dash-body{display:flex; flex-direction:column; gap:20px;}
-  @media (min-width: 1000px){
-    .dash-body{display:grid; grid-template-columns:1fr 340px; align-items:start; gap:22px;}
+  @media (min-width: 1100px){
+    .dash-body{display:grid; grid-template-columns:1.9fr 1.1fr 1.1fr; align-items:start; gap:20px;}
     .kanban-board{display:grid !important; grid-template-columns:repeat(3, minmax(0,1fr)) !important;}
     .agenda-view{display:block !important;}
+    .stats-view{display:block !important;}
     .view-switch{display:none;}
   }
 
@@ -378,11 +379,23 @@
   .label-pessoal{background:rgba(242,201,76,0.15); color:var(--gold-bright);}
   .label-igreja{background:rgba(63,178,127,0.15); color:#7fe0b4;}
   .label-outro{background:rgba(245,244,240,0.1); color:rgba(245,244,240,0.6);}
+  .task-label.overdue{background:rgba(224,67,60,0.2) !important; color:#ff8b85 !important;}
   .task-date{
     font-family:'Space Mono',monospace; font-size:10.5px; color:rgba(245,244,240,0.45);
   }
   .task-date.overdue{color:var(--alert); font-weight:700;}
   .task-date.today{color:var(--gold-bright); font-weight:700;}
+  .task-finalizado{
+    display:flex; align-items:center; gap:6px; margin-top:8px;
+    padding-top:8px; border-top:1px solid var(--line);
+  }
+  .task-finalizado input[type="checkbox"]{
+    width:14px; height:14px; accent-color:var(--ok); cursor:pointer;
+  }
+  .task-finalizado label{
+    font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.03em;
+    color:rgba(245,244,240,0.5); cursor:pointer;
+  }
   .empty-col{
     text-align:center; color:rgba(245,244,240,0.3); font-size:12px;
     padding:16px 0; border:1px dashed var(--line); border-radius:8px;
@@ -428,6 +441,51 @@
   .cal-legend span{display:flex; align-items:center; gap:6px;}
   .cal-legend i{width:8px; height:8px; border-radius:50%; display:inline-block;}
 
+  /* -- DASHBOARD / ESTATÍSTICAS -- */
+  .stats-view{display:none;}
+  .stats-view.active{display:block;}
+  .stats-card{
+    background:var(--panel); border:1px solid var(--line); border-radius:16px;
+    padding:22px; width:100%;
+  }
+  .stats-title{
+    font-family:'Anton',sans-serif; font-size:18px; text-transform:uppercase; letter-spacing:0.02em;
+    margin-bottom:4px;
+  }
+  .stats-total{
+    font-family:'Space Mono',monospace; font-size:12px; color:rgba(245,244,240,0.5);
+    margin-bottom:20px;
+  }
+  .stats-row{margin-bottom:18px;}
+  .stats-row:last-child{margin-bottom:0;}
+  .stats-row-top{
+    display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;
+  }
+  .stats-row-label{
+    display:flex; align-items:center; gap:8px;
+    font-size:12.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.03em;
+    color:rgba(245,244,240,0.75);
+  }
+  .stats-row-nums{
+    font-family:'Space Mono',monospace; font-size:12px; color:rgba(245,244,240,0.5);
+  }
+  .stats-row-nums b{
+    font-size:20px; color:var(--white); font-family:'Anton',sans-serif; margin-right:4px;
+  }
+  .stats-bar-track{
+    height:8px; border-radius:6px; background:rgba(245,244,240,0.06); overflow:hidden;
+  }
+  .stats-bar-fill{height:100%; border-radius:6px; transition:width .5s ease;}
+  .stats-bar-fill.fill-todo{background:#7a8bff;}
+  .stats-bar-fill.fill-doing{background:var(--gold-bright);}
+  .stats-bar-fill.fill-done{background:var(--ok);}
+  .stats-divider{border-top:1px solid var(--line); margin:20px 0;}
+  .stats-finalizadas{
+    display:flex; justify-content:space-between; align-items:center;
+    font-size:12.5px; color:rgba(245,244,240,0.5);
+  }
+  .stats-finalizadas b{color:var(--ok); font-family:'Space Mono',monospace; font-size:14px;}
+
   /* -- MODALS -- */
   .modal-overlay{
     display:none; position:fixed; inset:0; z-index:50;
@@ -454,6 +512,32 @@
     color:var(--white); font-family:'Inter',sans-serif; font-size:14.5px;
     outline:none;
   }
+  .gcal-title-input{
+    width:100%; padding:10px 2px; background:transparent;
+    border:none; border-bottom:2px solid var(--line);
+    color:var(--white); font-family:'Inter',sans-serif; font-size:19px; font-weight:700;
+    outline:none; margin-bottom:22px; transition:border-color .2s ease;
+  }
+  .gcal-title-input:focus{border-color:var(--gold-bright);}
+  .gcal-title-input::placeholder{color:rgba(245,244,240,0.3); font-weight:600;}
+  .gcal-row{display:flex; gap:14px; margin-bottom:18px; align-items:flex-start;}
+  .gcal-icon{
+    width:20px; flex-shrink:0; text-align:center; font-size:15px; margin-top:11px;
+    opacity:0.6;
+  }
+  .gcal-row-body{flex:1;}
+  .gcal-datetime-label{
+    font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;
+    color:rgba(245,244,240,0.45); margin-bottom:8px;
+  }
+  .gcal-datetime-grid{display:grid; grid-template-columns:1.3fr 1fr; gap:8px;}
+  .gcal-datetime-grid input{
+    width:100%; padding:10px 11px; background:rgba(10,10,10,0.5);
+    border:1px solid var(--line); border-radius:7px;
+    color:var(--white); font-family:'Inter',sans-serif; font-size:13.5px;
+    outline:none; transition:border-color .2s ease;
+  }
+  .gcal-datetime-grid input:focus{border-color:var(--gold-bright);}
   .day-task-list{display:flex; flex-direction:column; gap:10px; max-height:44vh; overflow-y:auto;}
   .day-task-item{
     display:flex; justify-content:space-between; align-items:center; gap:10px;
@@ -611,6 +695,7 @@
       <div class="view-switch" id="viewSwitch">
         <button type="button" class="active" data-view="kanban">Kanban</button>
         <button type="button" data-view="agenda">Agenda</button>
+        <button type="button" data-view="stats">Dashboard</button>
       </div>
       <div class="toolbar-actions">
         <button type="button" class="btn-notify" id="btnNotify" title="Ativar notificações">🔔 Notificações</button>
@@ -641,7 +726,7 @@
       </div>
       <div class="kanban-col" data-status="done">
         <div class="kanban-col-head">
-          <span class="kanban-col-dot dot-done"></span> Feito
+          <span class="kanban-col-dot dot-done"></span> Concluído
           <span class="kanban-count" id="countDone">0</span>
         </div>
         <div class="kanban-col-body" id="colDone" data-status="done"></div>
@@ -664,7 +749,45 @@
         <div class="cal-legend">
           <span><i class="dot-todo"></i> A Fazer</span>
           <span><i class="dot-doing"></i> Fazendo</span>
-          <span><i class="dot-done"></i> Feito</span>
+          <span><i class="dot-done"></i> Concluído</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD / ESTATÍSTICAS -->
+    <div class="stats-view" id="statsView">
+      <div class="stats-card">
+        <div class="stats-title">Dashboard</div>
+        <div class="stats-total" id="statsTotal">0 tarefas no total</div>
+
+        <div class="stats-row">
+          <div class="stats-row-top">
+            <span class="stats-row-label"><span class="kanban-col-dot dot-todo"></span>A Fazer</span>
+            <span class="stats-row-nums"><b id="statsTodoCount">0</b><span id="statsTodoPct">0%</span></span>
+          </div>
+          <div class="stats-bar-track"><div class="stats-bar-fill fill-todo" id="statsTodoBar" style="width:0%"></div></div>
+        </div>
+
+        <div class="stats-row">
+          <div class="stats-row-top">
+            <span class="stats-row-label"><span class="kanban-col-dot dot-doing"></span>Fazendo</span>
+            <span class="stats-row-nums"><b id="statsDoingCount">0</b><span id="statsDoingPct">0%</span></span>
+          </div>
+          <div class="stats-bar-track"><div class="stats-bar-fill fill-doing" id="statsDoingBar" style="width:0%"></div></div>
+        </div>
+
+        <div class="stats-row">
+          <div class="stats-row-top">
+            <span class="stats-row-label"><span class="kanban-col-dot dot-done"></span>Concluído</span>
+            <span class="stats-row-nums"><b id="statsDoneCount">0</b><span id="statsDonePct">0%</span></span>
+          </div>
+          <div class="stats-bar-track"><div class="stats-bar-fill fill-done" id="statsDoneBar" style="width:0%"></div></div>
+        </div>
+
+        <div class="stats-divider"></div>
+        <div class="stats-finalizadas">
+          <span>Tarefas finalizadas (arquivadas)</span>
+          <b id="statsFinalizadas">0</b>
         </div>
       </div>
     </div>
@@ -682,42 +805,65 @@
     </div>
     <form id="formTask">
       <input type="hidden" id="taskId">
-      <div class="field">
-        <label for="taskTitulo">Título</label>
-        <input type="text" id="taskTitulo" placeholder="Ex: Enviar relatório" required>
-      </div>
-      <div class="field">
-        <label for="taskDescricao">Descrição (opcional)</label>
-        <input type="text" id="taskDescricao" placeholder="Detalhes da tarefa">
-      </div>
-      <div class="field-row">
-        <div class="field">
-          <label for="taskData">Data (opcional)</label>
-          <input type="date" id="taskData">
-        </div>
-        <div class="field">
-          <label for="taskHora">Horário (opcional)</label>
-          <input type="time" id="taskHora">
+      <input type="text" id="taskTitulo" class="gcal-title-input" placeholder="Adicionar título" required>
+
+      <div class="gcal-row">
+        <span class="gcal-icon">📅</span>
+        <div class="gcal-row-body">
+          <div class="gcal-datetime-label">Início</div>
+          <div class="gcal-datetime-grid">
+            <input type="date" id="taskDataInicio" required>
+            <input type="time" id="taskHoraInicio">
+          </div>
         </div>
       </div>
-      <div class="field">
-        <label for="taskEtiqueta">Etiqueta</label>
-        <select id="taskEtiqueta">
-          <option value="trabalho">Trabalho</option>
-          <option value="pessoal">Pessoal</option>
-          <option value="igreja">Igreja</option>
-          <option value="outro">Outro</option>
-        </select>
+
+      <div class="gcal-row">
+        <span class="gcal-icon">🏁</span>
+        <div class="gcal-row-body">
+          <div class="gcal-datetime-label">Fim</div>
+          <div class="gcal-datetime-grid">
+            <input type="date" id="taskDataFim" required>
+            <input type="time" id="taskHoraFim">
+          </div>
+        </div>
       </div>
-      <div class="field">
-        <label for="taskStatus">Status</label>
-        <select id="taskStatus">
-          <option value="todo">A Fazer</option>
-          <option value="doing">Fazendo</option>
-          <option value="done">Feito</option>
-        </select>
+
+      <div class="gcal-row">
+        <span class="gcal-icon">📝</span>
+        <div class="gcal-row-body">
+          <div class="field" style="margin-bottom:0;">
+            <input type="text" id="taskDescricao" placeholder="Adicionar descrição">
+          </div>
+        </div>
       </div>
-      <button type="submit" class="btn-primary" id="btnSaveTask">Salvar tarefa</button>
+
+      <div class="gcal-row">
+        <span class="gcal-icon">🏷️</span>
+        <div class="gcal-row-body">
+          <div class="field-row">
+            <div class="field" style="margin-bottom:0;">
+              <label for="taskEtiqueta">Etiqueta</label>
+              <select id="taskEtiqueta">
+                <option value="trabalho">Trabalho</option>
+                <option value="pessoal">Pessoal</option>
+                <option value="igreja">Igreja</option>
+                <option value="outro">Outro</option>
+              </select>
+            </div>
+            <div class="field" style="margin-bottom:0;">
+              <label for="taskStatus">Status</label>
+              <select id="taskStatus">
+                <option value="todo">A Fazer</option>
+                <option value="doing">Fazendo</option>
+                <option value="done">Concluído</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-primary" id="btnSaveTask" style="margin-top:8px;">Salvar tarefa</button>
       <button type="button" class="btn-secondary" id="btnDeleteTask" style="display:none; border-color:var(--alert); color:#ff8b85;">Excluir tarefa</button>
     </form>
   </div>
@@ -1013,7 +1159,7 @@
 
   let currentUser = null;
   let unsubTasks = null;
-  let tasks = []; // {id, title, description, label, status, date, userId}
+  let tasks = []; // {id, title, description, label, status, startDate, endDate, startTime, endTime, finalizado, userId}
   let currentView = 'kanban';
   let calRefDate = new Date(); // mês exibido na agenda
   let selectedDay = null; // 'YYYY-MM-DD'
@@ -1023,7 +1169,7 @@
   const LABELS = {
     trabalho: 'Trabalho', pessoal: 'Pessoal', igreja: 'Igreja', outro: 'Outro'
   };
-  const STATUS_NAMES = { todo: 'A Fazer', doing: 'Fazendo', done: 'Feito' };
+  const STATUS_NAMES = { todo: 'A Fazer', doing: 'Fazendo', done: 'Concluído' };
 
   function todayStr(){
     const d = new Date();
@@ -1041,6 +1187,7 @@
       snap.forEach(d => tasks.push({ id: d.id, ...d.data() }));
       renderKanban();
       renderAgenda();
+      renderStats();
       checkDueSoon();
     }, (err) => {
       console.error('Erro ao carregar tarefas:', err);
@@ -1060,7 +1207,7 @@
     el.classList.add('show');
   }
 
-  // ---------- ALTERNAR VISTA ----------
+  // ---------- ALTERNAR VISTA (Kanban / Agenda / Dashboard) ----------
   document.getElementById('viewSwitch').addEventListener('click', (e) => {
     const btn = e.target.closest('button[data-view]');
     if (!btn) return;
@@ -1068,16 +1215,18 @@
     document.querySelectorAll('#viewSwitch button').forEach(b => b.classList.toggle('active', b === btn));
     document.getElementById('kanbanBoard').classList.toggle('active', currentView === 'kanban');
     document.getElementById('agendaView').classList.toggle('active', currentView === 'agenda');
+    document.getElementById('statsView').classList.toggle('active', currentView === 'stats');
     if (currentView === 'agenda') renderAgenda();
+    if (currentView === 'stats') renderStats();
   });
   // vista inicial
   document.getElementById('kanbanBoard').classList.add('active');
 
   // ---------- RENDER KANBAN ----------
-  function dateBadgeClass(dateStr, status){
-    if (!dateStr || status === 'done') return '';
-    if (dateStr < todayStr()) return 'overdue';
-    if (dateStr === todayStr()) return 'today';
+  function dateBadgeClass(endDateStr, status){
+    if (!endDateStr || status === 'done') return '';
+    if (endDateStr < todayStr()) return 'overdue';
+    if (endDateStr === todayStr()) return 'today';
     return '';
   }
   function fmtDate(dateStr){
@@ -1086,7 +1235,16 @@
   }
 
   function taskCardHTML(t){
-    const dcls = dateBadgeClass(t.date, t.status);
+    const dcls = dateBadgeClass(t.endDate, t.status);
+    let dateLine = '';
+    if (t.startDate || t.endDate) {
+      const startTxt = t.startDate ? fmtDate(t.startDate) + (t.startTime ? ' ' + t.startTime : '') : '';
+      const endTxt = t.endDate ? fmtDate(t.endDate) + (t.endTime ? ' ' + t.endTime : '') : '';
+      const rangeTxt = (t.startDate && t.endDate && t.startDate !== t.endDate)
+        ? `${startTxt} → ${endTxt}`
+        : (endTxt || startTxt);
+      dateLine = `<span class="task-date ${dcls}">${rangeTxt}${dcls==='overdue' ? ' · atrasada' : ''}${dcls==='today' ? ' · vence hoje' : ''}</span>`;
+    }
     return `
       <div class="task-card" draggable="true" data-id="${t.id}">
         <div class="task-card-stripe stripe-${t.label || 'outro'}"></div>
@@ -1096,8 +1254,12 @@
           </div>
           ${t.description ? `<div class="task-desc">${escapeHTML(t.description)}</div>` : ''}
           <div class="task-meta">
-            <span class="task-label label-${t.label || 'outro'}">${LABELS[t.label] || 'Outro'}</span>
-            ${t.date ? `<span class="task-date ${dcls}">${fmtDate(t.date)}${t.time ? ' · ' + t.time : ''}${dcls==='overdue' ? ' · atrasada' : ''}${dcls==='today' ? ' · hoje' : ''}</span>` : ''}
+            <span class="task-label label-${t.label || 'outro'} ${dcls==='overdue' ? 'overdue' : ''}">${LABELS[t.label] || 'Outro'}</span>
+            ${dateLine}
+          </div>
+          <div class="task-finalizado">
+            <input type="checkbox" id="fin-${t.id}" data-fin-id="${t.id}">
+            <label for="fin-${t.id}">Finalizado</label>
           </div>
         </div>
       </div>`;
@@ -1108,9 +1270,9 @@
 
   function renderKanban(){
     const cols = { todo: [], doing: [], done: [] };
-    tasks.forEach(t => { if (cols[t.status]) cols[t.status].push(t); });
+    tasks.forEach(t => { if (!t.finalizado && cols[t.status]) cols[t.status].push(t); });
     Object.entries(cols).forEach(([status, list]) => {
-      list.sort((a,b) => ((a.date||'9999')+(a.time||'99:99')).localeCompare((b.date||'9999')+(b.time||'99:99')));
+      list.sort((a,b) => ((a.startDate||'9999')+(a.startTime||'99:99')).localeCompare((b.startDate||'9999')+(b.startTime||'99:99')));
     });
 
     const map = { todo: 'colTodo', doing: 'colDoing', done: 'colDone' };
@@ -1125,11 +1287,33 @@
     document.getElementById('countDoing').textContent = cols.doing.length;
     document.getElementById('countDone').textContent = cols.done.length;
 
-    // clique abre edição
+    // clique no card abre edição
     document.querySelectorAll('.task-card').forEach(card => {
-      card.addEventListener('click', () => openTaskModal(card.dataset.id));
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('.task-finalizado')) return;
+        openTaskModal(card.dataset.id);
+      });
       card.addEventListener('dragstart', () => card.classList.add('dragging'));
       card.addEventListener('dragend', () => card.classList.remove('dragging'));
+    });
+
+    // checkbox "Finalizado" — marca e some o card
+    document.querySelectorAll('[data-fin-id]').forEach(chk => {
+      chk.addEventListener('click', (e) => e.stopPropagation());
+      chk.addEventListener('change', async (e) => {
+        e.stopPropagation();
+        const id = chk.dataset.finId;
+        if (!chk.checked) return;
+        const card = chk.closest('.task-card');
+        if (card) card.style.opacity = '0.3';
+        try {
+          await updateDoc(doc(db, 'tasks', id), { finalizado: true });
+        } catch (err) {
+          console.error(err);
+          showAppAlert('Não foi possível marcar a tarefa como finalizada.');
+          if (card) card.style.opacity = '1';
+        }
+      });
     });
   }
 
@@ -1171,11 +1355,22 @@
     const startOffset = firstDay.getDay(); // 0=domingo
     const daysInMonth = new Date(year, month+1, 0).getDate();
 
-    // agrupar tarefas por data
+    // agrupar tarefas por data (cobrindo todo o intervalo início→fim, até 60 dias)
     const byDate = {};
     tasks.forEach(t => {
-      if (!t.date) return;
-      (byDate[t.date] = byDate[t.date] || []).push(t);
+      if (t.finalizado) return;
+      const start = t.startDate || t.endDate;
+      const end = t.endDate || t.startDate;
+      if (!start) return;
+      let cursor = new Date(start + 'T00:00:00');
+      const endD = new Date(end + 'T00:00:00');
+      let guard = 0;
+      while (cursor <= endD && guard < 60) {
+        const ds = `${cursor.getFullYear()}-${String(cursor.getMonth()+1).padStart(2,'0')}-${String(cursor.getDate()).padStart(2,'0')}`;
+        (byDate[ds] = byDate[ds] || []).push(t);
+        cursor.setDate(cursor.getDate() + 1);
+        guard++;
+      }
     });
 
     const grid = document.getElementById('calGrid');
@@ -1220,19 +1415,29 @@
     renderAgenda();
     const [y,m,d] = dateStr.split('-');
     document.getElementById('dayModalTitle').textContent = `Tarefas em ${d}/${m}/${y}`;
-    const dayTasks = tasks.filter(t => t.date === dateStr)
-      .sort((a,b) => (a.time||'99:99').localeCompare(b.time||'99:99'));
+    const dayTasks = tasks.filter(t => {
+      if (t.finalizado) return false;
+      const start = t.startDate || t.endDate;
+      const end = t.endDate || t.startDate;
+      if (!start) return false;
+      return dateStr >= start && dateStr <= end;
+    }).sort((a,b) => (a.startTime||'99:99').localeCompare(b.startTime||'99:99'));
     const list = document.getElementById('dayModalList');
     list.innerHTML = dayTasks.length
-      ? dayTasks.map(t => `
+      ? dayTasks.map(t => {
+          const timeTxt = (t.startTime || t.endTime)
+            ? `${t.startTime || '--:--'}${t.endTime ? ' – ' + t.endTime : ''}`
+            : '';
+          return `
           <div class="day-task-item" data-id="${t.id}">
             <div>
-              ${t.time ? `<div style="font-family:'Space Mono',monospace; font-size:11px; color:var(--gold-bright); margin-bottom:3px;">${t.time}</div>` : ''}
+              ${timeTxt ? `<div style="font-family:'Space Mono',monospace; font-size:11px; color:var(--gold-bright); margin-bottom:3px;">${timeTxt}</div>` : ''}
               <div class="task-title">${escapeHTML(t.title)}</div>
               <span class="task-label label-${t.label||'outro'}" style="margin-top:4px; display:inline-block;">${LABELS[t.label]||'Outro'}</span>
             </div>
             <span class="task-label" style="background:rgba(245,244,240,0.08); color:rgba(245,244,240,0.7);">${STATUS_NAMES[t.status]}</span>
-          </div>`).join('')
+          </div>`;
+        }).join('')
       : `<div class="day-empty">Nenhuma tarefa neste dia.</div>`;
     list.querySelectorAll('.day-task-item').forEach(item => {
       item.addEventListener('click', () => {
@@ -1264,13 +1469,17 @@
       if (t) {
         document.getElementById('taskTitulo').value = t.title || '';
         document.getElementById('taskDescricao').value = t.description || '';
-        document.getElementById('taskData').value = t.date || '';
-        document.getElementById('taskHora').value = t.time || '';
+        document.getElementById('taskDataInicio').value = t.startDate || '';
+        document.getElementById('taskHoraInicio').value = t.startTime || '';
+        document.getElementById('taskDataFim').value = t.endDate || '';
+        document.getElementById('taskHoraFim').value = t.endTime || '';
         document.getElementById('taskEtiqueta').value = t.label || 'trabalho';
         document.getElementById('taskStatus').value = t.status || 'todo';
       }
     } else {
-      if (presetDate) document.getElementById('taskData').value = presetDate;
+      const d = presetDate || todayStr();
+      document.getElementById('taskDataInicio').value = d;
+      document.getElementById('taskDataFim').value = d;
       if (presetStatus) document.getElementById('taskStatus').value = presetStatus;
     }
     taskModalOverlay.classList.add('show');
@@ -1287,11 +1496,19 @@
     e.preventDefault();
     if (!currentUser) return;
     const id = document.getElementById('taskId').value;
+    let startDate = document.getElementById('taskDataInicio').value || null;
+    let endDate = document.getElementById('taskDataFim').value || null;
+    if (startDate && endDate && endDate < startDate) {
+      // corrige caso a data fim fique antes da data início
+      [startDate, endDate] = [endDate, startDate];
+    }
     const payload = {
       title: document.getElementById('taskTitulo').value.trim(),
       description: document.getElementById('taskDescricao').value.trim(),
-      date: document.getElementById('taskData').value || null,
-      time: document.getElementById('taskHora').value || null,
+      startDate,
+      endDate,
+      startTime: document.getElementById('taskHoraInicio').value || null,
+      endTime: document.getElementById('taskHoraFim').value || null,
       label: document.getElementById('taskEtiqueta').value,
       status: document.getElementById('taskStatus').value,
       userId: currentUser.uid,
@@ -1327,6 +1544,31 @@
     }
   });
 
+  // ---------- DASHBOARD / ESTATÍSTICAS ----------
+  function renderStats(){
+    const ativas = tasks.filter(t => !t.finalizado);
+    const total = ativas.length;
+    const counts = { todo: 0, doing: 0, done: 0 };
+    ativas.forEach(t => { if (counts[t.status] !== undefined) counts[t.status]++; });
+    const pct = n => total ? Math.round((n / total) * 100) : 0;
+
+    document.getElementById('statsTotal').textContent = `${total} tarefa${total === 1 ? '' : 's'} ativa${total === 1 ? '' : 's'} no total`;
+
+    document.getElementById('statsTodoCount').textContent = counts.todo;
+    document.getElementById('statsTodoPct').textContent = pct(counts.todo) + '%';
+    document.getElementById('statsTodoBar').style.width = pct(counts.todo) + '%';
+
+    document.getElementById('statsDoingCount').textContent = counts.doing;
+    document.getElementById('statsDoingPct').textContent = pct(counts.doing) + '%';
+    document.getElementById('statsDoingBar').style.width = pct(counts.doing) + '%';
+
+    document.getElementById('statsDoneCount').textContent = counts.done;
+    document.getElementById('statsDonePct').textContent = pct(counts.done) + '%';
+    document.getElementById('statsDoneBar').style.width = pct(counts.done) + '%';
+
+    document.getElementById('statsFinalizadas').textContent = tasks.filter(t => t.finalizado).length;
+  }
+
   // ---------- NOTIFICAÇÕES ----------
   const btnNotify = document.getElementById('btnNotify');
   function updateNotifyBtn(){
@@ -1355,17 +1597,17 @@
     const tomorrowStr = `${tmrw.getFullYear()}-${String(tmrw.getMonth()+1).padStart(2,'0')}-${String(tmrw.getDate()).padStart(2,'0')}`;
 
     tasks.forEach(t => {
-      if (t.status === 'done' || !t.date) return;
+      if (t.status === 'done' || t.finalizado || !t.endDate) return;
       const key = t.id + '_' + today;
       if (notifiedToday.has(key)) return;
-      const horaTxt = t.time ? ` às ${t.time}` : '';
-      if (t.date === today) {
+      const horaTxt = t.endTime ? ` às ${t.endTime}` : '';
+      if (t.endDate === today) {
         new Notification('JOMI — Tarefa vence hoje' + horaTxt, { body: t.title });
         notifiedToday.add(key);
-      } else if (t.date === tomorrowStr) {
+      } else if (t.endDate === tomorrowStr) {
         new Notification('JOMI — Tarefa vence amanhã' + horaTxt, { body: t.title });
         notifiedToday.add(key);
-      } else if (t.date < today) {
+      } else if (t.endDate < today) {
         new Notification('JOMI — Tarefa atrasada', { body: t.title });
         notifiedToday.add(key);
       }
