@@ -362,10 +362,6 @@
   .task-card:hover{border-color:var(--gold-bright); transform:translateY(-1px); box-shadow:0 4px 14px rgba(0,0,0,0.35);}
   .task-card.dragging{opacity:0.4;}
   .task-card-stripe{height:4px; width:100%;}
-  .stripe-trabalho{background:#7a8bff;}
-  .stripe-pessoal{background:var(--gold-bright);}
-  .stripe-igreja{background:#3fb27f;}
-  .stripe-outro{background:rgba(245,244,240,0.3);}
   .task-card-inner{padding:11px 12px;}
   .task-card-top{display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:5px;}
   .task-title{font-weight:700; font-size:14px; line-height:1.35;}
@@ -375,11 +371,6 @@
     font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.03em;
     padding:2px 8px; border-radius:20px;
   }
-  .label-trabalho{background:rgba(122,139,255,0.15); color:#a9b4ff;}
-  .label-pessoal{background:rgba(242,201,76,0.15); color:var(--gold-bright);}
-  .label-igreja{background:rgba(63,178,127,0.15); color:#7fe0b4;}
-  .label-outro{background:rgba(245,244,240,0.1); color:rgba(245,244,240,0.6);}
-  .task-label.overdue{background:rgba(224,67,60,0.2) !important; color:#ff8b85 !important;}
   .task-date{
     font-family:'Space Mono',monospace; font-size:10.5px; color:rgba(245,244,240,0.45);
   }
@@ -502,7 +493,7 @@
   .modal-title{font-family:'Anton',sans-serif; font-size:20px; text-transform:uppercase;}
   .modal-close{
     background:transparent; border:none; color:rgba(245,244,240,0.5);
-    font-size:18px; cursor:pointer; line-height:1;
+    font-size:18px; cursor:pointer; line-height:1; flex-shrink:0;
   }
   .modal-close:hover{color:var(--white);}
   .field-row{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
@@ -512,32 +503,78 @@
     color:var(--white); font-family:'Inter',sans-serif; font-size:14.5px;
     outline:none;
   }
+
+  /* -- MODAL DE TAREFA ESTILO GOOGLE AGENDA -- */
+  .gcal-box{max-width:460px;}
+  .gcal-topbar{display:flex; align-items:center; gap:12px; margin-bottom:20px;}
   .gcal-title-input{
-    width:100%; padding:10px 2px; background:transparent;
+    flex:1; min-width:0;
+    padding:8px 2px; background:transparent;
     border:none; border-bottom:2px solid var(--line);
-    color:var(--white); font-family:'Inter',sans-serif; font-size:19px; font-weight:700;
-    outline:none; margin-bottom:22px; transition:border-color .2s ease;
+    color:var(--white); font-family:'Inter',sans-serif; font-size:18px; font-weight:700;
+    outline:none; transition:border-color .2s ease;
   }
   .gcal-title-input:focus{border-color:var(--gold-bright);}
   .gcal-title-input::placeholder{color:rgba(245,244,240,0.3); font-weight:600;}
-  .gcal-row{display:flex; gap:14px; margin-bottom:18px; align-items:flex-start;}
-  .gcal-icon{
-    width:20px; flex-shrink:0; text-align:center; font-size:15px; margin-top:11px;
-    opacity:0.6;
+  .gcal-save-btn{
+    flex-shrink:0; padding:10px 20px; border-radius:20px; border:none;
+    background:var(--gold-bright); color:var(--black);
+    font-family:'Inter',sans-serif; font-weight:800; font-size:12.5px;
+    text-transform:uppercase; letter-spacing:0.03em; cursor:pointer;
+    transition:transform .15s ease, box-shadow .15s ease;
   }
-  .gcal-row-body{flex:1;}
-  .gcal-datetime-label{
-    font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;
-    color:rgba(245,244,240,0.45); margin-bottom:8px;
+  .gcal-save-btn:hover{transform:translateY(-1px); box-shadow:0 6px 16px rgba(242,201,76,0.3);}
+
+  .gcal-date-row{display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap;}
+  .gcal-date-chip{
+    padding:8px 12px; border-radius:20px; background:rgba(245,244,240,0.06);
+    border:1px solid var(--line); color:var(--white);
+    font-family:'Inter',sans-serif; font-size:13px; outline:none;
+    transition:border-color .2s ease;
   }
-  .gcal-datetime-grid{display:grid; grid-template-columns:1.3fr 1fr; gap:8px;}
-  .gcal-datetime-grid input{
-    width:100%; padding:10px 11px; background:rgba(10,10,10,0.5);
+  .gcal-date-chip:focus{border-color:var(--gold-bright);}
+  .gcal-ate{font-size:13px; color:rgba(245,244,240,0.5);}
+
+  .gcal-allday{
+    display:flex; align-items:center; gap:8px; font-size:13px;
+    color:rgba(245,244,240,0.7); margin-bottom:18px; cursor:pointer;
+  }
+  .gcal-allday input{width:15px; height:15px; accent-color:var(--gold-bright); cursor:pointer;}
+
+  .gcal-time-row{display:flex; gap:14px; margin-bottom:18px;}
+  .gcal-time-block{flex:1;}
+  .gcal-time-block input{
+    width:100%; padding:9px 11px; background:rgba(10,10,10,0.5);
     border:1px solid var(--line); border-radius:7px;
     color:var(--white); font-family:'Inter',sans-serif; font-size:13.5px;
     outline:none; transition:border-color .2s ease;
   }
-  .gcal-datetime-grid input:focus{border-color:var(--gold-bright);}
+  .gcal-time-block input:focus{border-color:var(--gold-bright);}
+
+  .gcal-card{
+    background:rgba(10,10,10,0.35); border:1px solid var(--line);
+    border-radius:12px; padding:16px 16px 4px;
+  }
+  .gcal-row{display:flex; gap:14px; margin-bottom:16px; align-items:center;}
+  .gcal-icon{
+    width:20px; flex-shrink:0; text-align:center; font-size:15px;
+    opacity:0.6;
+  }
+  .gcal-row-body{flex:1; min-width:0;}
+  .gcal-datetime-label{
+    font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;
+    color:rgba(245,244,240,0.45); margin-bottom:8px;
+  }
+  .gcal-plain-input, .gcal-plain-select{
+    width:100%; padding:8px 2px; background:transparent;
+    border:none; border-bottom:1px solid var(--line);
+    color:var(--white); font-family:'Inter',sans-serif; font-size:14px;
+    outline:none; transition:border-color .2s ease;
+  }
+  .gcal-plain-input:focus, .gcal-plain-select:focus{border-color:var(--gold-bright);}
+  .gcal-plain-input::placeholder{color:rgba(245,244,240,0.3);}
+  .gcal-plain-select{cursor:pointer;}
+  .gcal-plain-select option{background:var(--black-soft); color:var(--white);}
   .day-task-list{display:flex; flex-direction:column; gap:10px; max-height:44vh; overflow-y:auto;}
   .day-task-item{
     display:flex; justify-content:space-between; align-items:center; gap:10px;
@@ -798,73 +835,67 @@
 
 <!-- MODAL: NOVA/EDITAR TAREFA -->
 <div class="modal-overlay" id="taskModalOverlay">
-  <div class="modal-box">
-    <div class="modal-head">
-      <div class="modal-title" id="modalTitle">Nova tarefa</div>
-      <button type="button" class="modal-close" id="modalClose">✕</button>
-    </div>
+  <div class="modal-box gcal-box">
     <form id="formTask">
       <input type="hidden" id="taskId">
-      <input type="text" id="taskTitulo" class="gcal-title-input" placeholder="Adicionar título" required>
 
-      <div class="gcal-row">
-        <span class="gcal-icon">📅</span>
-        <div class="gcal-row-body">
-          <div class="gcal-datetime-label">Início</div>
-          <div class="gcal-datetime-grid">
-            <input type="date" id="taskDataInicio" required>
-            <input type="time" id="taskHoraInicio">
+      <div class="gcal-topbar">
+        <button type="button" class="modal-close" id="modalClose">✕</button>
+        <input type="text" id="taskTitulo" class="gcal-title-input" placeholder="Adicionar título" required>
+        <button type="submit" class="gcal-save-btn" id="btnSaveTask">Salvar</button>
+      </div>
+
+      <div class="gcal-date-row">
+        <input type="date" id="taskDataInicio" class="gcal-date-chip" required>
+        <span class="gcal-ate">até</span>
+        <input type="date" id="taskDataFim" class="gcal-date-chip" required>
+      </div>
+
+      <label class="gcal-allday">
+        <input type="checkbox" id="taskDiaInteiro" checked>
+        Dia inteiro
+      </label>
+
+      <div class="gcal-time-row" id="gcalTimeRow" style="display:none;">
+        <div class="gcal-time-block">
+          <div class="gcal-datetime-label">Horário início</div>
+          <input type="time" id="taskHoraInicio">
+        </div>
+        <div class="gcal-time-block">
+          <div class="gcal-datetime-label">Horário fim</div>
+          <input type="time" id="taskHoraFim">
+        </div>
+      </div>
+
+      <div class="gcal-card">
+        <div class="gcal-row">
+          <span class="gcal-icon">📝</span>
+          <div class="gcal-row-body">
+            <input type="text" id="taskDescricao" class="gcal-plain-input" placeholder="Adicionar descrição">
+          </div>
+        </div>
+
+        <div class="gcal-row">
+          <span class="gcal-icon">🏷️</span>
+          <div class="gcal-row-body">
+            <input type="text" id="taskEtiqueta" class="gcal-plain-input" list="etiquetaOptions" placeholder="Adicionar etiqueta (crie a sua)" autocomplete="off">
+            <datalist id="etiquetaOptions"></datalist>
+          </div>
+        </div>
+
+        <div class="gcal-row">
+          <span class="gcal-icon">📊</span>
+          <div class="gcal-row-body">
+            <select id="taskStatus" class="gcal-plain-select">
+              <option value="todo">A Fazer</option>
+              <option value="doing">Fazendo</option>
+              <option value="done">Concluído</option>
+            </select>
           </div>
         </div>
       </div>
 
-      <div class="gcal-row">
-        <span class="gcal-icon">🏁</span>
-        <div class="gcal-row-body">
-          <div class="gcal-datetime-label">Fim</div>
-          <div class="gcal-datetime-grid">
-            <input type="date" id="taskDataFim" required>
-            <input type="time" id="taskHoraFim">
-          </div>
-        </div>
-      </div>
-
-      <div class="gcal-row">
-        <span class="gcal-icon">📝</span>
-        <div class="gcal-row-body">
-          <div class="field" style="margin-bottom:0;">
-            <input type="text" id="taskDescricao" placeholder="Adicionar descrição">
-          </div>
-        </div>
-      </div>
-
-      <div class="gcal-row">
-        <span class="gcal-icon">🏷️</span>
-        <div class="gcal-row-body">
-          <div class="field-row">
-            <div class="field" style="margin-bottom:0;">
-              <label for="taskEtiqueta">Etiqueta</label>
-              <select id="taskEtiqueta">
-                <option value="trabalho">Trabalho</option>
-                <option value="pessoal">Pessoal</option>
-                <option value="igreja">Igreja</option>
-                <option value="outro">Outro</option>
-              </select>
-            </div>
-            <div class="field" style="margin-bottom:0;">
-              <label for="taskStatus">Status</label>
-              <select id="taskStatus">
-                <option value="todo">A Fazer</option>
-                <option value="doing">Fazendo</option>
-                <option value="done">Concluído</option>
-              </select>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <button type="submit" class="btn-primary" id="btnSaveTask" style="margin-top:8px;">Salvar tarefa</button>
-      <button type="button" class="btn-secondary" id="btnDeleteTask" style="display:none; border-color:var(--alert); color:#ff8b85;">Excluir tarefa</button>
+      <button type="button" class="btn-secondary" id="btnDeleteTask" style="display:none; border-color:var(--alert); color:#ff8b85; margin-top:16px;">Excluir tarefa</button>
     </form>
   </div>
 </div>
@@ -1166,10 +1197,35 @@
   let notifyTimer = null;
   const notifiedToday = new Set();
 
-  const LABELS = {
-    trabalho: 'Trabalho', pessoal: 'Pessoal', igreja: 'Igreja', outro: 'Outro'
-  };
   const STATUS_NAMES = { todo: 'A Fazer', doing: 'Fazendo', done: 'Concluído' };
+
+  // ---------- COR DINÂMICA POR ETIQUETA (criada livremente pelo usuário) ----------
+  const LABEL_PALETTE = [
+    { bg:'rgba(122,139,255,0.15)', fg:'#a9b4ff', stripe:'#7a8bff' },   // azul
+    { bg:'rgba(242,201,76,0.15)',  fg:'#f2c94c', stripe:'#f2c94c' },   // dourado
+    { bg:'rgba(63,178,127,0.15)',  fg:'#7fe0b4', stripe:'#3fb27f' },   // verde
+    { bg:'rgba(224,120,220,0.15)', fg:'#e9a3e4', stripe:'#c96bc4' },   // rosa
+    { bg:'rgba(255,159,102,0.15)', fg:'#ffb98a', stripe:'#ff9f66' },   // laranja
+    { bg:'rgba(96,205,220,0.15)',  fg:'#8fe4f0', stripe:'#4fc2d6' },   // ciano
+    { bg:'rgba(180,160,255,0.15)', fg:'#c9baff', stripe:'#8f6bff' },   // roxo
+    { bg:'rgba(245,244,240,0.1)',  fg:'rgba(245,244,240,0.65)', stripe:'rgba(245,244,240,0.3)' }, // neutro
+  ];
+  function labelColor(text){
+    const t = (text || '').trim().toLowerCase();
+    if (!t) return LABEL_PALETTE[LABEL_PALETTE.length - 1];
+    let hash = 0;
+    for (let i = 0; i < t.length; i++) hash = (hash * 31 + t.charCodeAt(i)) >>> 0;
+    return LABEL_PALETTE[hash % (LABEL_PALETTE.length - 1)];
+  }
+  function labelText(t){
+    return (t && t.trim()) ? t.trim() : 'Sem etiqueta';
+  }
+  function updateEtiquetaOptions(){
+    const dl = document.getElementById('etiquetaOptions');
+    if (!dl) return;
+    const uniq = [...new Set(tasks.map(t => (t.label || '').trim()).filter(Boolean))].sort();
+    dl.innerHTML = uniq.map(l => `<option value="${escapeHTML(l)}"></option>`).join('');
+  }
 
   function todayStr(){
     const d = new Date();
@@ -1188,6 +1244,7 @@
       renderKanban();
       renderAgenda();
       renderStats();
+      updateEtiquetaOptions();
       checkDueSoon();
     }, (err) => {
       console.error('Erro ao carregar tarefas:', err);
@@ -1236,6 +1293,10 @@
 
   function taskCardHTML(t){
     const dcls = dateBadgeClass(t.endDate, t.status);
+    const col = labelColor(t.label);
+    const labelStyle = dcls === 'overdue'
+      ? `background:rgba(224,67,60,0.2); color:#ff8b85;`
+      : `background:${col.bg}; color:${col.fg};`;
     let dateLine = '';
     if (t.startDate || t.endDate) {
       const startTxt = t.startDate ? fmtDate(t.startDate) + (t.startTime ? ' ' + t.startTime : '') : '';
@@ -1247,14 +1308,14 @@
     }
     return `
       <div class="task-card" draggable="true" data-id="${t.id}">
-        <div class="task-card-stripe stripe-${t.label || 'outro'}"></div>
+        <div class="task-card-stripe" style="background:${col.stripe};"></div>
         <div class="task-card-inner">
           <div class="task-card-top">
             <div class="task-title">${escapeHTML(t.title)}</div>
           </div>
           ${t.description ? `<div class="task-desc">${escapeHTML(t.description)}</div>` : ''}
           <div class="task-meta">
-            <span class="task-label label-${t.label || 'outro'} ${dcls==='overdue' ? 'overdue' : ''}">${LABELS[t.label] || 'Outro'}</span>
+            <span class="task-label" style="${labelStyle}">${escapeHTML(labelText(t.label))}</span>
             ${dateLine}
           </div>
           <div class="task-finalizado">
@@ -1433,7 +1494,7 @@
             <div>
               ${timeTxt ? `<div style="font-family:'Space Mono',monospace; font-size:11px; color:var(--gold-bright); margin-bottom:3px;">${timeTxt}</div>` : ''}
               <div class="task-title">${escapeHTML(t.title)}</div>
-              <span class="task-label label-${t.label||'outro'}" style="margin-top:4px; display:inline-block;">${LABELS[t.label]||'Outro'}</span>
+              <span class="task-label" style="margin-top:4px; display:inline-block; background:${labelColor(t.label).bg}; color:${labelColor(t.label).fg};">${escapeHTML(labelText(t.label))}</span>
             </div>
             <span class="task-label" style="background:rgba(245,244,240,0.08); color:rgba(245,244,240,0.7);">${STATUS_NAMES[t.status]}</span>
           </div>`;
@@ -1457,12 +1518,19 @@
 
   // ---------- MODAL TAREFA (criar/editar) ----------
   const taskModalOverlay = document.getElementById('taskModalOverlay');
+  const gcalTimeRow = document.getElementById('gcalTimeRow');
+  const taskDiaInteiro = document.getElementById('taskDiaInteiro');
+
+  function toggleAllDayRow(){
+    gcalTimeRow.style.display = taskDiaInteiro.checked ? 'none' : 'flex';
+  }
+  taskDiaInteiro.addEventListener('change', toggleAllDayRow);
+
   function openTaskModal(id, presetDate, presetStatus){
     const form = document.getElementById('formTask');
     form.reset();
     document.getElementById('taskId').value = id || '';
     document.getElementById('btnDeleteTask').style.display = id ? 'block' : 'none';
-    document.getElementById('modalTitle').textContent = id ? 'Editar tarefa' : 'Nova tarefa';
 
     if (id) {
       const t = tasks.find(x => x.id === id);
@@ -1473,15 +1541,18 @@
         document.getElementById('taskHoraInicio').value = t.startTime || '';
         document.getElementById('taskDataFim').value = t.endDate || '';
         document.getElementById('taskHoraFim').value = t.endTime || '';
-        document.getElementById('taskEtiqueta').value = t.label || 'trabalho';
+        document.getElementById('taskEtiqueta').value = t.label || '';
         document.getElementById('taskStatus').value = t.status || 'todo';
+        taskDiaInteiro.checked = !t.startTime && !t.endTime;
       }
     } else {
       const d = presetDate || todayStr();
       document.getElementById('taskDataInicio').value = d;
       document.getElementById('taskDataFim').value = d;
       if (presetStatus) document.getElementById('taskStatus').value = presetStatus;
+      taskDiaInteiro.checked = true;
     }
+    toggleAllDayRow();
     taskModalOverlay.classList.add('show');
   }
   function closeTaskModal(){ taskModalOverlay.classList.remove('show'); }
@@ -1502,14 +1573,15 @@
       // corrige caso a data fim fique antes da data início
       [startDate, endDate] = [endDate, startDate];
     }
+    const isAllDay = taskDiaInteiro.checked;
     const payload = {
       title: document.getElementById('taskTitulo').value.trim(),
       description: document.getElementById('taskDescricao').value.trim(),
       startDate,
       endDate,
-      startTime: document.getElementById('taskHoraInicio').value || null,
-      endTime: document.getElementById('taskHoraFim').value || null,
-      label: document.getElementById('taskEtiqueta').value,
+      startTime: isAllDay ? null : (document.getElementById('taskHoraInicio').value || null),
+      endTime: isAllDay ? null : (document.getElementById('taskHoraFim').value || null),
+      label: document.getElementById('taskEtiqueta').value.trim(),
       status: document.getElementById('taskStatus').value,
       userId: currentUser.uid,
     };
@@ -1527,7 +1599,7 @@
       console.error(err);
       showAppAlert('Não foi possível salvar a tarefa. Verifique as regras do Firestore.');
     } finally {
-      btn.disabled = false; btn.textContent = 'Salvar tarefa';
+      btn.disabled = false; btn.textContent = 'Salvar';
     }
   });
 
