@@ -32,16 +32,39 @@
     overflow-x:hidden;
   }
 
-  /* ---------- BACKGROUND TEXTURE ---------- */
+  /* ---------- BACKGROUND TEXTURE (futurista) ---------- */
   .stripes{
     position:fixed; inset:0; z-index:0; pointer-events:none;
     background:
-      repeating-linear-gradient(115deg, transparent 0 140px, rgba(245,244,240,0.025) 140px 142px, transparent 142px 280px);
+      repeating-linear-gradient(115deg, transparent 0 140px, rgba(245,244,240,0.02) 140px 142px, transparent 142px 280px),
+      radial-gradient(circle, rgba(245,244,240,0.09) 1px, transparent 1.4px);
+    background-size: auto, 26px 26px;
   }
   .noise-glow{
-    position:fixed; top:-20%; left:-10%; width:60%; height:60%;
-    background:radial-gradient(circle, rgba(212,175,55,0.10) 0%, transparent 70%);
+    position:fixed; top:-25%; left:-12%; width:65%; height:65%;
+    background:radial-gradient(circle, rgba(242,201,76,0.13) 0%, transparent 70%);
     z-index:0; pointer-events:none;
+    animation: driftGlow 16s ease-in-out infinite alternate;
+  }
+  .noise-glow-2{
+    position:fixed; bottom:-25%; right:-12%; width:55%; height:55%;
+    background:radial-gradient(circle, rgba(122,139,255,0.08) 0%, transparent 70%);
+    z-index:0; pointer-events:none;
+    animation: driftGlow 20s ease-in-out infinite alternate-reverse;
+  }
+  @keyframes driftGlow{
+    0%{transform:translate(0,0) scale(1);}
+    100%{transform:translate(4%, 5%) scale(1.08);}
+  }
+  .scan-line{
+    position:fixed; left:0; right:0; height:1px; z-index:0; pointer-events:none;
+    background:linear-gradient(90deg, transparent, rgba(242,201,76,0.55), transparent);
+    animation: scanMove 7s linear infinite;
+    opacity:0.5;
+  }
+  @keyframes scanMove{
+    0%{top:0%;}
+    100%{top:100%;}
   }
 
   /* ---------- LAYOUT ---------- */
@@ -53,7 +76,7 @@
   /* -- LEFT BRAND PANEL -- */
   .brand{
     flex:1 1 46%;
-    background:var(--black-soft);
+    background:linear-gradient(155deg, #141414 0%, #0a0a0a 60%);
     display:flex; flex-direction:column; justify-content:center;
     padding:64px 60px;
     border-right:1px solid var(--line);
@@ -65,6 +88,12 @@
     position:absolute; inset:0;
     background:
       linear-gradient(180deg, transparent 0%, rgba(212,175,55,0.06) 50%, transparent 100%);
+    pointer-events:none;
+  }
+  .brand::after{
+    content:"";
+    position:absolute; top:0; right:0; bottom:0; width:1px;
+    background:linear-gradient(180deg, transparent, rgba(242,201,76,0.4), transparent);
   }
   .crest{
     width:104px; height:104px;
@@ -82,6 +111,11 @@
     position:relative;
     display:flex; align-items:center; justify-content:center;
     overflow:hidden;
+    animation: crestGlow 3.4s ease-in-out infinite;
+  }
+  @keyframes crestGlow{
+    0%, 100%{ box-shadow:0 0 0 1px rgba(0,0,0,0.4), 0 10px 30px rgba(0,0,0,0.5), 0 6px 22px rgba(242,201,76,0.10); }
+    50%{ box-shadow:0 0 0 1px rgba(0,0,0,0.4), 0 10px 30px rgba(0,0,0,0.5), 0 6px 30px rgba(242,201,76,0.28); }
   }
   .crest-card{
     position:absolute;
@@ -157,6 +191,17 @@
     padding-top:20px;
     display:flex; justify-content:space-between; max-width:420px;
   }
+  .brand-foot span{display:inline-flex; align-items:center; gap:7px;}
+  .pulse-dot{
+    width:6px; height:6px; border-radius:50%; background:var(--ok);
+    box-shadow:0 0 0 0 rgba(63,178,127,0.6);
+    animation:pulseDot 2s ease-out infinite;
+  }
+  @keyframes pulseDot{
+    0%{box-shadow:0 0 0 0 rgba(63,178,127,0.55);}
+    70%{box-shadow:0 0 0 6px rgba(63,178,127,0);}
+    100%{box-shadow:0 0 0 0 rgba(63,178,127,0);}
+  }
 
   /* -- RIGHT FORM PANEL -- */
   .stage{
@@ -167,7 +212,25 @@
   }
   .card{
     width:100%; max-width:420px;
+    position:relative;
+    background:rgba(27,27,27,0.55);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+    border:1px solid rgba(242,201,76,0.15);
+    border-radius:18px;
+    padding:34px 32px;
+    box-shadow:
+      0 20px 60px rgba(0,0,0,0.5),
+      inset 0 1px 0 rgba(255,255,255,0.04);
   }
+  .card::before, .card::after,
+  .card .hud-br, .card .hud-bl{
+    content:""; position:absolute; width:18px; height:18px; pointer-events:none;
+  }
+  .card::before{ top:-1px; left:-1px; border-top:2px solid var(--gold-bright); border-left:2px solid var(--gold-bright); border-radius:6px 0 0 0;}
+  .card::after{ top:-1px; right:-1px; border-top:2px solid var(--gold-bright); border-right:2px solid var(--gold-bright); border-radius:0 6px 0 0;}
+  .card .hud-bl{ bottom:-1px; left:-1px; border-bottom:2px solid var(--gold-bright); border-left:2px solid var(--gold-bright); border-radius:0 0 0 6px;}
+  .card .hud-br{ bottom:-1px; right:-1px; border-bottom:2px solid var(--gold-bright); border-right:2px solid var(--gold-bright); border-radius:0 0 6px 0;}
   .tabbar{
     display:flex; gap:0; margin-bottom:36px;
     border:1px solid var(--line); border-radius:10px; overflow:hidden;
@@ -203,14 +266,14 @@
     text-transform:uppercase; color:rgba(245,244,240,0.6); margin-bottom:8px;
   }
   .field input{
-    width:100%; padding:13px 14px; background:var(--panel);
+    width:100%; padding:13px 14px; background:rgba(10,10,10,0.5);
     border:1px solid var(--line); border-radius:8px;
     color:var(--white); font-family:'Inter',sans-serif; font-size:15px;
     outline:none; transition:border-color .2s ease, box-shadow .2s ease;
   }
   .field input:focus{
     border-color:var(--gold-bright);
-    box-shadow:0 0 0 3px rgba(242,201,76,0.15);
+    box-shadow:0 0 0 3px rgba(242,201,76,0.15), 0 0 16px rgba(242,201,76,0.12);
   }
   .field input::placeholder{color:rgba(245,244,240,0.28);}
 
@@ -227,12 +290,19 @@
 
   .btn-primary{
     width:100%; padding:15px 0; border:none; border-radius:8px;
-    background:var(--gold-bright); color:var(--black);
+    background:linear-gradient(100deg, #f2c94c 0%, #f6d774 45%, #f2c94c 100%);
+    background-size:220% 100%;
+    color:var(--black);
     font-family:'Inter',sans-serif; font-weight:800; font-size:15px;
     letter-spacing:0.03em; text-transform:uppercase;
-    cursor:pointer; transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+    cursor:pointer; position:relative; overflow:hidden;
+    transition:transform .15s ease, box-shadow .15s ease, background-position .5s ease;
   }
-  .btn-primary:hover{transform:translateY(-1px); box-shadow:0 8px 22px rgba(242,201,76,0.25);}
+  .btn-primary:hover{
+    transform:translateY(-1px);
+    box-shadow:0 8px 26px rgba(242,201,76,0.35);
+    background-position:100% 0;
+  }
   .btn-primary:disabled{opacity:0.5; cursor:not-allowed; transform:none; box-shadow:none;}
 
   .btn-secondary{
@@ -512,6 +582,8 @@
 
 <div class="stripes"></div>
 <div class="noise-glow"></div>
+<div class="noise-glow-2"></div>
+<div class="scan-line"></div>
 
 <div class="wrap" id="wrap">
 
@@ -538,7 +610,7 @@
     <h1><span class="jomi-word"><span class="j-dot"></span>JOMI</span><br><span>Assistente de Rotina</span></h1>
     <p>Seu kanban e sua agenda pessoal em um só lugar.</p>
     <div class="brand-foot">
-      <span>FIREBASE AUTH</span>
+      <span><span class="pulse-dot"></span>FIREBASE AUTH · ONLINE</span>
       <span>TEMPLATE DE VERIFICAÇÃO</span>
     </div>
   </aside>
@@ -546,6 +618,7 @@
   <!-- FORM STAGE -->
   <main class="stage">
     <div class="card" id="card">
+      <span class="hud-bl"></span><span class="hud-br"></span>
 
       <!-- TABS (login / cadastro) -->
       <div class="tabbar" id="tabbar">
