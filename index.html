@@ -36,9 +36,8 @@
   .stripes{
     position:fixed; inset:0; z-index:0; pointer-events:none;
     background:
-      repeating-linear-gradient(115deg, transparent 0 140px, rgba(245,244,240,0.02) 140px 142px, transparent 142px 280px),
       radial-gradient(circle, rgba(245,244,240,0.09) 1px, transparent 1.4px);
-    background-size: auto, 26px 26px;
+    background-size: 26px 26px;
   }
   .noise-glow{
     position:fixed; top:-25%; left:-12%; width:65%; height:65%;
@@ -104,12 +103,6 @@
     0%, 100%{background-position:0% 0;}
     50%{background-position:100% 0;}
   }
-  .jomi-logo .j-dot{
-    position:absolute; top:-0.22em; left:0.03em;
-    width:0.2em; height:0.13em; border-radius:0.05em;
-    background:linear-gradient(135deg, #f6d774 0%, #f2c94c 45%, #c99a2e 100%);
-    box-shadow:0 0 14px rgba(242,201,76,0.5);
-  }
   .brand-tagline{
     font-family:'Inter',sans-serif; font-weight:800; font-size:clamp(16px, 2vw, 20px);
     letter-spacing:0.08em; text-transform:uppercase; color:var(--white);
@@ -119,25 +112,6 @@
   .brand p{
     font-size:16px; line-height:1.65; color:rgba(245,244,240,0.6);
     max-width:420px; margin-bottom:32px;
-  }
-  .brand-foot{
-    font-family:'Space Mono', monospace;
-    font-size:12px; color:rgba(245,244,240,0.4);
-    letter-spacing:0.05em;
-    border-top:1px solid var(--line);
-    padding-top:18px;
-    display:flex; justify-content:center; gap:28px; width:100%; max-width:420px;
-  }
-  .brand-foot span{display:inline-flex; align-items:center; gap:7px;}
-  .pulse-dot{
-    width:6px; height:6px; border-radius:50%; background:var(--ok);
-    box-shadow:0 0 0 0 rgba(63,178,127,0.6);
-    animation:pulseDot 2s ease-out infinite;
-  }
-  @keyframes pulseDot{
-    0%{box-shadow:0 0 0 0 rgba(63,178,127,0.55);}
-    70%{box-shadow:0 0 0 6px rgba(63,178,127,0);}
-    100%{box-shadow:0 0 0 0 rgba(63,178,127,0);}
   }
 
   /* -- FORM STAGE -- */
@@ -524,13 +498,9 @@
   <!-- BRAND PANEL -->
   <aside class="brand">
     <div class="brand-eyebrow">Pessoal · Personalizado · Intransferível</div>
-    <h1 class="jomi-logo"><span class="j-dot"></span>JOMI</h1>
+    <h1 class="jomi-logo">JOMI</h1>
     <div class="brand-tagline">Assistente de Rotina</div>
     <p>Seu kanban e sua agenda pessoal em um só lugar.</p>
-    <div class="brand-foot">
-      <span><span class="pulse-dot"></span>FIREBASE AUTH · ONLINE</span>
-      <span>TEMPLATE DE VERIFICAÇÃO</span>
-    </div>
   </aside>
 
   <!-- FORM STAGE -->
