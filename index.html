@@ -67,11 +67,57 @@
       linear-gradient(180deg, transparent 0%, rgba(212,175,55,0.06) 50%, transparent 100%);
   }
   .crest{
-    width:88px; height:100px;
+    width:104px; height:104px;
     position:relative;
     margin-bottom:36px;
   }
-  .crest svg{width:100%; height:100%; display:block;}
+  .crest-box{
+    width:100%; height:100%; border-radius:26px;
+    background:linear-gradient(160deg, #1c1c1c 0%, #0a0a0a 70%);
+    border:1px solid rgba(242,201,76,0.14);
+    box-shadow:
+      0 0 0 1px rgba(0,0,0,0.4),
+      0 10px 30px rgba(0,0,0,0.5),
+      0 6px 22px rgba(242,201,76,0.10);
+    position:relative;
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
+  }
+  .crest-card{
+    position:absolute;
+    width:32px; height:56px; border-radius:9px;
+    display:flex; flex-direction:column; gap:5px;
+    padding:8px 6px;
+    box-shadow:0 5px 12px rgba(0,0,0,0.4);
+  }
+  .crest-card.c-shadow{
+    background:linear-gradient(160deg, #4a4a4a, #2c2c2c);
+    transform:rotate(-30deg) translate(-22px, 3px);
+    z-index:0;
+  }
+  .crest-card.c-back{
+    background:linear-gradient(160deg, #2a2a2a, #141414);
+    border:1px solid rgba(255,255,255,0.06);
+    transform:rotate(-20deg) translate(-16px, 1px);
+    z-index:1;
+  }
+  .crest-card.c-mid{
+    background:linear-gradient(160deg, #fbfaf7, #e9e7e0);
+    transform:rotate(-3deg) translate(-1px, -3px);
+    z-index:2;
+  }
+  .crest-card.c-front{
+    background:linear-gradient(160deg, #f6d774, #d4af37);
+    transform:rotate(16deg) translate(13px, 2px);
+    z-index:3;
+  }
+  .crest-chip{border-radius:4px; display:block; flex-shrink:0;}
+  .c-back .crest-chip{background:rgba(245,244,240,0.85); height:9px;}
+  .c-back .crest-chip:last-child{background:rgba(245,244,240,0.35);}
+  .c-mid .crest-chip{background:#141414; height:9px;}
+  .c-mid .crest-chip:last-child{background:var(--gold-bright);}
+  .c-front .crest-chip{background:rgba(10,10,10,0.85); height:9px;}
+  .c-front .crest-chip:last-child{background:rgba(10,10,10,0.4);}
   .brand-eyebrow{
     font-family:'Space Mono', monospace;
     font-size:12px; letter-spacing:0.28em; text-transform:uppercase;
@@ -85,6 +131,12 @@
     text-transform:uppercase;
     color:var(--white);
     margin-bottom:22px;
+  }
+  .jomi-word{position:relative; display:inline-block;}
+  .jomi-word .j-dot{
+    position:absolute; top:-0.32em; left:0.02em;
+    width:0.24em; height:0.16em; border-radius:0.06em;
+    background:linear-gradient(135deg, #f6d774 0%, #f2c94c 45%, #c99a2e 100%);
   }
   .brand h1 span{
     color:var(--gold-bright);
@@ -284,56 +336,81 @@
   }
   .app-alert.show{display:block;}
 
-  /* -- KANBAN -- */
-  .kanban-board{display:none; gap:20px; align-items:flex-start;}
-  .kanban-board.active{display:grid; grid-template-columns:repeat(3, 1fr);}
+  /* -- SPLIT LAYOUT (Kanban + Agenda lado a lado) -- */
+  .dash-body{display:flex; flex-direction:column; gap:20px;}
+  @media (min-width: 1000px){
+    .dash-body{display:grid; grid-template-columns:1fr 340px; align-items:start; gap:22px;}
+    .kanban-board{display:grid !important; grid-template-columns:repeat(3, minmax(0,1fr)) !important;}
+    .agenda-view{display:block !important;}
+    .view-switch{display:none;}
+  }
+
+  /* -- KANBAN (estilo quadro) -- */
+  .kanban-board{display:none; gap:16px; align-items:flex-start;}
+  .kanban-board.active{display:grid; grid-template-columns:repeat(3, minmax(0,1fr));}
   .kanban-col{
-    background:var(--panel); border:1px solid var(--line); border-radius:14px;
-    padding:16px; min-height:200px;
+    background:#101010; border:1px solid var(--line); border-radius:12px;
+    padding:14px; min-height:160px; max-height:70vh; display:flex; flex-direction:column;
   }
   .kanban-col-head{
     display:flex; align-items:center; gap:8px;
-    font-weight:800; font-size:13px; text-transform:uppercase; letter-spacing:0.04em;
-    margin-bottom:14px; color:rgba(245,244,240,0.85);
+    font-weight:800; font-size:12.5px; text-transform:uppercase; letter-spacing:0.05em;
+    margin-bottom:12px; color:rgba(245,244,240,0.85); flex-shrink:0;
   }
   .kanban-count{
-    margin-left:auto; background:rgba(245,244,240,0.08); border-radius:20px;
-    padding:2px 9px; font-size:11.5px; font-family:'Space Mono',monospace;
+    margin-left:auto; background:rgba(245,244,240,0.08); border-radius:6px;
+    padding:2px 8px; font-size:11px; font-family:'Space Mono',monospace;
   }
-  .kanban-col-dot{width:9px; height:9px; border-radius:50%; display:inline-block;}
+  .kanban-col-dot{width:8px; height:8px; border-radius:50%; display:inline-block;}
   .dot-todo{background:#7a8bff;}
   .dot-doing{background:var(--gold-bright);}
   .dot-done{background:var(--ok);}
 
-  .kanban-col-body{display:flex; flex-direction:column; gap:10px; min-height:60px;}
-  .kanban-col-body.drag-over{background:rgba(242,201,76,0.06); border-radius:10px;}
+  .kanban-col-body{
+    display:flex; flex-direction:column; gap:8px; min-height:40px;
+    overflow-y:auto; padding-right:2px; flex:1;
+  }
+  .kanban-col-body.drag-over{background:rgba(242,201,76,0.05); border-radius:8px;}
+  .kanban-add-btn{
+    margin-top:10px; padding:9px 10px; border-radius:8px; border:1px dashed var(--line);
+    background:transparent; color:rgba(245,244,240,0.55); font-size:12.5px; font-weight:600;
+    text-align:left; cursor:pointer; flex-shrink:0; transition:border-color .15s ease, color .15s ease, background .15s ease;
+  }
+  .kanban-add-btn:hover{border-color:var(--gold-bright); color:var(--gold-bright); background:rgba(242,201,76,0.05);}
 
   .task-card{
-    background:var(--black-soft); border:1px solid var(--line); border-radius:10px;
-    padding:13px 14px; cursor:grab; transition:border-color .15s ease, transform .15s ease;
+    background:#1a1a1a; border:1px solid var(--line); border-radius:8px;
+    padding:0; cursor:grab; overflow:hidden;
+    transition:border-color .15s ease, transform .15s ease, box-shadow .15s ease;
   }
-  .task-card:hover{border-color:var(--gold-bright); transform:translateY(-1px);}
+  .task-card:hover{border-color:var(--gold-bright); transform:translateY(-1px); box-shadow:0 4px 14px rgba(0,0,0,0.35);}
   .task-card.dragging{opacity:0.4;}
-  .task-card-top{display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:6px;}
-  .task-title{font-weight:700; font-size:14.5px; line-height:1.35;}
-  .task-desc{font-size:12.5px; color:rgba(245,244,240,0.5); margin-bottom:8px; line-height:1.4;}
-  .task-meta{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+  .task-card-stripe{height:4px; width:100%;}
+  .stripe-trabalho{background:#7a8bff;}
+  .stripe-pessoal{background:var(--gold-bright);}
+  .stripe-igreja{background:#3fb27f;}
+  .stripe-outro{background:rgba(245,244,240,0.3);}
+  .task-card-inner{padding:11px 12px;}
+  .task-card-top{display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:5px;}
+  .task-title{font-weight:700; font-size:14px; line-height:1.35;}
+  .task-desc{font-size:12px; color:rgba(245,244,240,0.5); margin-bottom:7px; line-height:1.4;}
+  .task-meta{display:flex; align-items:center; gap:7px; flex-wrap:wrap;}
   .task-label{
-    font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.03em;
-    padding:3px 9px; border-radius:20px;
+    font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.03em;
+    padding:2px 8px; border-radius:20px;
   }
   .label-trabalho{background:rgba(122,139,255,0.15); color:#a9b4ff;}
   .label-pessoal{background:rgba(242,201,76,0.15); color:var(--gold-bright);}
   .label-igreja{background:rgba(63,178,127,0.15); color:#7fe0b4;}
   .label-outro{background:rgba(245,244,240,0.1); color:rgba(245,244,240,0.6);}
   .task-date{
-    font-family:'Space Mono',monospace; font-size:11px; color:rgba(245,244,240,0.45);
+    font-family:'Space Mono',monospace; font-size:10.5px; color:rgba(245,244,240,0.45);
   }
   .task-date.overdue{color:var(--alert); font-weight:700;}
   .task-date.today{color:var(--gold-bright); font-weight:700;}
   .empty-col{
-    text-align:center; color:rgba(245,244,240,0.3); font-size:12.5px;
-    padding:20px 0; border:1px dashed var(--line); border-radius:10px;
+    text-align:center; color:rgba(245,244,240,0.3); font-size:12px;
+    padding:16px 0; border:1px dashed var(--line); border-radius:8px;
   }
 
   /* -- AGENDA -- */
@@ -341,7 +418,7 @@
   .agenda-view.active{display:block;}
   .agenda-card{
     background:var(--panel); border:1px solid var(--line); border-radius:16px;
-    padding:26px; max-width:560px;
+    padding:22px; width:100%;
   }
   .agenda-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;}
   .agenda-month{
@@ -441,16 +518,24 @@
   <!-- BRAND PANEL -->
   <aside class="brand">
     <div class="crest" aria-hidden="true">
-      <svg viewBox="0 0 88 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M44 2 L84 18 V52 C84 76 66 92 44 98 C22 92 4 76 4 52 V18 Z"
-              fill="#0a0a0a" stroke="#f2c94c" stroke-width="2.5"/>
-        <path d="M44 2 L84 18 V52 C84 76 66 92 44 98 C22 92 4 76 4 52 V18 Z"
-              fill="none" stroke="#f5f4f0" stroke-width="0.75" stroke-dasharray="1 6" opacity="0.4" transform="scale(0.92) translate(4,4)"/>
-        <text x="44" y="60" text-anchor="middle" font-family="Anton, sans-serif" font-size="24" fill="#f5f4f0">JOMI</text>
-      </svg>
+      <div class="crest-box">
+        <div class="crest-card c-shadow"></div>
+        <div class="crest-card c-back">
+          <span class="crest-chip"></span>
+          <span class="crest-chip"></span>
+        </div>
+        <div class="crest-card c-mid">
+          <span class="crest-chip"></span>
+          <span class="crest-chip"></span>
+        </div>
+        <div class="crest-card c-front">
+          <span class="crest-chip"></span>
+          <span class="crest-chip"></span>
+        </div>
+      </div>
     </div>
     <div class="brand-eyebrow">Pessoal · Personalizado · Intransferível</div>
-    <h1>JOMI<br><span>Assistente de Rotina</span></h1>
+    <h1><span class="jomi-word"><span class="j-dot"></span>JOMI</span><br><span>Assistente de Rotina</span></h1>
     <p>Seu kanban e sua agenda pessoal em um só lugar.</p>
     <div class="brand-foot">
       <span>FIREBASE AUTH</span>
@@ -580,6 +665,7 @@
 
     <div class="app-alert" id="appAlert"></div>
 
+    <div class="dash-body">
     <!-- KANBAN VIEW -->
     <div class="kanban-board" id="kanbanBoard">
       <div class="kanban-col" data-status="todo">
@@ -588,6 +674,7 @@
           <span class="kanban-count" id="countTodo">0</span>
         </div>
         <div class="kanban-col-body" id="colTodo" data-status="todo"></div>
+        <button type="button" class="kanban-add-btn" data-add-status="todo">+ Adicionar cartão</button>
       </div>
       <div class="kanban-col" data-status="doing">
         <div class="kanban-col-head">
@@ -595,6 +682,7 @@
           <span class="kanban-count" id="countDoing">0</span>
         </div>
         <div class="kanban-col-body" id="colDoing" data-status="doing"></div>
+        <button type="button" class="kanban-add-btn" data-add-status="doing">+ Adicionar cartão</button>
       </div>
       <div class="kanban-col" data-status="done">
         <div class="kanban-col-head">
@@ -602,6 +690,7 @@
           <span class="kanban-count" id="countDone">0</span>
         </div>
         <div class="kanban-col-body" id="colDone" data-status="done"></div>
+        <button type="button" class="kanban-add-btn" data-add-status="done">+ Adicionar cartão</button>
       </div>
     </div>
 
@@ -623,6 +712,7 @@
           <span><i class="dot-done"></i> Feito</span>
         </div>
       </div>
+    </div>
     </div>
 
   </section>
@@ -651,14 +741,18 @@
           <input type="date" id="taskData">
         </div>
         <div class="field">
-          <label for="taskEtiqueta">Etiqueta</label>
-          <select id="taskEtiqueta">
-            <option value="trabalho">Trabalho</option>
-            <option value="pessoal">Pessoal</option>
-            <option value="igreja">Igreja</option>
-            <option value="outro">Outro</option>
-          </select>
+          <label for="taskHora">Horário (opcional)</label>
+          <input type="time" id="taskHora">
         </div>
+      </div>
+      <div class="field">
+        <label for="taskEtiqueta">Etiqueta</label>
+        <select id="taskEtiqueta">
+          <option value="trabalho">Trabalho</option>
+          <option value="pessoal">Pessoal</option>
+          <option value="igreja">Igreja</option>
+          <option value="outro">Outro</option>
+        </select>
       </div>
       <div class="field">
         <label for="taskStatus">Status</label>
@@ -1040,13 +1134,16 @@
     const dcls = dateBadgeClass(t.date, t.status);
     return `
       <div class="task-card" draggable="true" data-id="${t.id}">
-        <div class="task-card-top">
-          <div class="task-title">${escapeHTML(t.title)}</div>
-        </div>
-        ${t.description ? `<div class="task-desc">${escapeHTML(t.description)}</div>` : ''}
-        <div class="task-meta">
-          <span class="task-label label-${t.label || 'outro'}">${LABELS[t.label] || 'Outro'}</span>
-          ${t.date ? `<span class="task-date ${dcls}">${fmtDate(t.date)}${dcls==='overdue' ? ' · atrasada' : ''}${dcls==='today' ? ' · hoje' : ''}</span>` : ''}
+        <div class="task-card-stripe stripe-${t.label || 'outro'}"></div>
+        <div class="task-card-inner">
+          <div class="task-card-top">
+            <div class="task-title">${escapeHTML(t.title)}</div>
+          </div>
+          ${t.description ? `<div class="task-desc">${escapeHTML(t.description)}</div>` : ''}
+          <div class="task-meta">
+            <span class="task-label label-${t.label || 'outro'}">${LABELS[t.label] || 'Outro'}</span>
+            ${t.date ? `<span class="task-date ${dcls}">${fmtDate(t.date)}${t.time ? ' · ' + t.time : ''}${dcls==='overdue' ? ' · atrasada' : ''}${dcls==='today' ? ' · hoje' : ''}</span>` : ''}
+          </div>
         </div>
       </div>`;
   }
@@ -1058,7 +1155,7 @@
     const cols = { todo: [], doing: [], done: [] };
     tasks.forEach(t => { if (cols[t.status]) cols[t.status].push(t); });
     Object.entries(cols).forEach(([status, list]) => {
-      list.sort((a,b) => (a.date || '9999').localeCompare(b.date || '9999'));
+      list.sort((a,b) => ((a.date||'9999')+(a.time||'99:99')).localeCompare((b.date||'9999')+(b.time||'99:99')));
     });
 
     const map = { todo: 'colTodo', doing: 'colDoing', done: 'colDone' };
@@ -1168,12 +1265,14 @@
     renderAgenda();
     const [y,m,d] = dateStr.split('-');
     document.getElementById('dayModalTitle').textContent = `Tarefas em ${d}/${m}/${y}`;
-    const dayTasks = tasks.filter(t => t.date === dateStr);
+    const dayTasks = tasks.filter(t => t.date === dateStr)
+      .sort((a,b) => (a.time||'99:99').localeCompare(b.time||'99:99'));
     const list = document.getElementById('dayModalList');
     list.innerHTML = dayTasks.length
       ? dayTasks.map(t => `
           <div class="day-task-item" data-id="${t.id}">
             <div>
+              ${t.time ? `<div style="font-family:'Space Mono',monospace; font-size:11px; color:var(--gold-bright); margin-bottom:3px;">${t.time}</div>` : ''}
               <div class="task-title">${escapeHTML(t.title)}</div>
               <span class="task-label label-${t.label||'outro'}" style="margin-top:4px; display:inline-block;">${LABELS[t.label]||'Outro'}</span>
             </div>
@@ -1198,7 +1297,7 @@
 
   // ---------- MODAL TAREFA (criar/editar) ----------
   const taskModalOverlay = document.getElementById('taskModalOverlay');
-  function openTaskModal(id, presetDate){
+  function openTaskModal(id, presetDate, presetStatus){
     const form = document.getElementById('formTask');
     form.reset();
     document.getElementById('taskId').value = id || '';
@@ -1211,11 +1310,13 @@
         document.getElementById('taskTitulo').value = t.title || '';
         document.getElementById('taskDescricao').value = t.description || '';
         document.getElementById('taskData').value = t.date || '';
+        document.getElementById('taskHora').value = t.time || '';
         document.getElementById('taskEtiqueta').value = t.label || 'trabalho';
         document.getElementById('taskStatus').value = t.status || 'todo';
       }
-    } else if (presetDate) {
-      document.getElementById('taskData').value = presetDate;
+    } else {
+      if (presetDate) document.getElementById('taskData').value = presetDate;
+      if (presetStatus) document.getElementById('taskStatus').value = presetStatus;
     }
     taskModalOverlay.classList.add('show');
   }
@@ -1223,6 +1324,9 @@
   document.getElementById('modalClose').addEventListener('click', closeTaskModal);
   taskModalOverlay.addEventListener('click', (e) => { if (e.target === taskModalOverlay) closeTaskModal(); });
   document.getElementById('btnAddTask').addEventListener('click', () => openTaskModal(null));
+  document.querySelectorAll('.kanban-add-btn').forEach(btn => {
+    btn.addEventListener('click', () => openTaskModal(null, null, btn.dataset.addStatus));
+  });
 
   document.getElementById('formTask').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -1232,6 +1336,7 @@
       title: document.getElementById('taskTitulo').value.trim(),
       description: document.getElementById('taskDescricao').value.trim(),
       date: document.getElementById('taskData').value || null,
+      time: document.getElementById('taskHora').value || null,
       label: document.getElementById('taskEtiqueta').value,
       status: document.getElementById('taskStatus').value,
       userId: currentUser.uid,
@@ -1298,11 +1403,12 @@
       if (t.status === 'done' || !t.date) return;
       const key = t.id + '_' + today;
       if (notifiedToday.has(key)) return;
+      const horaTxt = t.time ? ` às ${t.time}` : '';
       if (t.date === today) {
-        new Notification('JOMI — Tarefa vence hoje', { body: t.title });
+        new Notification('JOMI — Tarefa vence hoje' + horaTxt, { body: t.title });
         notifiedToday.add(key);
       } else if (t.date === tomorrowStr) {
-        new Notification('JOMI — Tarefa vence amanhã', { body: t.title });
+        new Notification('JOMI — Tarefa vence amanhã' + horaTxt, { body: t.title });
         notifiedToday.add(key);
       } else if (t.date < today) {
         new Notification('JOMI — Tarefa atrasada', { body: t.title });
