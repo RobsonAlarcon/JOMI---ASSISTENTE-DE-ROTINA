@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JOMI — Assistente de Rotina</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --black:#0a0a0a;
+    --black-soft:#141414;
+    --panel:#1b1b1b;
+    --white:#f5f4f0;
+    --gold:#d4af37;
+    --gold-bright:#f2c94c;
+    --alert:#e0433c;
+    --ok:#3fb27f;
+    --line:rgba(245,244,240,0.12);
+    --shadow-gold: 0 0 0 rgba(242,201,76,0);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:'Inter',sans-serif;
+    background:var(--black);
+    color:var(--white);
+    min-height:100vh;
+    display:flex;
+    align-items:stretch;
+    overflow-x:hidden;
+  }
+
+  /* ---------- BACKGROUND TEXTURE ---------- */
+  .stripes{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background:
+      repeating-linear-gradient(115deg, transparent 0 140px, rgba(245,244,240,0.025) 140px 142px, transparent 142px 280px);
+  }
+  .noise-glow{
+    position:fixed; top:-20%; left:-10%; width:60%; height:60%;
+    background:radial-gradient(circle, rgba(212,175,55,0.10) 0%, transparent 70%);
+    z-index:0; pointer-events:none;
+  }
+
+  /* ---------- LAYOUT ---------- */
+  .wrap{
+    position:relative; z-index:1;
+    display:flex; width:100%; min-height:100vh;
+  }
+
+  /* -- LEFT BRAND PANEL -- */
+  .brand{
+    flex:1 1 46%;
+    background:var(--black-soft);
+    display:flex; flex-direction:column; justify-content:center;
+    padding:64px 60px;
+    border-right:1px solid var(--line);
+    position:relative;
+    overflow:hidden;
+  }
+  .brand::before{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      linear-gradient(180deg, transparent 0%, rgba(212,175,55,0.06) 50%, transparent 100%);
+  }
+  .crest{
+    width:88px; height:100px;
+    position:relative;
+    margin-bottom:36px;
+  }
+  .crest svg{width:100%; height:100%; display:block;}
+  .brand-eyebrow{
+    font-family:'Space Mono', monospace;
+    font-size:12px; letter-spacing:0.28em; text-transform:uppercase;
+    color:var(--gold-bright); margin-bottom:18px; font-weight:700;
+  }
+  .brand h1{
+    font-family:'Anton', sans-serif;
+    font-size:clamp(40px, 5vw, 64px);
+    line-height:0.96;
+    letter-spacing:0.01em;
+    text-transform:uppercase;
+    color:var(--white);
+    margin-bottom:22px;
+  }
+  .brand h1 span{
+    color:var(--gold-bright);
+    display:block;
+    font-size:0.42em;
+    letter-spacing:0.02em;
+    margin-top:10px;
+  }
+  .brand p{
+    font-size:16px; line-height:1.65; color:rgba(245,244,240,0.65);
+    max-width:420px; margin-bottom:40px;
+  }
+  .brand-foot{
+    font-family:'Space Mono', monospace;
+    font-size:12px; color:rgba(245,244,240,0.4);
+    letter-spacing:0.05em;
+    border-top:1px solid var(--line);
+    padding-top:20px;
+    display:flex; justify-content:space-between; max-width:420px;
+  }
+
+  /* -- RIGHT FORM PANEL -- */
+  .stage{
+    flex:1 1 54%;
+    display:flex; align-items:center; justify-content:center;
+    padding:40px 32px;
+    position:relative;
+  }
+  .card{
+    width:100%; max-width:420px;
+  }
+  .tabbar{
+    display:flex; gap:0; margin-bottom:36px;
+    border:1px solid var(--line); border-radius:10px; overflow:hidden;
+    background:var(--panel);
+  }
+  .tabbar button{
+    flex:1; padding:13px 0; background:transparent; border:none;
+    font-family:'Inter',sans-serif; font-weight:700; font-size:13px;
+    letter-spacing:0.06em; text-transform:uppercase;
+    color:rgba(245,244,240,0.5); cursor:pointer;
+    transition:all .2s ease;
+  }
+  .tabbar button.active{
+    background:var(--gold-bright); color:var(--black);
+  }
+
+  .panel{display:none;}
+  .panel.active{display:block; animation:fadein .35s ease;}
+  @keyframes fadein{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+  .panel-title{
+    font-family:'Anton', sans-serif;
+    font-size:26px; text-transform:uppercase; letter-spacing:0.01em;
+    margin-bottom:8px;
+  }
+  .panel-sub{
+    font-size:14px; color:rgba(245,244,240,0.55); margin-bottom:28px; line-height:1.5;
+  }
+
+  .field{margin-bottom:18px;}
+  .field label{
+    display:block; font-size:12px; font-weight:700; letter-spacing:0.05em;
+    text-transform:uppercase; color:rgba(245,244,240,0.6); margin-bottom:8px;
+  }
+  .field input{
+    width:100%; padding:13px 14px; background:var(--panel);
+    border:1px solid var(--line); border-radius:8px;
+    color:var(--white); font-family:'Inter',sans-serif; font-size:15px;
+    outline:none; transition:border-color .2s ease, box-shadow .2s ease;
+  }
+  .field input:focus{
+    border-color:var(--gold-bright);
+    box-shadow:0 0 0 3px rgba(242,201,76,0.15);
+  }
+  .field input::placeholder{color:rgba(245,244,240,0.28);}
+
+  .row-between{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom:22px; font-size:13px;
+  }
+  .link-btn{
+    background:none; border:none; color:var(--gold-bright); font-size:13px;
+    font-weight:600; cursor:pointer; padding:0; text-decoration:underline;
+    text-underline-offset:3px;
+  }
+  .link-btn:hover{color:var(--white);}
+
+  .btn-primary{
+    width:100%; padding:15px 0; border:none; border-radius:8px;
+    background:var(--gold-bright); color:var(--black);
+    font-family:'Inter',sans-serif; font-weight:800; font-size:15px;
+    letter-spacing:0.03em; text-transform:uppercase;
+    cursor:pointer; transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+  }
+  .btn-primary:hover{transform:translateY(-1px); box-shadow:0 8px 22px rgba(242,201,76,0.25);}
+  .btn-primary:disabled{opacity:0.5; cursor:not-allowed; transform:none; box-shadow:none;}
+
+  .btn-secondary{
+    width:100%; padding:14px 0; margin-top:12px; border-radius:8px;
+    background:transparent; border:1px solid var(--line); color:var(--white);
+    font-weight:700; font-size:14px; text-transform:uppercase; letter-spacing:0.03em;
+    cursor:pointer; transition:border-color .2s ease, background .2s ease;
+  }
+  .btn-secondary:hover{border-color:var(--gold-bright); background:rgba(242,201,76,0.06);}
+
+  .switch-line{
+    text-align:center; margin-top:24px; font-size:13.5px; color:rgba(245,244,240,0.55);
+  }
+
+  .msg{
+    display:none; padding:12px 14px; border-radius:8px; font-size:13.5px;
+    margin-bottom:18px; line-height:1.5; font-weight:500;
+  }
+  .msg.show{display:block; animation:fadein .3s ease;}
+  .msg.error{background:rgba(224,67,60,0.12); border:1px solid rgba(224,67,60,0.35); color:#ff8b85;}
+  .msg.success{background:rgba(63,178,127,0.12); border:1px solid rgba(63,178,127,0.35); color:#7fe0b4;}
+
+  /* -- VERIFY EMAIL SCREEN -- */
+  .verify-icon{
+    width:64px; height:64px; border-radius:50%;
+    background:rgba(242,201,76,0.12); border:1px solid rgba(242,201,76,0.3);
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom:22px;
+  }
+  .verify-icon svg{width:28px; height:28px;}
+  .verify-email-highlight{
+    color:var(--gold-bright); font-weight:700;
+  }
+  .status-pill{
+    display:inline-flex; align-items:center; gap:6px;
+    font-family:'Space Mono',monospace; font-size:11.5px; font-weight:700;
+    letter-spacing:0.04em; text-transform:uppercase;
+    padding:6px 12px; border-radius:20px; margin-bottom:22px;
+  }
+  .status-pill.pending{background:rgba(242,201,76,0.12); color:var(--gold-bright); border:1px solid rgba(242,201,76,0.3);}
+  .status-pill.dot{width:6px; height:6px; border-radius:50%; background:currentColor;}
+
+  .cooldown-note{font-size:12px; color:rgba(245,244,240,0.4); text-align:center; margin-top:10px;}
+
+  /* -- DASHBOARD PLACEHOLDER -- */
+  .dash{display:none; padding:70px 60px; width:100%;}
+  .dash.active{display:block; animation:fadein .4s ease;}
+  .dash-top{display:flex; justify-content:space-between; align-items:center; margin-bottom:40px; flex-wrap:wrap; gap:16px;}
+  .dash-welcome{font-family:'Anton',sans-serif; font-size:34px; text-transform:uppercase;}
+  .dash-welcome span{color:var(--gold-bright);}
+  .dash-user-badge{
+    display:flex; align-items:center; gap:12px;
+    font-family:'Space Mono',monospace; font-size:12.5px; color:rgba(245,244,240,0.6);
+  }
+  .logout-btn{
+    background:transparent; border:1px solid var(--line); color:var(--white);
+    padding:9px 16px; border-radius:8px; font-size:12.5px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.04em; cursor:pointer;
+  }
+  .logout-btn:hover{border-color:var(--alert); color:#ff8b85;}
+  .dash-note{
+    border:1px dashed var(--line); border-radius:12px; padding:32px;
+    color:rgba(245,244,240,0.55); font-size:14.5px; line-height:1.7; max-width:640px;
+  }
+  .dash-note b{color:var(--gold-bright);}
+
+  @media (max-width: 880px){
+    .wrap{flex-direction:column;}
+    .brand{border-right:none; border-bottom:1px solid var(--line); padding:44px 28px;}
+    .brand-foot{max-width:none;}
+    .stage{padding:36px 20px;}
+    .dash{padding:40px 24px;}
+  }
+
+  ::selection{background:var(--gold-bright); color:var(--black);}
+  :focus-visible{outline:2px solid var(--gold-bright); outline-offset:2px;}
+</style>
+</head>
+<body>
+
+<div class="stripes"></div>
+<div class="noise-glow"></div>
+
+<div class="wrap" id="wrap">
+
+  <!-- BRAND PANEL -->
+  <aside class="brand">
+    <div class="crest" aria-hidden="true">
+      <svg viewBox="0 0 88 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M44 2 L84 18 V52 C84 76 66 92 44 98 C22 92 4 76 4 52 V18 Z"
+              fill="#0a0a0a" stroke="#f2c94c" stroke-width="2.5"/>
+        <path d="M44 2 L84 18 V52 C84 76 66 92 44 98 C22 92 4 76 4 52 V18 Z"
+              fill="none" stroke="#f5f4f0" stroke-width="0.75" stroke-dasharray="1 6" opacity="0.4" transform="scale(0.92) translate(4,4)"/>
+        <text x="44" y="60" text-anchor="middle" font-family="Anton, sans-serif" font-size="24" fill="#f5f4f0">JOMI</text>
+      </svg>
+    </div>
+    <div class="brand-eyebrow">Pessoal · Personalizado · Intransferível</div>
+    <h1>JOMI<br><span>Assistente de Rotina</span></h1>
+    <p>Seu kanban e sua agenda pessoal em um só lugar.</p>
+    <div class="brand-foot">
+      <span>FIREBASE AUTH</span>
+      <span>TEMPLATE DE VERIFICAÇÃO</span>
+    </div>
+  </aside>
+
+  <!-- FORM STAGE -->
+  <main class="stage">
+    <div class="card" id="card">
+
+      <!-- TABS (login / cadastro) -->
+      <div class="tabbar" id="tabbar">
+        <button type="button" class="active" data-tab="login">Entrar</button>
+        <button type="button" data-tab="signup">Criar conta</button>
+      </div>
+
+      <div id="globalMsg" class="msg"></div>
+
+      <!-- LOGIN PANEL -->
+      <section class="panel active" id="panel-login">
+        <div class="panel-title">Bem-vindo de volta</div>
+        <div class="panel-sub">Entre com seu e-mail e senha para acessar seu painel.</div>
+        <form id="formLogin">
+          <div class="field">
+            <label for="loginEmail">E-mail</label>
+            <input type="email" id="loginEmail" placeholder="seuemail@exemplo.com" required autocomplete="email">
+          </div>
+          <div class="field">
+            <label for="loginSenha">Senha</label>
+            <input type="password" id="loginSenha" placeholder="••••••••" required autocomplete="current-password">
+          </div>
+          <div class="row-between">
+            <span></span>
+            <button type="button" class="link-btn" data-tab="forgot">Esqueci minha senha</button>
+          </div>
+          <button type="submit" class="btn-primary" id="btnLogin">Entrar</button>
+        </form>
+        <div class="switch-line">Ainda não tem conta? <button type="button" class="link-btn" data-tab="signup">Criar agora</button></div>
+      </section>
+
+      <!-- SIGNUP PANEL -->
+      <section class="panel" id="panel-signup">
+        <div class="panel-title">Criar minha conta</div>
+        <div class="panel-sub">Seu acesso é pessoal e intransferível — os dados ficam vinculados só a este e-mail.</div>
+        <form id="formSignup">
+          <div class="field">
+            <label for="suNome">Nome</label>
+            <input type="text" id="suNome" placeholder="Seu nome" required autocomplete="name">
+          </div>
+          <div class="field">
+            <label for="suEmail">E-mail</label>
+            <input type="email" id="suEmail" placeholder="seuemail@exemplo.com" required autocomplete="email">
+          </div>
+          <div class="field">
+            <label for="suSenha">Senha</label>
+            <input type="password" id="suSenha" placeholder="Mínimo 6 caracteres" required minlength="6" autocomplete="new-password">
+          </div>
+          <div class="field">
+            <label for="suSenha2">Confirmar senha</label>
+            <input type="password" id="suSenha2" placeholder="Repita a senha" required minlength="6" autocomplete="new-password">
+          </div>
+          <button type="submit" class="btn-primary" id="btnSignup">Criar conta e enviar verificação</button>
+        </form>
+        <div class="switch-line">Já tem conta? <button type="button" class="link-btn" data-tab="login">Entrar</button></div>
+      </section>
+
+      <!-- FORGOT PASSWORD PANEL -->
+      <section class="panel" id="panel-forgot">
+        <div class="panel-title">Redefinir senha</div>
+        <div class="panel-sub">Informe seu e-mail e enviaremos um link para criar uma nova senha.</div>
+        <form id="formForgot">
+          <div class="field">
+            <label for="fgEmail">E-mail</label>
+            <input type="email" id="fgEmail" placeholder="seuemail@exemplo.com" required autocomplete="email">
+          </div>
+          <button type="submit" class="btn-primary" id="btnForgot">Enviar link de redefinição</button>
+        </form>
+        <div class="switch-line">Lembrou a senha? <button type="button" class="link-btn" data-tab="login">Voltar ao login</button></div>
+      </section>
+
+      <!-- VERIFY EMAIL PANEL -->
+      <section class="panel" id="panel-verify">
+        <div class="verify-icon">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 6L12 13L21 6" stroke="#f2c94c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="3" y="4" width="18" height="16" rx="2" stroke="#f2c94c" stroke-width="2"/>
+          </svg>
+        </div>
+        <div class="status-pill pending"><span class="dot"></span> Verificação pendente</div>
+        <div class="panel-title">Confirme seu e-mail</div>
+        <div class="panel-sub">
+          Enviamos um link de verificação para <span class="verify-email-highlight" id="verifyEmailShown">seuemail@exemplo.com</span>.
+          Abra sua caixa de entrada (e a pasta de spam) e clique no link para ativar sua conta.
+        </div>
+        <button type="button" class="btn-primary" id="btnCheckVerified">Já verifiquei, continuar</button>
+        <button type="button" class="btn-secondary" id="btnResend">Reenviar e-mail de verificação</button>
+        <div class="cooldown-note" id="cooldownNote"></div>
+        <div class="switch-line"><button type="button" class="link-btn" id="btnBackToLoginFromVerify">Sair e voltar ao login</button></div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- DASHBOARD PLACEHOLDER (após login + verificação) -->
+  <section class="dash" id="dash">
+    <div class="dash-top">
+      <div>
+        <div class="dash-welcome">Olá, <span id="dashNome">Robson</span></div>
+      </div>
+      <div style="display:flex; align-items:center; gap:16px;">
+        <div class="dash-user-badge" id="dashEmailBadge">seuemail@exemplo.com</div>
+        <button class="logout-btn" id="btnLogout">Sair</button>
+      </div>
+    </div>
+    <div class="dash-note">
+      Login realizado e e-mail verificado com sucesso. Este é o espaço reservado para o
+      <b>Kanban de rotina + Agenda</b> (colunas A Fazer / Fazendo / Feito, calendário mensal, notificações de vencimento).
+      A próxima etapa é conectar essas telas aqui, já usando o UID do usuário autenticado para separar os dados de cada pessoa no banco.
+    </div>
+  </section>
+
+</div>
+
+<script type="module">
+  // ============================================================
+  // CONFIGURAÇÃO DO FIREBASE — PREENCHA COM OS DADOS DO SEU PROJETO
+  // (Console Firebase → Configurações do projeto → Seus apps → SDK)
+  // ============================================================
+  const firebaseConfig = {
+    apiKey: "COLE_AQUI_SUA_API_KEY",
+    authDomain: "COLE_AQUI_SEU_PROJETO.firebaseapp.com",
+    projectId: "COLE_AQUI_SEU_PROJETO",
+    storageBucket: "COLE_AQUI_SEU_PROJETO.appspot.com",
+    messagingSenderId: "COLE_AQUI_SEU_SENDER_ID",
+    appId: "COLE_AQUI_SEU_APP_ID"
+  };
+  // ============================================================
+
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import {
+    getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+    sendEmailVerification, onAuthStateChanged, sendPasswordResetEmail,
+    signOut, updateProfile, reload
+  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+
+  let app, auth;
+  let firebaseReady = false;
+  try {
+    app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    firebaseReady = true;
+  } catch (e) {
+    console.warn("Firebase ainda não configurado:", e);
+  }
+
+  // ---------- UI HELPERS ----------
+  const wrap = document.getElementById('wrap');
+  const card = document.getElementById('card');
+  const dash = document.getElementById('dash');
+  const tabbar = document.getElementById('tabbar');
+  const globalMsg = document.getElementById('globalMsg');
+
+  const panels = {
+    login: document.getElementById('panel-login'),
+    signup: document.getElementById('panel-signup'),
+    forgot: document.getElementById('panel-forgot'),
+    verify: document.getElementById('panel-verify'),
+  };
+
+  function showPanel(name){
+    Object.entries(panels).forEach(([key, el]) => {
+      el.classList.toggle('active', key === name);
+    });
+    tabbar.style.display = (name === 'login' || name === 'signup') ? 'flex' : 'none';
+    if (name === 'login' || name === 'signup') {
+      document.querySelectorAll('#tabbar button').forEach(b => {
+        b.classList.toggle('active', b.dataset.tab === name);
+      });
+    }
+    hideMsg();
+  }
+
+  function showMsg(text, type){
+    globalMsg.textContent = text;
+    globalMsg.className = 'msg show ' + type;
+  }
+  function hideMsg(){
+    globalMsg.className = 'msg';
+  }
+
+  document.querySelectorAll('[data-tab]').forEach(btn => {
+    btn.addEventListener('click', () => showPanel(btn.dataset.tab));
+  });
+
+  function setAuthed(user){
+    card.style.display = 'none';
+    document.querySelector('.brand').style.display = 'none';
+    dash.classList.add('active');
+    document.getElementById('dashNome').textContent = (user.displayName || user.email.split('@')[0]);
+    document.getElementById('dashEmailBadge').textContent = user.email;
+  }
+  function setLoggedOutView(){
+    card.style.display = 'block';
+    document.querySelector('.brand').style.display = 'flex';
+    dash.classList.remove('active');
+  }
+
+  // ---------- MENSAGENS DE ERRO TRADUZIDAS ----------
+  function traduzErro(code){
+    const map = {
+      'auth/invalid-email': 'E-mail inválido.',
+      'auth/user-disabled': 'Esta conta foi desativada.',
+      'auth/user-not-found': 'E-mail ou senha incorretos.',
+      'auth/wrong-password': 'E-mail ou senha incorretos.',
+      'auth/invalid-credential': 'E-mail ou senha incorretos.',
+      'auth/email-already-in-use': 'Este e-mail já está cadastrado.',
+      'auth/weak-password': 'A senha precisa ter pelo menos 6 caracteres.',
+      'auth/too-many-requests': 'Muitas tentativas. Aguarde um pouco antes de tentar novamente.',
+      'auth/network-request-failed': 'Falha de conexão. Verifique sua internet.',
+    };
+    return map[code] || 'Ocorreu um erro. Tente novamente.';
+  }
+
+  function firebaseNaoConfigurado(){
+    showMsg('Firebase ainda não configurado neste arquivo. Preencha o objeto firebaseConfig no código para ativar o login real.', 'error');
+  }
+
+  // ---------- LOGIN ----------
+  document.getElementById('formLogin').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!firebaseReady) return firebaseNaoConfigurado();
+    hideMsg();
+    const email = document.getElementById('loginEmail').value.trim();
+    const senha = document.getElementById('loginSenha').value;
+    const btn = document.getElementById('btnLogin');
+    btn.disabled = true; btn.textContent = 'Entrando...';
+    try {
+      const cred = await signInWithEmailAndPassword(auth, email, senha);
+      await reload(cred.user);
+      if (!cred.user.emailVerified) {
+        document.getElementById('verifyEmailShown').textContent = cred.user.email;
+        showPanel('verify');
+      }
+      // onAuthStateChanged cuida do redirecionamento se já estiver verificado
+    } catch (err) {
+      showMsg(traduzErro(err.code), 'error');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Entrar';
+    }
+  });
+
+  // ---------- CADASTRO ----------
+  document.getElementById('formSignup').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!firebaseReady) return firebaseNaoConfigurado();
+    hideMsg();
+    const nome = document.getElementById('suNome').value.trim();
+    const email = document.getElementById('suEmail').value.trim();
+    const senha = document.getElementById('suSenha').value;
+    const senha2 = document.getElementById('suSenha2').value;
+    if (senha !== senha2) {
+      showMsg('As senhas não coincidem.', 'error');
+      return;
+    }
+    const btn = document.getElementById('btnSignup');
+    btn.disabled = true; btn.textContent = 'Criando conta...';
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, email, senha);
+      if (nome) await updateProfile(cred.user, { displayName: nome });
+      await sendEmailVerification(cred.user);
+      document.getElementById('verifyEmailShown').textContent = email;
+      showPanel('verify');
+      startCooldown(60);
+    } catch (err) {
+      showMsg(traduzErro(err.code), 'error');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Criar conta e enviar verificação';
+    }
+  });
+
+  // ---------- ESQUECI MINHA SENHA ----------
+  document.getElementById('formForgot').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!firebaseReady) return firebaseNaoConfigurado();
+    hideMsg();
+    const email = document.getElementById('fgEmail').value.trim();
+    const btn = document.getElementById('btnForgot');
+    btn.disabled = true; btn.textContent = 'Enviando...';
+    try {
+      await sendPasswordResetEmail(auth, email);
+      showMsg('Link de redefinição enviado. Verifique seu e-mail.', 'success');
+    } catch (err) {
+      showMsg(traduzErro(err.code), 'error');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Enviar link de redefinição';
+    }
+  });
+
+  // ---------- VERIFICAÇÃO DE E-MAIL ----------
+  document.getElementById('btnCheckVerified').addEventListener('click', async () => {
+    if (!firebaseReady) return firebaseNaoConfigurado();
+    const user = auth.currentUser;
+    if (!user) return;
+    const btn = document.getElementById('btnCheckVerified');
+    btn.disabled = true; btn.textContent = 'Verificando...';
+    try {
+      await reload(user);
+      if (user.emailVerified) {
+        setAuthed(user);
+      } else {
+        showMsg('Ainda não identificamos a verificação. Confirme o clique no link do e-mail e tente de novo.', 'error');
+      }
+    } finally {
+      btn.disabled = false; btn.textContent = 'Já verifiquei, continuar';
+    }
+  });
+
+  let cooldownTimer = null;
+  function startCooldown(seconds){
+    const btn = document.getElementById('btnResend');
+    const note = document.getElementById('cooldownNote');
+    btn.disabled = true;
+    let remaining = seconds;
+    clearInterval(cooldownTimer);
+    cooldownTimer = setInterval(() => {
+      note.textContent = `Você poderá reenviar em ${remaining}s`;
+      remaining--;
+      if (remaining < 0) {
+        clearInterval(cooldownTimer);
+        btn.disabled = false;
+        note.textContent = '';
+      }
+    }, 1000);
+  }
+
+  document.getElementById('btnResend').addEventListener('click', async () => {
+    if (!firebaseReady) return firebaseNaoConfigurado();
+    const user = auth.currentUser;
+    if (!user) return;
+    try {
+      await sendEmailVerification(user);
+      showMsg('E-mail de verificação reenviado.', 'success');
+      startCooldown(60);
+    } catch (err) {
+      showMsg(traduzErro(err.code), 'error');
+    }
+  });
+
+  document.getElementById('btnBackToLoginFromVerify').addEventListener('click', async () => {
+    if (firebaseReady) await signOut(auth);
+    showPanel('login');
+  });
+
+  // ---------- LOGOUT ----------
+  document.getElementById('btnLogout').addEventListener('click', async () => {
+    if (firebaseReady) await signOut(auth);
+    setLoggedOutView();
+    showPanel('login');
+  });
+
+  // ---------- OBSERVADOR DE ESTADO DE LOGIN ----------
+  if (firebaseReady) {
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        await reload(user);
+        if (user.emailVerified) {
+          setAuthed(user);
+        } else {
+          setLoggedOutView();
+          document.getElementById('verifyEmailShown').textContent = user.email;
+          showPanel('verify');
+        }
+      } else {
+        setLoggedOutView();
+        showPanel('login');
+      }
+    });
+  } else {
+    showMsg('Firebase ainda não configurado neste arquivo. Preencha o objeto firebaseConfig no código para ativar o login real.', 'error');
+  }
+</script>
+</body>
+</html>
