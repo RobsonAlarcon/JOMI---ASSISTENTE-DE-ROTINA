@@ -882,18 +882,9 @@
             <datalist id="etiquetaOptions"></datalist>
           </div>
         </div>
-
-        <div class="gcal-row">
-          <span class="gcal-icon">📊</span>
-          <div class="gcal-row-body">
-            <select id="taskStatus" class="gcal-plain-select">
-              <option value="todo">A Fazer</option>
-              <option value="doing">Fazendo</option>
-              <option value="done">Concluído</option>
-            </select>
-          </div>
-        </div>
       </div>
+
+      <input type="hidden" id="taskStatus" value="todo">
 
       <button type="button" class="btn-secondary" id="btnDeleteTask" style="display:none; border-color:var(--alert); color:#ff8b85; margin-top:16px;">Excluir tarefa</button>
     </form>
