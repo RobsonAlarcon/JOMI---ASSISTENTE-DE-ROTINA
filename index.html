@@ -70,126 +70,63 @@
   /* ---------- LAYOUT ---------- */
   .wrap{
     position:relative; z-index:1;
-    display:flex; width:100%; min-height:100vh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    width:100%; min-height:100vh;
+    padding:64px 24px;
+    gap:44px;
   }
 
-  /* -- LEFT BRAND PANEL -- */
+  /* -- BRAND (bloco central, sem divisões) -- */
   .brand{
-    flex:1 1 46%;
-    background:linear-gradient(155deg, #141414 0%, #0a0a0a 60%);
-    display:flex; flex-direction:column; justify-content:center;
-    padding:64px 60px;
-    border-right:1px solid var(--line);
-    position:relative;
-    overflow:hidden;
+    display:flex; flex-direction:column; align-items:center;
+    text-align:center;
+    max-width:560px;
   }
-  .brand::before{
-    content:"";
-    position:absolute; inset:0;
-    background:
-      linear-gradient(180deg, transparent 0%, rgba(212,175,55,0.06) 50%, transparent 100%);
-    pointer-events:none;
-  }
-  .brand::after{
-    content:"";
-    position:absolute; top:0; right:0; bottom:0; width:1px;
-    background:linear-gradient(180deg, transparent, rgba(242,201,76,0.4), transparent);
-  }
-  .crest{
-    width:104px; height:104px;
-    position:relative;
-    margin-bottom:36px;
-  }
-  .crest-box{
-    width:100%; height:100%; border-radius:26px;
-    background:linear-gradient(160deg, #1c1c1c 0%, #0a0a0a 70%);
-    border:1px solid rgba(242,201,76,0.14);
-    box-shadow:
-      0 0 0 1px rgba(0,0,0,0.4),
-      0 10px 30px rgba(0,0,0,0.5),
-      0 6px 22px rgba(242,201,76,0.10);
-    position:relative;
-    display:flex; align-items:center; justify-content:center;
-    overflow:hidden;
-    animation: crestGlow 3.4s ease-in-out infinite;
-  }
-  @keyframes crestGlow{
-    0%, 100%{ box-shadow:0 0 0 1px rgba(0,0,0,0.4), 0 10px 30px rgba(0,0,0,0.5), 0 6px 22px rgba(242,201,76,0.10); }
-    50%{ box-shadow:0 0 0 1px rgba(0,0,0,0.4), 0 10px 30px rgba(0,0,0,0.5), 0 6px 30px rgba(242,201,76,0.28); }
-  }
-  .crest-card{
-    position:absolute;
-    width:32px; height:56px; border-radius:9px;
-    display:flex; flex-direction:column; gap:5px;
-    padding:8px 6px;
-    box-shadow:0 5px 12px rgba(0,0,0,0.4);
-  }
-  .crest-card.c-shadow{
-    background:linear-gradient(160deg, #4a4a4a, #2c2c2c);
-    transform:rotate(-30deg) translate(-22px, 3px);
-    z-index:0;
-  }
-  .crest-card.c-back{
-    background:linear-gradient(160deg, #2a2a2a, #141414);
-    border:1px solid rgba(255,255,255,0.06);
-    transform:rotate(-20deg) translate(-16px, 1px);
-    z-index:1;
-  }
-  .crest-card.c-mid{
-    background:linear-gradient(160deg, #fbfaf7, #e9e7e0);
-    transform:rotate(-3deg) translate(-1px, -3px);
-    z-index:2;
-  }
-  .crest-card.c-front{
-    background:linear-gradient(160deg, #f6d774, #d4af37);
-    transform:rotate(16deg) translate(13px, 2px);
-    z-index:3;
-  }
-  .crest-chip{border-radius:4px; display:block; flex-shrink:0;}
-  .c-back .crest-chip{background:rgba(245,244,240,0.85); height:9px;}
-  .c-back .crest-chip:last-child{background:rgba(245,244,240,0.35);}
-  .c-mid .crest-chip{background:#141414; height:9px;}
-  .c-mid .crest-chip:last-child{background:var(--gold-bright);}
-  .c-front .crest-chip{background:rgba(10,10,10,0.85); height:9px;}
-  .c-front .crest-chip:last-child{background:rgba(10,10,10,0.4);}
   .brand-eyebrow{
     font-family:'Space Mono', monospace;
     font-size:12px; letter-spacing:0.28em; text-transform:uppercase;
-    color:var(--gold-bright); margin-bottom:18px; font-weight:700;
+    color:var(--gold-bright); margin-bottom:20px; font-weight:700;
   }
-  .brand h1{
+  .jomi-logo{
+    position:relative;
     font-family:'Anton', sans-serif;
-    font-size:clamp(40px, 5vw, 64px);
-    line-height:0.96;
-    letter-spacing:0.01em;
-    text-transform:uppercase;
-    color:var(--white);
-    margin-bottom:22px;
+    font-size:clamp(64px, 11vw, 128px);
+    line-height:0.9;
+    letter-spacing:0.03em;
+    margin-bottom:6px;
+    background:linear-gradient(115deg, #fdf0c8 0%, #f2c94c 30%, #c99a2e 55%, #f6d774 75%, #f2c94c 100%);
+    background-size:220% 100%;
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    filter:drop-shadow(0 6px 30px rgba(242,201,76,0.25));
+    animation: shimmerText 6s ease-in-out infinite;
   }
-  .jomi-word{position:relative; display:inline-block;}
-  .jomi-word .j-dot{
-    position:absolute; top:-0.32em; left:0.02em;
-    width:0.24em; height:0.16em; border-radius:0.06em;
+  @keyframes shimmerText{
+    0%, 100%{background-position:0% 0;}
+    50%{background-position:100% 0;}
+  }
+  .jomi-logo .j-dot{
+    position:absolute; top:-0.22em; left:0.03em;
+    width:0.2em; height:0.13em; border-radius:0.05em;
     background:linear-gradient(135deg, #f6d774 0%, #f2c94c 45%, #c99a2e 100%);
+    box-shadow:0 0 14px rgba(242,201,76,0.5);
   }
-  .brand h1 span{
-    color:var(--gold-bright);
-    display:block;
-    font-size:0.42em;
-    letter-spacing:0.02em;
-    margin-top:10px;
+  .brand-tagline{
+    font-family:'Inter',sans-serif; font-weight:800; font-size:clamp(16px, 2vw, 20px);
+    letter-spacing:0.08em; text-transform:uppercase; color:var(--white);
+    margin-bottom:20px;
+    opacity:0.9;
   }
   .brand p{
-    font-size:16px; line-height:1.65; color:rgba(245,244,240,0.65);
-    max-width:420px; margin-bottom:40px;
+    font-size:16px; line-height:1.65; color:rgba(245,244,240,0.6);
+    max-width:420px; margin-bottom:32px;
   }
   .brand-foot{
     font-family:'Space Mono', monospace;
     font-size:12px; color:rgba(245,244,240,0.4);
     letter-spacing:0.05em;
     border-top:1px solid var(--line);
-    padding-top:20px;
-    display:flex; justify-content:space-between; max-width:420px;
+    padding-top:18px;
+    display:flex; justify-content:center; gap:28px; width:100%; max-width:420px;
   }
   .brand-foot span{display:inline-flex; align-items:center; gap:7px;}
   .pulse-dot{
@@ -203,11 +140,10 @@
     100%{box-shadow:0 0 0 0 rgba(63,178,127,0);}
   }
 
-  /* -- RIGHT FORM PANEL -- */
+  /* -- FORM STAGE -- */
   .stage{
-    flex:1 1 54%;
     display:flex; align-items:center; justify-content:center;
-    padding:40px 32px;
+    width:100%;
     position:relative;
   }
   .card{
@@ -567,10 +503,8 @@
   }
 
   @media (max-width: 880px){
-    .wrap{flex-direction:column;}
-    .brand{border-right:none; border-bottom:1px solid var(--line); padding:44px 28px;}
-    .brand-foot{max-width:none;}
-    .stage{padding:36px 20px;}
+    .wrap{padding:44px 20px; gap:32px;}
+    .stage{padding:0;}
     .dash{padding:40px 24px;}
   }
 
@@ -589,25 +523,9 @@
 
   <!-- BRAND PANEL -->
   <aside class="brand">
-    <div class="crest" aria-hidden="true">
-      <div class="crest-box">
-        <div class="crest-card c-shadow"></div>
-        <div class="crest-card c-back">
-          <span class="crest-chip"></span>
-          <span class="crest-chip"></span>
-        </div>
-        <div class="crest-card c-mid">
-          <span class="crest-chip"></span>
-          <span class="crest-chip"></span>
-        </div>
-        <div class="crest-card c-front">
-          <span class="crest-chip"></span>
-          <span class="crest-chip"></span>
-        </div>
-      </div>
-    </div>
     <div class="brand-eyebrow">Pessoal · Personalizado · Intransferível</div>
-    <h1><span class="jomi-word"><span class="j-dot"></span>JOMI</span><br><span>Assistente de Rotina</span></h1>
+    <h1 class="jomi-logo"><span class="j-dot"></span>JOMI</h1>
+    <div class="brand-tagline">Assistente de Rotina</div>
     <p>Seu kanban e sua agenda pessoal em um só lugar.</p>
     <div class="brand-foot">
       <span><span class="pulse-dot"></span>FIREBASE AUTH · ONLINE</span>
