@@ -366,11 +366,18 @@
   .task-card:hover{border-color:var(--gold-bright); transform:translateY(-1px); box-shadow:0 4px 14px rgba(0,0,0,0.35);}
   .task-card.dragging{opacity:0.4;}
   .task-card.overdue-card{
-    background:linear-gradient(160deg, rgba(224,67,60,0.22) 0%, #1a1a1a 65%);
-    border-color:rgba(224,67,60,0.55);
-    box-shadow:0 0 0 1px rgba(224,67,60,0.25);
+    background:linear-gradient(160deg, #9a2a25 0%, #6e1c19 100%);
+    border-color:#e0433c;
+    box-shadow:0 0 0 1px rgba(224,67,60,0.5), 0 4px 16px rgba(224,67,60,0.3);
   }
-  .task-card.overdue-card:hover{border-color:var(--alert); box-shadow:0 4px 16px rgba(224,67,60,0.35);}
+  .task-card.overdue-card:hover{border-color:#ff6b62; box-shadow:0 4px 18px rgba(224,67,60,0.5);}
+  .task-card.overdue-card .task-title,
+  .task-card.overdue-card .task-desc,
+  .task-card.overdue-card .task-date,
+  .task-card.overdue-card .task-finalizado label{
+    font-weight:800 !important; color:#fff !important;
+  }
+  .task-card.overdue-card .task-desc{color:rgba(255,255,255,0.9) !important;}
   .task-card-image{width:100%; height:110px; object-fit:cover; display:block; background:#0a0a0a;}
   .task-card-stripe{height:4px; width:100%;}
   .task-card-inner{padding:11px 12px;}
@@ -1335,7 +1342,7 @@
     const col = labelColor(t.label);
     const isOverdue = dcls === 'overdue';
     const labelStyle = isOverdue
-      ? `background:rgba(224,67,60,0.2); color:#ff8b85;`
+      ? `background:rgba(0,0,0,0.35); color:#fff;`
       : `background:${col.bg}; color:${col.fg};`;
     const stripeColor = isOverdue ? 'var(--alert)' : col.stripe;
     let dateLine = '';
