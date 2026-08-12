@@ -74,6 +74,10 @@
     padding:64px 24px;
     gap:44px;
   }
+  .wrap.dash-mode{
+    justify-content:flex-start;
+    padding:24px clamp(12px, 2vw, 32px);
+  }
 
   /* -- BRAND (bloco central, sem divisões) -- */
   .brand{
@@ -253,7 +257,7 @@
   .cooldown-note{font-size:12px; color:rgba(245,244,240,0.4); text-align:center; margin-top:10px;}
 
   /* -- DASHBOARD PLACEHOLDER -- */
-  .dash{display:none; padding:70px 60px; width:100%;}
+  .dash{display:none; padding:32px clamp(16px, 2.5vw, 44px); width:100%;}
   .dash.active{display:block; animation:fadein .4s ease;}
   .dash-top{display:flex; justify-content:space-between; align-items:center; margin-bottom:40px; flex-wrap:wrap; gap:16px;}
   .dash-welcome{font-family:'Anton',sans-serif; font-size:34px; text-transform:uppercase;}
@@ -357,10 +361,17 @@
   .task-card{
     background:#1a1a1a; border:1px solid var(--line); border-radius:8px;
     padding:0; cursor:grab; overflow:hidden;
-    transition:border-color .15s ease, transform .15s ease, box-shadow .15s ease;
+    transition:border-color .15s ease, transform .15s ease, box-shadow .15s ease, background .2s ease;
   }
   .task-card:hover{border-color:var(--gold-bright); transform:translateY(-1px); box-shadow:0 4px 14px rgba(0,0,0,0.35);}
   .task-card.dragging{opacity:0.4;}
+  .task-card.overdue-card{
+    background:linear-gradient(160deg, rgba(224,67,60,0.22) 0%, #1a1a1a 65%);
+    border-color:rgba(224,67,60,0.55);
+    box-shadow:0 0 0 1px rgba(224,67,60,0.25);
+  }
+  .task-card.overdue-card:hover{border-color:var(--alert); box-shadow:0 4px 16px rgba(224,67,60,0.35);}
+  .task-card-image{width:100%; height:110px; object-fit:cover; display:block; background:#0a0a0a;}
   .task-card-stripe{height:4px; width:100%;}
   .task-card-inner{padding:11px 12px;}
   .task-card-top{display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:5px;}
@@ -575,6 +586,29 @@
   .gcal-plain-input::placeholder{color:rgba(245,244,240,0.3);}
   .gcal-plain-select{cursor:pointer;}
   .gcal-plain-select option{background:var(--black-soft); color:var(--white);}
+
+  .gcal-file-input{
+    width:100%; font-family:'Inter',sans-serif; font-size:13px;
+    color:rgba(245,244,240,0.6); cursor:pointer;
+  }
+  .gcal-file-input::file-selector-button{
+    padding:7px 14px; margin-right:12px; border-radius:20px; border:1px solid var(--line);
+    background:rgba(245,244,240,0.06); color:var(--white);
+    font-family:'Inter',sans-serif; font-size:12px; font-weight:700;
+    cursor:pointer; transition:border-color .2s ease;
+  }
+  .gcal-file-input::file-selector-button:hover{border-color:var(--gold-bright);}
+  .gcal-image-preview-wrap{
+    display:flex; align-items:center; gap:12px; margin-top:10px;
+  }
+  .gcal-image-preview{
+    width:64px; height:64px; object-fit:cover; border-radius:8px;
+    border:1px solid var(--line);
+  }
+  .gcal-image-remove{
+    background:none; border:none; color:#ff8b85; font-size:12px; font-weight:700;
+    cursor:pointer; text-decoration:underline; text-underline-offset:3px;
+  }
   .day-task-list{display:flex; flex-direction:column; gap:10px; max-height:44vh; overflow-y:auto;}
   .day-task-item{
     display:flex; justify-content:space-between; align-items:center; gap:10px;
@@ -882,6 +916,18 @@
             <datalist id="etiquetaOptions"></datalist>
           </div>
         </div>
+
+        <div class="gcal-row">
+          <span class="gcal-icon">🖼️</span>
+          <div class="gcal-row-body">
+            <input type="file" id="taskImagemInput" accept="image/*" class="gcal-file-input">
+            <div class="gcal-image-preview-wrap" id="gcalImagePreviewWrap" style="display:none;">
+              <img id="gcalImagePreview" class="gcal-image-preview" alt="">
+              <button type="button" id="btnRemoveImage" class="gcal-image-remove">Remover imagem</button>
+            </div>
+            <input type="hidden" id="taskImagemData">
+          </div>
+        </div>
       </div>
 
       <input type="hidden" id="taskStatus" value="todo">
@@ -985,6 +1031,7 @@
     card.style.display = 'none';
     document.querySelector('.brand').style.display = 'none';
     dash.classList.add('active');
+    wrap.classList.add('dash-mode');
     document.getElementById('dashNome').textContent = (user.displayName || user.email.split('@')[0]);
     document.getElementById('dashEmailBadge').textContent = user.email;
     startTaskApp(user);
@@ -993,6 +1040,7 @@
     card.style.display = 'block';
     document.querySelector('.brand').style.display = 'flex';
     dash.classList.remove('active');
+    wrap.classList.remove('dash-mode');
     stopTaskApp();
   }
 
@@ -1285,9 +1333,11 @@
   function taskCardHTML(t){
     const dcls = dateBadgeClass(t.endDate, t.status);
     const col = labelColor(t.label);
-    const labelStyle = dcls === 'overdue'
+    const isOverdue = dcls === 'overdue';
+    const labelStyle = isOverdue
       ? `background:rgba(224,67,60,0.2); color:#ff8b85;`
       : `background:${col.bg}; color:${col.fg};`;
+    const stripeColor = isOverdue ? 'var(--alert)' : col.stripe;
     let dateLine = '';
     if (t.startDate || t.endDate) {
       const startTxt = t.startDate ? fmtDate(t.startDate) + (t.startTime ? ' ' + t.startTime : '') : '';
@@ -1295,11 +1345,12 @@
       const rangeTxt = (t.startDate && t.endDate && t.startDate !== t.endDate)
         ? `${startTxt} → ${endTxt}`
         : (endTxt || startTxt);
-      dateLine = `<span class="task-date ${dcls}">${rangeTxt}${dcls==='overdue' ? ' · atrasada' : ''}${dcls==='today' ? ' · vence hoje' : ''}</span>`;
+      dateLine = `<span class="task-date ${dcls}">${rangeTxt}${isOverdue ? ' · atrasada' : ''}${dcls==='today' ? ' · vence hoje' : ''}</span>`;
     }
     return `
-      <div class="task-card" draggable="true" data-id="${t.id}">
-        <div class="task-card-stripe" style="background:${col.stripe};"></div>
+      <div class="task-card ${isOverdue ? 'overdue-card' : ''}" draggable="true" data-id="${t.id}">
+        ${t.image ? `<img src="${t.image}" class="task-card-image" alt="">` : ''}
+        <div class="task-card-stripe" style="background:${stripeColor};"></div>
         <div class="task-card-inner">
           <div class="task-card-top">
             <div class="task-title">${escapeHTML(t.title)}</div>
@@ -1517,9 +1568,67 @@
   }
   taskDiaInteiro.addEventListener('change', toggleAllDayRow);
 
+  // ---------- IMAGEM DO CARTÃO (comprimida no navegador antes de salvar) ----------
+  const imgInput = document.getElementById('taskImagemInput');
+  const imgPreviewWrap = document.getElementById('gcalImagePreviewWrap');
+  const imgPreview = document.getElementById('gcalImagePreview');
+  const imgDataField = document.getElementById('taskImagemData');
+
+  function showImagePreview(dataUrl){
+    imgPreview.src = dataUrl;
+    imgPreviewWrap.style.display = 'flex';
+    imgDataField.value = dataUrl;
+  }
+  function clearImage(){
+    imgDataField.value = '';
+    imgPreview.src = '';
+    imgPreviewWrap.style.display = 'none';
+    imgInput.value = '';
+  }
+  function compressImage(file){
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = reject;
+      reader.onload = () => {
+        const img = new Image();
+        img.onerror = reject;
+        img.onload = () => {
+          const maxW = 480;
+          const scale = Math.min(1, maxW / img.width);
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width * scale;
+          canvas.height = img.height * scale;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL('image/jpeg', 0.72));
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+  imgInput.addEventListener('change', async () => {
+    const file = imgInput.files[0];
+    if (!file) return;
+    try {
+      const compressed = await compressImage(file);
+      if (compressed.length > 700000) {
+        showAppAlert('Essa imagem ficou grande demais mesmo após compressão. Tente uma foto menor.');
+        clearImage();
+        return;
+      }
+      showImagePreview(compressed);
+    } catch (err) {
+      console.error(err);
+      showAppAlert('Não foi possível processar essa imagem.');
+    }
+  });
+  document.getElementById('btnRemoveImage').addEventListener('click', clearImage);
+
   function openTaskModal(id, presetDate, presetStatus){
     const form = document.getElementById('formTask');
     form.reset();
+    clearImage();
     document.getElementById('taskId').value = id || '';
     document.getElementById('btnDeleteTask').style.display = id ? 'block' : 'none';
 
@@ -1535,6 +1644,7 @@
         document.getElementById('taskEtiqueta').value = t.label || '';
         document.getElementById('taskStatus').value = t.status || 'todo';
         taskDiaInteiro.checked = !t.startTime && !t.endTime;
+        if (t.image) showImagePreview(t.image);
       }
     } else {
       const d = presetDate || todayStr();
@@ -1574,6 +1684,7 @@
       endTime: isAllDay ? null : (document.getElementById('taskHoraFim').value || null),
       label: document.getElementById('taskEtiqueta').value.trim(),
       status: document.getElementById('taskStatus').value,
+      image: imgDataField.value || null,
       userId: currentUser.uid,
     };
     const btn = document.getElementById('btnSaveTask');
