@@ -365,6 +365,39 @@
   }
   .task-card:hover{border-color:var(--gold-bright); transform:translateY(-1px); box-shadow:0 4px 14px rgba(0,0,0,0.35);}
   .task-card.dragging{opacity:0.4;}
+
+  /* -- CORES POR STATUS -- */
+  .task-card.status-todo{
+    background:linear-gradient(160deg, #3251d4 0%, #23348c 100%);
+    border-color:#5c7cfa;
+  }
+  .task-card.status-doing{
+    background:linear-gradient(160deg, #f2c94c 0%, #c99a2e 100%);
+    border-color:#f2c94c;
+  }
+  .task-card.status-done{
+    background:linear-gradient(160deg, #2e9d67 0%, #1c6e46 100%);
+    border-color:#3fb27f;
+  }
+  .task-card.status-todo .task-title, .task-card.status-todo .task-desc,
+  .task-card.status-todo .task-date, .task-card.status-todo .task-finalizado label,
+  .task-card.status-done .task-title, .task-card.status-done .task-desc,
+  .task-card.status-done .task-date, .task-card.status-done .task-finalizado label{
+    color:#fff !important;
+  }
+  .task-card.status-doing .task-title, .task-card.status-doing .task-desc,
+  .task-card.status-doing .task-date, .task-card.status-doing .task-finalizado label{
+    color:#211a00 !important;
+  }
+  .task-card.status-todo .task-desc, .task-card.status-done .task-desc{color:rgba(255,255,255,0.85) !important;}
+  .task-card.status-doing .task-desc{color:rgba(33,26,0,0.75) !important;}
+  .task-concluida-msg{
+    font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.03em;
+    color:#fff; background:rgba(0,0,0,0.2); border-radius:6px;
+    padding:6px 8px; margin-top:8px; text-align:center;
+  }
+
+  /* -- VENCIDA (prevalece sobre a cor de status) -- */
   .task-card.overdue-card{
     background:linear-gradient(160deg, #9a2a25 0%, #6e1c19 100%);
     border-color:#e0433c;
@@ -378,6 +411,7 @@
     font-weight:800 !important; color:#fff !important;
   }
   .task-card.overdue-card .task-desc{color:rgba(255,255,255,0.9) !important;}
+
   .task-card-image{width:100%; height:110px; object-fit:cover; display:block; background:#0a0a0a;}
   .task-card-stripe{height:4px; width:100%;}
   .task-card-inner{padding:11px 12px;}
@@ -386,9 +420,12 @@
   .task-desc{font-size:12px; color:rgba(245,244,240,0.5); margin-bottom:7px; line-height:1.4;}
   .task-meta{display:flex; align-items:center; gap:7px; flex-wrap:wrap;}
   .task-label{
+    display:inline-flex; align-items:center; gap:5px;
     font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.03em;
     padding:2px 8px; border-radius:20px;
+    background:rgba(0,0,0,0.28); color:#fff;
   }
+  .task-label-dot{width:6px; height:6px; border-radius:50%; flex-shrink:0;}
   .task-date{
     font-family:'Space Mono',monospace; font-size:10.5px; color:rgba(245,244,240,0.45);
   }
@@ -396,7 +433,7 @@
   .task-date.today{color:var(--gold-bright); font-weight:700;}
   .task-finalizado{
     display:flex; align-items:center; gap:6px; margin-top:8px;
-    padding-top:8px; border-top:1px solid var(--line);
+    padding-top:8px; border-top:1px solid rgba(255,255,255,0.15);
   }
   .task-finalizado input[type="checkbox"]{
     width:14px; height:14px; accent-color:var(--ok); cursor:pointer;
@@ -409,6 +446,39 @@
     text-align:center; color:rgba(245,244,240,0.3); font-size:12px;
     padding:16px 0; border:1px dashed var(--line); border-radius:8px;
   }
+
+  /* -- LIXEIRA -- */
+  .lixeira-btn{
+    display:none; position:fixed; left:22px; bottom:22px; z-index:40;
+    align-items:center; gap:8px;
+    background:var(--panel); border:1px solid var(--line); border-radius:24px;
+    padding:11px 18px; color:var(--white);
+    font-family:'Inter',sans-serif; font-weight:700; font-size:13px;
+    cursor:pointer; box-shadow:0 8px 22px rgba(0,0,0,0.4);
+    transition:border-color .2s ease, transform .15s ease;
+  }
+  .lixeira-btn:hover{border-color:var(--gold-bright); transform:translateY(-2px);}
+  .lixeira-btn.show{display:inline-flex;}
+  .lixeira-badge{
+    background:var(--alert); color:#fff; border-radius:20px;
+    padding:1px 8px; font-size:11px; font-family:'Space Mono',monospace;
+    min-width:18px; text-align:center;
+  }
+  .lixeira-badge.zero{background:rgba(245,244,240,0.12); color:rgba(245,244,240,0.4);}
+  .lixeira-item{
+    display:flex; justify-content:space-between; align-items:center; gap:10px;
+    background:var(--panel); border:1px solid var(--line); border-radius:10px;
+    padding:11px 13px;
+  }
+  .lixeira-item .task-title{font-size:13.5px;}
+  .btn-restaurar{
+    flex-shrink:0; padding:8px 14px; border-radius:8px; border:1px solid var(--ok);
+    background:rgba(63,178,127,0.12); color:#7fe0b4;
+    font-family:'Inter',sans-serif; font-weight:700; font-size:12px;
+    text-transform:uppercase; letter-spacing:0.02em; cursor:pointer;
+    transition:background .15s ease;
+  }
+  .btn-restaurar:hover{background:rgba(63,178,127,0.25);}
 
   /* -- AGENDA -- */
   .agenda-view{display:none;}
@@ -864,7 +934,7 @@
 
         <div class="stats-divider"></div>
         <div class="stats-finalizadas">
-          <span>Tarefas finalizadas (arquivadas)</span>
+          <span>Na lixeira</span>
           <b id="statsFinalizadas">0</b>
         </div>
       </div>
@@ -956,6 +1026,21 @@
   </div>
 </div>
 
+<!-- BOTÃO FIXO DA LIXEIRA -->
+<button type="button" class="lixeira-btn" id="btnLixeira">
+  🗑️ Lixeira <span class="lixeira-badge zero" id="lixeiraBadge">0</span>
+</button>
+
+<!-- MODAL: LIXEIRA -->
+<div class="modal-overlay" id="lixeiraModalOverlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title">Lixeira</div>
+      <button type="button" class="modal-close" id="lixeiraModalClose">✕</button>
+    </div>
+    <div id="lixeiraList" class="day-task-list"></div>
+  </div>
+</div>
 
 <script type="module">
   // ============================================================
@@ -1039,6 +1124,7 @@
     document.querySelector('.brand').style.display = 'none';
     dash.classList.add('active');
     wrap.classList.add('dash-mode');
+    document.getElementById('btnLixeira').classList.add('show');
     document.getElementById('dashNome').textContent = (user.displayName || user.email.split('@')[0]);
     document.getElementById('dashEmailBadge').textContent = user.email;
     startTaskApp(user);
@@ -1048,6 +1134,7 @@
     document.querySelector('.brand').style.display = 'flex';
     dash.classList.remove('active');
     wrap.classList.remove('dash-mode');
+    document.getElementById('btnLixeira').classList.remove('show');
     stopTaskApp();
   }
 
@@ -1290,6 +1377,7 @@
       renderKanban();
       renderAgenda();
       renderStats();
+      renderLixeira();
       updateEtiquetaOptions();
       checkDueSoon();
     }, (err) => {
@@ -1341,10 +1429,8 @@
     const dcls = dateBadgeClass(t.endDate, t.status);
     const col = labelColor(t.label);
     const isOverdue = dcls === 'overdue';
-    const labelStyle = isOverdue
-      ? `background:rgba(0,0,0,0.35); color:#fff;`
-      : `background:${col.bg}; color:${col.fg};`;
-    const stripeColor = isOverdue ? 'var(--alert)' : col.stripe;
+    const cardStateClass = isOverdue ? 'overdue-card' : `status-${t.status}`;
+    const labelStyle = `background:rgba(0,0,0,0.28); color:#fff;`;
     let dateLine = '';
     if (t.startDate || t.endDate) {
       const startTxt = t.startDate ? fmtDate(t.startDate) + (t.startTime ? ' ' + t.startTime : '') : '';
@@ -1355,18 +1441,19 @@
       dateLine = `<span class="task-date ${dcls}">${rangeTxt}${isOverdue ? ' · atrasada' : ''}${dcls==='today' ? ' · vence hoje' : ''}</span>`;
     }
     return `
-      <div class="task-card ${isOverdue ? 'overdue-card' : ''}" draggable="true" data-id="${t.id}">
+      <div class="task-card ${cardStateClass}" draggable="true" data-id="${t.id}">
         ${t.image ? `<img src="${t.image}" class="task-card-image" alt="">` : ''}
-        <div class="task-card-stripe" style="background:${stripeColor};"></div>
+        <div class="task-card-stripe" style="background:${col.stripe};"></div>
         <div class="task-card-inner">
           <div class="task-card-top">
             <div class="task-title">${escapeHTML(t.title)}</div>
           </div>
           ${t.description ? `<div class="task-desc">${escapeHTML(t.description)}</div>` : ''}
           <div class="task-meta">
-            <span class="task-label" style="${labelStyle}">${escapeHTML(labelText(t.label))}</span>
+            <span class="task-label" style="${labelStyle}"><span class="task-label-dot" style="background:${col.stripe};"></span>${escapeHTML(labelText(t.label))}</span>
             ${dateLine}
           </div>
+          ${t.status === 'done' ? `<div class="task-concluida-msg">✅ Tarefa Concluída</div>` : ''}
           <div class="task-finalizado">
             <input type="checkbox" id="fin-${t.id}" data-fin-id="${t.id}">
             <label for="fin-${t.id}">Finalizado</label>
@@ -1380,7 +1467,7 @@
 
   function renderKanban(){
     const cols = { todo: [], doing: [], done: [] };
-    tasks.forEach(t => { if (!t.finalizado && cols[t.status]) cols[t.status].push(t); });
+    tasks.forEach(t => { if (!t.trashed && cols[t.status]) cols[t.status].push(t); });
     Object.entries(cols).forEach(([status, list]) => {
       list.sort((a,b) => ((a.startDate||'9999')+(a.startTime||'99:99')).localeCompare((b.startDate||'9999')+(b.startTime||'99:99')));
     });
@@ -1407,20 +1494,24 @@
       card.addEventListener('dragend', () => card.classList.remove('dragging'));
     });
 
-    // checkbox "Finalizado" — marca e some o card
+    // checkbox "Finalizado" — manda o card para a Lixeira (pode ser restaurado depois)
     document.querySelectorAll('[data-fin-id]').forEach(chk => {
       chk.addEventListener('click', (e) => e.stopPropagation());
       chk.addEventListener('change', async (e) => {
         e.stopPropagation();
         const id = chk.dataset.finId;
         if (!chk.checked) return;
+        const t = tasks.find(x => x.id === id);
         const card = chk.closest('.task-card');
         if (card) card.style.opacity = '0.3';
         try {
-          await updateDoc(doc(db, 'tasks', id), { finalizado: true });
+          await updateDoc(doc(db, 'tasks', id), {
+            trashed: true,
+            trashedFromStatus: (t && t.status) || 'todo',
+          });
         } catch (err) {
           console.error(err);
-          showAppAlert('Não foi possível marcar a tarefa como finalizada.');
+          showAppAlert('Não foi possível mover a tarefa para a lixeira.');
           if (card) card.style.opacity = '1';
         }
       });
@@ -1468,7 +1559,7 @@
     // agrupar tarefas por data (cobrindo todo o intervalo início→fim, até 60 dias)
     const byDate = {};
     tasks.forEach(t => {
-      if (t.finalizado) return;
+      if (t.trashed) return;
       const start = t.startDate || t.endDate;
       const end = t.endDate || t.startDate;
       if (!start) return;
@@ -1526,7 +1617,7 @@
     const [y,m,d] = dateStr.split('-');
     document.getElementById('dayModalTitle').textContent = `Tarefas em ${d}/${m}/${y}`;
     const dayTasks = tasks.filter(t => {
-      if (t.finalizado) return false;
+      if (t.trashed) return false;
       const start = t.startDate || t.endDate;
       const end = t.endDate || t.startDate;
       if (!start) return false;
@@ -1715,19 +1806,23 @@
   document.getElementById('btnDeleteTask').addEventListener('click', async () => {
     const id = document.getElementById('taskId').value;
     if (!id) return;
-    if (!confirm('Excluir esta tarefa?')) return;
+    if (!confirm('Mover esta tarefa para a lixeira?')) return;
+    const t = tasks.find(x => x.id === id);
     try {
-      await deleteDoc(doc(db, 'tasks', id));
+      await updateDoc(doc(db, 'tasks', id), {
+        trashed: true,
+        trashedFromStatus: (t && t.status) || 'todo',
+      });
       closeTaskModal();
     } catch (err) {
       console.error(err);
-      showAppAlert('Não foi possível excluir a tarefa.');
+      showAppAlert('Não foi possível mover a tarefa para a lixeira.');
     }
   });
 
   // ---------- DASHBOARD / ESTATÍSTICAS ----------
   function renderStats(){
-    const ativas = tasks.filter(t => !t.finalizado);
+    const ativas = tasks.filter(t => !t.trashed);
     const total = ativas.length;
     const counts = { todo: 0, doing: 0, done: 0 };
     ativas.forEach(t => { if (counts[t.status] !== undefined) counts[t.status]++; });
@@ -1747,8 +1842,59 @@
     document.getElementById('statsDonePct').textContent = pct(counts.done) + '%';
     document.getElementById('statsDoneBar').style.width = pct(counts.done) + '%';
 
-    document.getElementById('statsFinalizadas').textContent = tasks.filter(t => t.finalizado).length;
+    document.getElementById('statsFinalizadas').textContent = tasks.filter(t => t.trashed).length;
   }
+
+  // ---------- LIXEIRA ----------
+  const lixeiraModalOverlay = document.getElementById('lixeiraModalOverlay');
+  const btnLixeira = document.getElementById('btnLixeira');
+  const lixeiraBadge = document.getElementById('lixeiraBadge');
+
+  function renderLixeira(){
+    const trashed = tasks.filter(t => t.trashed);
+    lixeiraBadge.textContent = trashed.length;
+    lixeiraBadge.classList.toggle('zero', trashed.length === 0);
+
+    const list = document.getElementById('lixeiraList');
+    list.innerHTML = trashed.length
+      ? trashed.map(t => `
+          <div class="lixeira-item" data-id="${t.id}">
+            <div>
+              <div class="task-title">${escapeHTML(t.title)}</div>
+              <span class="task-label" style="margin-top:4px; display:inline-block; background:rgba(245,244,240,0.08); color:rgba(245,244,240,0.7);">${escapeHTML(labelText(t.label))}</span>
+            </div>
+            <button type="button" class="btn-restaurar" data-restore-id="${t.id}">Restaurar</button>
+          </div>`).join('')
+      : `<div class="day-empty">A lixeira está vazia.</div>`;
+
+    list.querySelectorAll('[data-restore-id]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.dataset.restoreId;
+        const t = tasks.find(x => x.id === id);
+        btn.disabled = true; btn.textContent = 'Restaurando...';
+        try {
+          await updateDoc(doc(db, 'tasks', id), {
+            trashed: false,
+            status: (t && t.trashedFromStatus) || (t && t.status) || 'todo',
+            trashedFromStatus: null,
+          });
+        } catch (err) {
+          console.error(err);
+          showAppAlert('Não foi possível restaurar a tarefa.');
+          btn.disabled = false; btn.textContent = 'Restaurar';
+        }
+      });
+    });
+  }
+
+  function openLixeiraModal(){
+    renderLixeira();
+    lixeiraModalOverlay.classList.add('show');
+  }
+  function closeLixeiraModal(){ lixeiraModalOverlay.classList.remove('show'); }
+  btnLixeira.addEventListener('click', openLixeiraModal);
+  document.getElementById('lixeiraModalClose').addEventListener('click', closeLixeiraModal);
+  lixeiraModalOverlay.addEventListener('click', (e) => { if (e.target === lixeiraModalOverlay) closeLixeiraModal(); });
 
   // ---------- NOTIFICAÇÕES ----------
   const btnNotify = document.getElementById('btnNotify');
@@ -1778,7 +1924,7 @@
     const tomorrowStr = `${tmrw.getFullYear()}-${String(tmrw.getMonth()+1).padStart(2,'0')}-${String(tmrw.getDate()).padStart(2,'0')}`;
 
     tasks.forEach(t => {
-      if (t.status === 'done' || t.finalizado || !t.endDate) return;
+      if (t.status === 'done' || t.trashed || !t.endDate) return;
       const key = t.id + '_' + today;
       if (notifiedToday.has(key)) return;
       const horaTxt = t.endTime ? ` às ${t.endTime}` : '';
