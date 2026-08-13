@@ -479,11 +479,42 @@
   }
   .task-archive-btn{color:rgba(20,20,20,0.6);}
   .task-archive-btn:hover{border-color:var(--gold-bright); color:var(--gold-bright); background:rgba(242,201,76,0.06);}
+  .task-edit-btn{color:rgba(20,20,20,0.6);}
+  .task-edit-btn:hover{border-color:var(--gold-bright); color:var(--gold-bright); background:rgba(242,201,76,0.06);}
   .task-delete-btn{color:var(--alert); border-color:rgba(224,67,60,0.35);}
   .task-delete-btn:hover{background:rgba(224,67,60,0.1);}
   .empty-col{
     text-align:center; color:rgba(20,20,20,0.3); font-size:12px;
     padding:16px 0; border:1px dashed var(--line); border-radius:8px;
+  }
+
+  /* -- RECOLHER/EXPANDIR: por padrão o card mostra só a flag + título -- */
+  .task-card-details{
+    max-height:0; overflow:hidden; opacity:0;
+    transition:max-height .25s ease, opacity .2s ease, margin-top .25s ease;
+  }
+  .task-card.expanded .task-card-details{
+    max-height:400px; opacity:1; margin-top:8px;
+  }
+
+  /* -- PULSO DISCRETO: tarefa com prazo ainda não vencido -- */
+  .task-date-pulse{
+    display:inline-block; width:6px; height:6px; border-radius:50%;
+    background:var(--gold-bright); margin-right:2px; vertical-align:middle;
+    animation:discreetPulse 1.8s ease-in-out infinite;
+  }
+  @keyframes discreetPulse{
+    0%,100%{opacity:.3; transform:scale(0.85);}
+    50%{opacity:1; transform:scale(1.15);}
+  }
+
+  /* -- FLASH NA COR DO CARD: só ao abrir um card vencido -- */
+  .task-card.flash-once{
+    animation:flashCardColor .5s ease-in-out 3;
+  }
+  @keyframes flashCardColor{
+    0%,100%{ box-shadow:0 0 0 0 transparent; }
+    50%{ box-shadow:0 0 0 4px var(--flash-color, rgba(224,67,60,0.5)); }
   }
 
   /* -- CORES DO CARTÃO (escolhidas manualmente no modal) -- */
@@ -1467,8 +1498,10 @@
     const isOverdue = dcls === 'overdue';
     const cardStateClass = isOverdue ? 'overdue-card' : '';
     const color = t.color || DEFAULT_CARD_COLOR;
-    // tom bem suave da cor escolhida, só pra diferenciar do fundo branco — não aplica se estiver vencido (o vermelho de atraso tem prioridade)
-    const cardStyle = isOverdue ? '' : `style="background:color-mix(in srgb, ${color} 12%, white); border-color:color-mix(in srgb, ${color} 35%, white);"`;
+    // variável de cor pro flash de atenção + tom bem suave no fundo (não aplica se vencido, o vermelho tem prioridade)
+    const cardStyle = isOverdue
+      ? `style="--flash-color:${color};"`
+      : `style="--flash-color:${color}; background:color-mix(in srgb, ${color} 12%, white); border-color:color-mix(in srgb, ${color} 35%, white);"`;
     let dateLine = '';
     if (t.startDate || t.endDate) {
       const startTxt = t.startDate ? fmtDate(t.startDate) + (t.startTime ? ' ' + t.startTime : '') : '';
@@ -1476,7 +1509,10 @@
       const rangeTxt = (t.startDate && t.endDate && t.startDate !== t.endDate)
         ? `${startTxt} → ${endTxt}`
         : (endTxt || startTxt);
-      dateLine = `<span class="task-date ${dcls}">${rangeTxt}${isOverdue ? ' · atrasada' : ''}${dcls==='today' ? ' · vence hoje' : ''}</span>`;
+      // pisca discretamente enquanto o prazo ainda não venceu — depois de vencida, o pulso contínuo para
+      // (o aviso passa a ser o flash na cor do card, só ao abrir)
+      const pulseDot = (!isOverdue && t.endDate) ? `<span class="task-date-pulse"></span>` : '';
+      dateLine = `<span class="task-date ${dcls}">${pulseDot}${rangeTxt}${isOverdue ? ' · atrasada' : ''}${dcls==='today' ? ' · vence hoje' : ''}</span>`;
     }
     return `
       <div class="task-card ${cardStateClass}" draggable="true" data-id="${t.id}" ${cardStyle}>
@@ -1487,14 +1523,17 @@
             <button type="button" class="task-flag ${t.done ? 'done' : ''}" data-flag-id="${t.id}" aria-label="Marcar como concluída"></button>
             <div class="task-title" style="flex:1;">${escapeHTML(t.title)}</div>
           </div>
-          ${t.description ? `<div class="task-desc">${escapeHTML(t.description)}</div>` : ''}
-          <div class="task-meta">
-            <span class="task-label" style="background:rgba(0,0,0,0.28); color:#fff;"><span class="task-label-dot" style="background:${color};"></span>${escapeHTML(labelText(t.label))}</span>
-            ${dateLine}
-          </div>
-          <div class="task-actions">
-            <button type="button" class="task-archive-btn" data-archive-id="${t.id}">Arquivar</button>
-            <button type="button" class="task-delete-btn" data-delete-id="${t.id}">Excluir</button>
+          <div class="task-card-details">
+            ${t.description ? `<div class="task-desc">${escapeHTML(t.description)}</div>` : ''}
+            <div class="task-meta">
+              <span class="task-label" style="background:rgba(0,0,0,0.28); color:#fff;"><span class="task-label-dot" style="background:${color};"></span>${escapeHTML(labelText(t.label))}</span>
+              ${dateLine}
+            </div>
+            <div class="task-actions">
+              <button type="button" class="task-edit-btn" data-edit-id="${t.id}">Editar</button>
+              <button type="button" class="task-archive-btn" data-archive-id="${t.id}">Arquivar</button>
+              <button type="button" class="task-delete-btn" data-delete-id="${t.id}">Excluir</button>
+            </div>
           </div>
         </div>
       </div>`;
@@ -1547,14 +1586,29 @@
       btn.addEventListener('click', () => openTaskModal(null, null, btn.dataset.addColumn));
     });
 
-    // clique no card abre edição (exceto nos botões de ação e na flag)
+    // clique no card recolhido/expandido: alterna mostrar etiqueta, data e ações
     board.querySelectorAll('.task-card').forEach(card => {
       card.addEventListener('click', (e) => {
         if (e.target.closest('.task-actions') || e.target.closest('.task-flag')) return;
-        openTaskModal(card.dataset.id);
+        const nowExpanded = card.classList.toggle('expanded');
+        // card vencido: em vez de piscar continuamente, dá um flash na cor escolhida só ao abrir
+        if (nowExpanded && card.classList.contains('overdue-card')) {
+          card.classList.remove('flash-once');
+          void card.offsetWidth; // força reflow pra reiniciar a animação
+          card.classList.add('flash-once');
+          setTimeout(() => card.classList.remove('flash-once'), 1600);
+        }
       });
       card.addEventListener('dragstart', () => card.classList.add('dragging'));
       card.addEventListener('dragend', () => card.classList.remove('dragging'));
+    });
+
+    // botão "Editar" no cartão — abre o modal completo
+    board.querySelectorAll('[data-edit-id]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openTaskModal(btn.dataset.editId);
+      });
     });
 
     // círculo de flag — marca/desmarca como concluída, sem abrir o modal
