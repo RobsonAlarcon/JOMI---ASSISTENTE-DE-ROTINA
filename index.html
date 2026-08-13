@@ -1096,6 +1096,13 @@
     console.warn("Firebase ainda não configurado:", e);
   }
 
+  // ---------- SERVICE WORKER (necessário pro Android exibir notificações) ----------
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(err => {
+      console.warn('Não foi possível registrar o Service Worker (notificações podem não funcionar):', err);
+    });
+  }
+
   // ---------- UI HELPERS ----------
   const wrap = document.getElementById('wrap');
   const card = document.getElementById('card');
@@ -2119,6 +2126,23 @@
     checkDueSoon();
   });
 
+  // dispara a notificação via Service Worker (necessário no Android) e cai
+  // para o construtor direto (new Notification) só se o SW não estiver disponível
+  async function showAppNotification(title, options){
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    try {
+      if ('serviceWorker' in navigator) {
+        const reg = await navigator.serviceWorker.ready;
+        await reg.showNotification(title, options);
+        return;
+      }
+    } catch (err) {
+      console.warn('Falha ao notificar via Service Worker, tentando forma direta:', err);
+    }
+    try { new Notification(title, options); }
+    catch (err) { console.error('Não foi possível exibir a notificação:', err); }
+  }
+
   function checkDueSoon(){
     if (!('Notification' in window) || Notification.permission !== 'granted') return;
     const today = todayStr();
@@ -2131,13 +2155,13 @@
       if (notifiedToday.has(key)) return;
       const horaTxt = t.endTime ? ` às ${t.endTime}` : '';
       if (t.endDate === today) {
-        new Notification('JOMI — Tarefa vence hoje' + horaTxt, { body: t.title });
+        showAppNotification('JOMI — Tarefa vence hoje' + horaTxt, { body: t.title });
         notifiedToday.add(key);
       } else if (t.endDate === tomorrowStr) {
-        new Notification('JOMI — Tarefa vence amanhã' + horaTxt, { body: t.title });
+        showAppNotification('JOMI — Tarefa vence amanhã' + horaTxt, { body: t.title });
         notifiedToday.add(key);
       } else if (t.endDate < today) {
-        new Notification('JOMI — Tarefa atrasada', { body: t.title });
+        showAppNotification('JOMI — Tarefa atrasada', { body: t.title });
         notifiedToday.add(key);
       }
     });
