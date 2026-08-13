@@ -378,9 +378,10 @@
   .kanban-col-title{
     background:transparent; border:none; font:inherit; color:inherit;
     text-transform:uppercase; letter-spacing:0.05em; cursor:text; padding:2px 0;
-    border-bottom:1px solid transparent; max-width:150px;
+    border-bottom:1px solid transparent; flex:1; min-width:0;
+    text-overflow:ellipsis; white-space:nowrap; overflow:hidden;
   }
-  .kanban-col-title:focus{outline:none; border-bottom:1px solid var(--gold-bright);}
+  .kanban-col-title:focus{outline:none; border-bottom:1px solid var(--gold-bright); text-overflow:clip;}
   .kanban-count{
     margin-left:auto; background:rgba(20,20,20,0.08); border-radius:6px;
     padding:2px 8px; font-size:11px; font-family:'Space Mono',monospace;
@@ -440,7 +441,17 @@
   .task-card-image{width:100%; height:110px; object-fit:cover; display:block; background:#e8e6df;}
   .task-card-stripe{height:4px; width:100%; background:rgba(20,20,20,0.15);}
   .task-card-inner{padding:11px 12px;}
-  .task-card-top{display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:5px;}
+  .task-card-top{display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:5px;}
+  .task-flag{
+    width:18px; height:18px; border-radius:50%; flex-shrink:0; padding:0;
+    border:2px solid rgba(20,20,20,0.25); background:transparent; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition:background .15s ease, border-color .15s ease;
+  }
+  .task-flag:hover{border-color:var(--ok);}
+  .task-flag.done{background:var(--ok); border-color:var(--ok);}
+  .task-flag.done::after{content:'✓'; color:#fff; font-size:11px; font-weight:800; line-height:1;}
+  .task-card.overdue-card .task-flag{border-color:rgba(255,255,255,0.6);}
   .task-title{font-weight:700; font-size:14px; line-height:1.35;}
   .task-desc{font-size:12px; color:rgba(20,20,20,0.5); margin-bottom:7px; line-height:1.4;}
   .task-meta{display:flex; align-items:center; gap:7px; flex-wrap:wrap;}
@@ -1473,7 +1484,8 @@
         <div class="task-card-stripe" style="background:${color};"></div>
         <div class="task-card-inner">
           <div class="task-card-top">
-            <div class="task-title">${escapeHTML(t.title)}</div>
+            <button type="button" class="task-flag ${t.done ? 'done' : ''}" data-flag-id="${t.id}" aria-label="Marcar como concluída"></button>
+            <div class="task-title" style="flex:1;">${escapeHTML(t.title)}</div>
           </div>
           ${t.description ? `<div class="task-desc">${escapeHTML(t.description)}</div>` : ''}
           <div class="task-meta">
@@ -1503,7 +1515,7 @@
         return `
           <div class="kanban-col" data-column-id="${col.id}">
             <div class="kanban-col-head">
-              <input type="text" class="kanban-col-title" value="${escapeHTML(col.title)}" data-rename-id="${col.id}" style="width:${Math.max(60, col.title.length*7)}px;">
+              <input type="text" class="kanban-col-title" value="${escapeHTML(col.title)}" data-rename-id="${col.id}">
               <span class="kanban-count">${list.length}</span>
               <button type="button" class="kanban-col-delete" data-delcol-id="${col.id}" title="Excluir coluna">✕</button>
             </div>
@@ -1535,14 +1547,26 @@
       btn.addEventListener('click', () => openTaskModal(null, null, btn.dataset.addColumn));
     });
 
-    // clique no card abre edição
+    // clique no card abre edição (exceto nos botões de ação e na flag)
     board.querySelectorAll('.task-card').forEach(card => {
       card.addEventListener('click', (e) => {
-        if (e.target.closest('.task-actions')) return;
+        if (e.target.closest('.task-actions') || e.target.closest('.task-flag')) return;
         openTaskModal(card.dataset.id);
       });
       card.addEventListener('dragstart', () => card.classList.add('dragging'));
       card.addEventListener('dragend', () => card.classList.remove('dragging'));
+    });
+
+    // círculo de flag — marca/desmarca como concluída, sem abrir o modal
+    board.querySelectorAll('[data-flag-id]').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const id = btn.dataset.flagId;
+        const t = tasks.find(x => x.id === id);
+        btn.classList.toggle('done');
+        try { await updateDoc(doc(db, 'tasks', id), { done: !(t && t.done) }); }
+        catch (err) { console.error(err); showAppAlert('Não foi possível atualizar a tarefa.'); btn.classList.toggle('done'); }
+      });
     });
 
     // botão "Arquivar" no cartão
@@ -1861,9 +1885,13 @@
       columnId: taskColunaSelect.value,
       color: taskCorField.value || DEFAULT_CARD_COLOR,
       image: imgDataField.value || null,
-      archived: false,
       userId: currentUser.uid,
     };
+    if (!id) {
+      // valores padrão só na criação — editar não deve resetar arquivada/concluída
+      payload.archived = false;
+      payload.done = false;
+    }
     const btn = document.getElementById('btnSaveTask');
     btn.disabled = true; btn.textContent = 'Salvando...';
     try {
