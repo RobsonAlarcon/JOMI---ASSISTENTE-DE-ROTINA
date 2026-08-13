@@ -334,7 +334,7 @@
       align-items:start;
       gap:20px;
     }
-    #kanbanPanel{grid-area:kanban; display:flex !important; flex-direction:column; max-height:50vh;}
+    #kanbanBoard{grid-area:kanban; display:flex !important; overflow-x:auto; max-height:50vh;}
     #statsView{grid-area:stats; display:block !important; max-height:50vh; overflow-y:auto;}
     #agendaView{grid-area:agenda; display:block !important;}
     .view-switch{display:none;}
@@ -363,18 +363,13 @@
   }
 
   /* -- KANBAN (colunas criadas livremente pelo usuário) -- */
-  .kanban-panel{display:none; position:relative;}
-  .kanban-panel.active{display:flex; flex-direction:column; min-height:0;}
-  .kanban-panel.floating{
-    background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:12px;
-  }
-  .kanban-board{display:flex; gap:16px; align-items:flex-start; overflow-x:auto; padding-bottom:6px; flex:1; min-height:0;}
+  .kanban-board{display:none; gap:16px; align-items:flex-start;}
+  .kanban-board.active{display:flex; overflow-x:auto; padding-bottom:6px;}
   .kanban-col{
     background:#e3e9f4; border:1px solid var(--line); border-radius:12px;
     padding:14px; min-height:160px; max-height:48vh; display:flex; flex-direction:column;
     width:280px; flex-shrink:0;
   }
-  .kanban-panel.floating .kanban-col{max-height:none; height:100%;}
   .kanban-col-head{
     display:flex; align-items:center; gap:8px;
     font-weight:800; font-size:12.5px; text-transform:uppercase; letter-spacing:0.05em;
@@ -548,45 +543,10 @@
   .color-swatch:hover{transform:scale(1.12);}
   .color-swatch.selected{border-color:var(--text-primary);}
 
-  /* -- PAINEL FLUTUANTE (reutilizado por Kanban, Dashboard e Agenda) -- */
-  .panel-drag-handle{
-    display:none; align-items:center; justify-content:space-between;
-    cursor:grab; padding:5px 8px; margin:-4px -4px 10px -4px;
-    background:rgba(20,20,20,0.05); border-radius:8px;
-    font-size:9.5px; color:rgba(20,20,20,0.45); font-weight:800;
-    text-transform:uppercase; letter-spacing:0.06em; user-select:none; flex-shrink:0;
-  }
-  .panel-drag-handle:active{cursor:grabbing;}
-  .panel-reset-btn{
-    background:transparent; border:none; color:rgba(20,20,20,0.45);
-    font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.03em;
-    cursor:pointer; text-decoration:underline; flex-shrink:0;
-  }
-  .resize-handle{ position:absolute; z-index:6; display:none; background:transparent; transition:background .12s ease; }
-  .resize-handle:hover, .resize-handle.active-resize{ background:rgba(47,92,148,0.28); }
-  .resize-handle.n{ top:-5px; left:12px; right:12px; height:9px; cursor:ns-resize; border-radius:6px; }
-  .resize-handle.s{ bottom:-5px; left:12px; right:12px; height:9px; cursor:ns-resize; border-radius:6px; }
-  .resize-handle.e{ right:-5px; top:12px; bottom:12px; width:9px; cursor:ew-resize; border-radius:6px; }
-  .resize-handle.w{ left:-5px; top:12px; bottom:12px; width:9px; cursor:ew-resize; border-radius:6px; }
-  .resize-handle.ne{ top:-5px; right:-5px; width:16px; height:16px; cursor:nesw-resize; border-radius:8px; }
-  .resize-handle.nw{ top:-5px; left:-5px; width:16px; height:16px; cursor:nwse-resize; border-radius:8px; }
-  .resize-handle.se{ bottom:-5px; right:-5px; width:16px; height:16px; cursor:nwse-resize; border-radius:8px; }
-  .resize-handle.sw{ bottom:-5px; left:-5px; width:16px; height:16px; cursor:nesw-resize; border-radius:8px; }
-  @media (min-width: 1100px){
-    .floating-target.floating{
-      position:fixed !important; z-index:35; resize:none; overflow:auto;
-      max-width:92vw; max-height:88vh; min-width:280px; min-height:220px;
-      box-shadow:0 20px 50px rgba(20,20,20,0.28);
-    }
-    .floating-target.floating .panel-drag-handle{display:flex;}
-    .floating-target.floating .resize-handle{display:block;}
-  }
-
   /* -- AGENDA -- */
   .agenda-view{display:none;}
   .agenda-view.active{display:block;}
   .agenda-card{
-    position:relative;
     background:var(--panel); border:1px solid var(--line); border-radius:16px;
     padding:16px; width:100%; max-width:520px; margin:0 auto;
     max-height:42vh; overflow-y:auto;
@@ -628,7 +588,6 @@
   .stats-view{display:none;}
   .stats-view.active{display:block;}
   .stats-card{
-    position:relative;
     background:var(--panel); border:1px solid var(--line); border-radius:16px;
     padding:22px; width:100%;
   }
@@ -963,23 +922,13 @@
 
     <div class="dash-body">
     <!-- KANBAN VIEW (colunas criadas pelo usuário) -->
-    <div class="kanban-panel floating-target" id="kanbanPanel">
-      <div class="panel-drag-handle" id="kanbanDragHandle">
-        <span>⠿⠿ Arraste para mover · redimensione pelas bordas</span>
-        <button type="button" class="panel-reset-btn" data-reset-panel="kanban">Redefinir</button>
-      </div>
-      <div class="kanban-board" id="kanbanBoard">
-        <!-- colunas + tile "+ Nova coluna" são renderizadas via JS em renderKanban() -->
-      </div>
+    <div class="kanban-board" id="kanbanBoard">
+      <!-- colunas + tile "+ Nova coluna" são renderizadas via JS em renderKanban() -->
     </div>
 
     <!-- AGENDA VIEW -->
     <div class="agenda-view" id="agendaView">
-      <div class="agenda-card floating-target" id="agendaCard">
-        <div class="panel-drag-handle" id="agendaDragHandle">
-          <span>⠿⠿ Arraste para mover · redimensione pelas bordas</span>
-          <button type="button" class="panel-reset-btn" data-reset-panel="agenda">Redefinir</button>
-        </div>
+      <div class="agenda-card">
         <div class="agenda-head">
           <button type="button" class="cal-nav" id="calPrev">‹</button>
           <div class="agenda-month" id="agendaMonthLabel">Mês / Ano</div>
@@ -994,11 +943,7 @@
 
     <!-- DASHBOARD / ESTATÍSTICAS -->
     <div class="stats-view" id="statsView">
-      <div class="stats-card floating-target" id="statsCard">
-        <div class="panel-drag-handle" id="statsDragHandle">
-          <span>⠿⠿ Arraste para mover · redimensione pelas bordas</span>
-          <button type="button" class="panel-reset-btn" data-reset-panel="stats">Redefinir</button>
-        </div>
+      <div class="stats-card">
         <div class="stats-title">Dashboard</div>
         <div class="stats-total" id="statsTotal">0 tarefas no total</div>
 
@@ -1158,174 +1103,6 @@
     });
   }
 
-  // ---------- PAINÉIS FLUTUANTES (Kanban, Dashboard, Agenda: arrastar + redimensionar por qualquer borda, só no desktop) ----------
-  const RESIZE_DIRS = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw'];
-  const floatPanelsInitialized = new Set();
-  const floatPanelApplyFns = {};
-
-  function initFloatingPanel(panelId, handleId, storageKey){
-    const panel = document.getElementById(panelId);
-    const handle = document.getElementById(handleId);
-    if (!panel || !handle) return;
-
-    if (floatPanelsInitialized.has(panelId)) {
-      floatPanelApplyFns[panelId]();
-      return;
-    }
-    floatPanelsInitialized.add(panelId);
-
-    const isDesktop = () => window.innerWidth >= 1100;
-
-    function applyFloating(){
-      if (!isDesktop()) {
-        panel.classList.remove('floating');
-        panel.style.left = '';
-        panel.style.top = '';
-        panel.style.width = '';
-        panel.style.height = '';
-        return;
-      }
-      panel.classList.add('floating');
-      let saved = null;
-      try { saved = JSON.parse(localStorage.getItem(storageKey) || 'null'); } catch (e) { saved = null; }
-      if (saved) {
-        panel.style.left = saved.left + 'px';
-        panel.style.top = saved.top + 'px';
-        panel.style.width = saved.width + 'px';
-        panel.style.height = saved.height + 'px';
-      } else {
-        const rect = panel.getBoundingClientRect();
-        panel.style.left = Math.max(8, rect.left) + 'px';
-        panel.style.top = Math.max(8, rect.top) + 'px';
-        panel.style.width = rect.width + 'px';
-        panel.style.height = rect.height + 'px';
-      }
-    }
-    floatPanelApplyFns[panelId] = applyFloating;
-
-    function savePos(){
-      if (!isDesktop()) return;
-      const rect = panel.getBoundingClientRect();
-      localStorage.setItem(storageKey, JSON.stringify({
-        left: rect.left, top: rect.top, width: rect.width, height: rect.height
-      }));
-    }
-
-    // ---- arrastar pela alça ----
-    let dragging = false, offsetX = 0, offsetY = 0;
-    function startDrag(clientX, clientY){
-      if (!isDesktop()) return;
-      dragging = true;
-      const rect = panel.getBoundingClientRect();
-      offsetX = clientX - rect.left;
-      offsetY = clientY - rect.top;
-    }
-    function moveDrag(clientX, clientY){
-      if (!dragging) return;
-      let left = clientX - offsetX;
-      let top = clientY - offsetY;
-      left = Math.max(0, Math.min(left, window.innerWidth - 100));
-      top = Math.max(0, Math.min(top, window.innerHeight - 40));
-      panel.style.left = left + 'px';
-      panel.style.top = top + 'px';
-    }
-    function endDrag(){
-      if (dragging) { dragging = false; savePos(); }
-    }
-    handle.addEventListener('mousedown', (e) => {
-      if (e.target.closest('.panel-reset-btn')) return;
-      e.preventDefault();
-      startDrag(e.clientX, e.clientY);
-    });
-    handle.addEventListener('touchstart', (e) => {
-      if (e.target.closest('.panel-reset-btn')) return;
-      const t = e.touches[0];
-      startDrag(t.clientX, t.clientY);
-    }, { passive: true });
-
-    // ---- redimensionar pelas 8 bordas/cantos ----
-    const MIN_W = 260, MIN_H = 200;
-    let resizing = false, dir = '', startX = 0, startY = 0, startW = 0, startH = 0, startLeft = 0, startTop = 0;
-
-    RESIZE_DIRS.forEach(d => {
-      const h = document.createElement('div');
-      h.className = 'resize-handle ' + d;
-      h.dataset.dir = d;
-      panel.appendChild(h);
-      const begin = (clientX, clientY) => {
-        if (!isDesktop()) return;
-        resizing = true; dir = d;
-        h.classList.add('active-resize');
-        const rect = panel.getBoundingClientRect();
-        startX = clientX; startY = clientY;
-        startW = rect.width; startH = rect.height;
-        startLeft = rect.left; startTop = rect.top;
-        document.body.style.userSelect = 'none';
-      };
-      h.addEventListener('mousedown', (e) => { e.preventDefault(); e.stopPropagation(); begin(e.clientX, e.clientY); });
-      h.addEventListener('touchstart', (e) => { e.stopPropagation(); const t = e.touches[0]; begin(t.clientX, t.clientY); }, { passive: true });
-    });
-
-    function doResize(clientX, clientY){
-      if (!resizing) return;
-      const dx = clientX - startX;
-      const dy = clientY - startY;
-      let newW = startW, newH = startH, newLeft = startLeft, newTop = startTop;
-      if (dir.includes('e')) newW = Math.max(MIN_W, startW + dx);
-      if (dir.includes('s')) newH = Math.max(MIN_H, startH + dy);
-      if (dir.includes('w')) { newW = Math.max(MIN_W, startW - dx); newLeft = startLeft + (startW - newW); }
-      if (dir.includes('n')) { newH = Math.max(MIN_H, startH - dy); newTop = startTop + (startH - newH); }
-      panel.style.width = newW + 'px';
-      panel.style.height = newH + 'px';
-      panel.style.left = newLeft + 'px';
-      panel.style.top = newTop + 'px';
-    }
-    function endResize(){
-      if (resizing) {
-        resizing = false;
-        document.body.style.userSelect = '';
-        panel.querySelectorAll('.resize-handle.active-resize').forEach(h => h.classList.remove('active-resize'));
-        savePos();
-      }
-    }
-
-    document.addEventListener('mousemove', (e) => { moveDrag(e.clientX, e.clientY); doResize(e.clientX, e.clientY); });
-    document.addEventListener('mouseup', () => { endDrag(); endResize(); });
-    document.addEventListener('touchmove', (e) => {
-      if (!dragging && !resizing) return;
-      const t = e.touches[0];
-      moveDrag(t.clientX, t.clientY);
-      doResize(t.clientX, t.clientY);
-    }, { passive: true });
-    document.addEventListener('touchend', () => { endDrag(); endResize(); });
-
-    const resetBtn = handle.querySelector('.panel-reset-btn');
-    if (resetBtn) {
-      resetBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        localStorage.removeItem(storageKey);
-        panel.classList.remove('floating');
-        panel.style.left = '';
-        panel.style.top = '';
-        panel.style.width = '';
-        panel.style.height = '';
-        void panel.offsetWidth; // reflow
-        applyFloating();
-      });
-    }
-
-    applyFloating();
-    window.addEventListener('resize', applyFloating);
-  }
-
-  function initAllFloatingPanels(){
-    initFloatingPanel('kanbanPanel', 'kanbanDragHandle', 'jomi_float_kanban_v1');
-    initFloatingPanel('statsCard', 'statsDragHandle', 'jomi_float_stats_v1');
-    initFloatingPanel('agendaCard', 'agendaDragHandle', 'jomi_float_agenda_v1');
-  }
-  // chamada real acontece em setAuthed(), quando o dashboard já está visível
-  // (senão a posição inicial seria medida com os painéis ainda escondidos)
-
   // ---------- UI HELPERS ----------
   const wrap = document.getElementById('wrap');
   const card = document.getElementById('card');
@@ -1373,8 +1150,6 @@
     document.getElementById('dashNome').textContent = (user.displayName || user.email.split('@')[0]);
     document.getElementById('dashEmailBadge').textContent = user.email;
     startTaskApp(user);
-    // dashboard já está visível agora — só aqui dá pra medir a posição certa do calendário
-    initAllFloatingPanels();
   }
   function setLoggedOutView(){
     card.style.display = 'block';
@@ -1695,14 +1470,14 @@
     if (!btn) return;
     currentView = btn.dataset.view;
     document.querySelectorAll('#viewSwitch button').forEach(b => b.classList.toggle('active', b === btn));
-    document.getElementById('kanbanPanel').classList.toggle('active', currentView === 'kanban');
+    document.getElementById('kanbanBoard').classList.toggle('active', currentView === 'kanban');
     document.getElementById('agendaView').classList.toggle('active', currentView === 'agenda');
     document.getElementById('statsView').classList.toggle('active', currentView === 'stats');
     if (currentView === 'agenda') renderAgenda();
     if (currentView === 'stats') renderStats();
   });
   // vista inicial
-  document.getElementById('kanbanPanel').classList.add('active');
+  document.getElementById('kanbanBoard').classList.add('active');
 
   // ---------- GESTÃO DE COLUNAS ----------
   async function addColumn(){
