@@ -319,32 +319,40 @@
   .dash-body{display:flex; flex-direction:column; gap:20px;}
   @media (min-width: 1100px){
     .dash-body{display:grid; grid-template-columns:1.9fr 1.1fr 1.1fr; align-items:start; gap:20px;}
-    .kanban-board{display:grid !important; grid-template-columns:repeat(3, minmax(0,1fr)) !important;}
+    .kanban-board{display:flex !important; overflow-x:auto;}
     .agenda-view{display:block !important;}
     .stats-view{display:block !important;}
     .view-switch{display:none;}
   }
 
-  /* -- KANBAN (estilo quadro) -- */
+  /* -- KANBAN (colunas criadas livremente pelo usuário) -- */
   .kanban-board{display:none; gap:16px; align-items:flex-start;}
-  .kanban-board.active{display:grid; grid-template-columns:repeat(3, minmax(0,1fr));}
+  .kanban-board.active{display:flex; overflow-x:auto; padding-bottom:6px;}
   .kanban-col{
     background:#f2f1ec; border:1px solid var(--line); border-radius:12px;
     padding:14px; min-height:160px; max-height:70vh; display:flex; flex-direction:column;
+    width:280px; flex-shrink:0;
   }
   .kanban-col-head{
     display:flex; align-items:center; gap:8px;
     font-weight:800; font-size:12.5px; text-transform:uppercase; letter-spacing:0.05em;
     margin-bottom:12px; color:rgba(20,20,20,0.85); flex-shrink:0;
   }
+  .kanban-col-title{
+    background:transparent; border:none; font:inherit; color:inherit;
+    text-transform:uppercase; letter-spacing:0.05em; cursor:text; padding:2px 0;
+    border-bottom:1px solid transparent; max-width:150px;
+  }
+  .kanban-col-title:focus{outline:none; border-bottom:1px solid var(--gold-bright);}
   .kanban-count{
     margin-left:auto; background:rgba(20,20,20,0.08); border-radius:6px;
     padding:2px 8px; font-size:11px; font-family:'Space Mono',monospace;
   }
-  .kanban-col-dot{width:8px; height:8px; border-radius:50%; display:inline-block;}
-  .dot-todo{background:#7a8bff;}
-  .dot-doing{background:var(--gold-bright);}
-  .dot-done{background:var(--ok);}
+  .kanban-col-delete{
+    background:transparent; border:none; color:rgba(20,20,20,0.35);
+    font-size:15px; cursor:pointer; padding:0 0 0 2px; line-height:1; flex-shrink:0;
+  }
+  .kanban-col-delete:hover{color:var(--alert);}
 
   .kanban-col-body{
     display:flex; flex-direction:column; gap:8px; min-height:40px;
@@ -358,6 +366,16 @@
   }
   .kanban-add-btn:hover{border-color:var(--gold-bright); color:var(--gold-bright); background:rgba(242,201,76,0.05);}
 
+  .kanban-col-new{
+    width:220px; flex-shrink:0; min-height:80px;
+    border:1px dashed var(--line); border-radius:12px;
+    display:flex; align-items:center; justify-content:center;
+    background:transparent; color:rgba(20,20,20,0.45);
+    font-size:13px; font-weight:700; cursor:pointer;
+    transition:border-color .15s ease, color .15s ease, background .15s ease;
+  }
+  .kanban-col-new:hover{border-color:var(--gold-bright); color:var(--gold-bright); background:rgba(242,201,76,0.05);}
+
   .task-card{
     background:#ffffff; border:1px solid var(--line); border-radius:8px;
     padding:0; cursor:grab; overflow:hidden;
@@ -367,38 +385,7 @@
   .task-card:hover{border-color:var(--gold-bright); transform:translateY(-1px); box-shadow:0 6px 18px rgba(20,20,20,0.14);}
   .task-card.dragging{opacity:0.4;}
 
-  /* -- CORES POR STATUS -- */
-  .task-card.status-todo{
-    background:linear-gradient(160deg, #3251d4 0%, #23348c 100%);
-    border-color:#5c7cfa;
-  }
-  .task-card.status-doing{
-    background:linear-gradient(160deg, #f2c94c 0%, #c99a2e 100%);
-    border-color:#f2c94c;
-  }
-  .task-card.status-done{
-    background:linear-gradient(160deg, #2e9d67 0%, #1c6e46 100%);
-    border-color:#3fb27f;
-  }
-  .task-card.status-todo .task-title, .task-card.status-todo .task-desc,
-  .task-card.status-todo .task-date, .task-card.status-todo .task-finalizado label,
-  .task-card.status-done .task-title, .task-card.status-done .task-desc,
-  .task-card.status-done .task-date, .task-card.status-done .task-finalizado label{
-    color:#fff !important;
-  }
-  .task-card.status-doing .task-title, .task-card.status-doing .task-desc,
-  .task-card.status-doing .task-date, .task-card.status-doing .task-finalizado label{
-    color:#211a00 !important;
-  }
-  .task-card.status-todo .task-desc, .task-card.status-done .task-desc{color:rgba(255,255,255,0.85) !important;}
-  .task-card.status-doing .task-desc{color:rgba(33,26,0,0.75) !important;}
-  .task-concluida-msg{
-    font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.03em;
-    color:#fff; background:rgba(0,0,0,0.2); border-radius:6px;
-    padding:6px 8px; margin-top:8px; text-align:center;
-  }
-
-  /* -- VENCIDA (prevalece sobre a cor de status) -- */
+  /* -- VENCIDA (a única cor "automática" que resta — sinaliza atraso) -- */
   .task-card.overdue-card{
     background:linear-gradient(160deg, #9a2a25 0%, #6e1c19 100%);
     border-color:#e0433c;
@@ -407,14 +394,14 @@
   .task-card.overdue-card:hover{border-color:#ff6b62; box-shadow:0 4px 18px rgba(224,67,60,0.5);}
   .task-card.overdue-card .task-title,
   .task-card.overdue-card .task-desc,
-  .task-card.overdue-card .task-date,
-  .task-card.overdue-card .task-finalizado label{
+  .task-card.overdue-card .task-date{
     font-weight:800 !important; color:#fff !important;
   }
   .task-card.overdue-card .task-desc{color:rgba(255,255,255,0.9) !important;}
+  .task-card.overdue-card .task-actions button{color:#fff; border-color:rgba(255,255,255,0.4);}
 
   .task-card-image{width:100%; height:110px; object-fit:cover; display:block; background:#e8e6df;}
-  .task-card-stripe{height:4px; width:100%;}
+  .task-card-stripe{height:4px; width:100%; background:rgba(20,20,20,0.15);}
   .task-card-inner{padding:11px 12px;}
   .task-card-top{display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:5px;}
   .task-title{font-weight:700; font-size:14px; line-height:1.35;}
@@ -432,54 +419,34 @@
   }
   .task-date.overdue{color:var(--alert); font-weight:700;}
   .task-date.today{color:var(--gold-bright); font-weight:700;}
-  .task-finalizado{
-    display:flex; align-items:center; gap:6px; margin-top:8px;
-    padding-top:8px; border-top:1px solid rgba(255,255,255,0.15);
+  .task-actions{
+    display:flex; gap:8px; margin-top:8px;
+    padding-top:8px; border-top:1px solid rgba(0,0,0,0.08);
   }
-  .task-finalizado input[type="checkbox"]{
-    width:14px; height:14px; accent-color:var(--ok); cursor:pointer;
+  .task-actions button{
+    flex:1; padding:7px 0; border-radius:6px; border:1px solid var(--line);
+    background:transparent; font-family:'Inter',sans-serif; font-weight:700;
+    font-size:10.5px; text-transform:uppercase; letter-spacing:0.03em; cursor:pointer;
+    transition:background .15s ease, border-color .15s ease, color .15s ease;
   }
-  .task-finalizado label{
-    font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.03em;
-    color:rgba(20,20,20,0.5); cursor:pointer;
-  }
+  .task-archive-btn{color:rgba(20,20,20,0.6);}
+  .task-archive-btn:hover{border-color:var(--gold-bright); color:var(--gold-bright); background:rgba(242,201,76,0.06);}
+  .task-delete-btn{color:var(--alert); border-color:rgba(224,67,60,0.35);}
+  .task-delete-btn:hover{background:rgba(224,67,60,0.1);}
   .empty-col{
     text-align:center; color:rgba(20,20,20,0.3); font-size:12px;
     padding:16px 0; border:1px dashed var(--line); border-radius:8px;
   }
 
-  /* -- LIXEIRA -- */
-  .lixeira-btn{
-    display:none; position:fixed; left:22px; bottom:22px; z-index:40;
-    align-items:center; gap:8px;
-    background:var(--panel); border:1px solid var(--line); border-radius:24px;
-    padding:11px 18px; color:var(--text-primary);
-    font-family:'Inter',sans-serif; font-weight:700; font-size:13px;
-    cursor:pointer; box-shadow:0 8px 22px rgba(0,0,0,0.4);
-    transition:border-color .2s ease, transform .15s ease;
+  /* -- CORES DO CARTÃO (escolhidas manualmente no modal) -- */
+  .color-swatches{display:flex; gap:10px; flex-wrap:wrap; padding:2px 0 4px;}
+  .color-swatch{
+    width:26px; height:26px; border-radius:50%; cursor:pointer;
+    border:2px solid transparent; transition:transform .15s ease, border-color .15s ease;
+    flex-shrink:0;
   }
-  .lixeira-btn:hover{border-color:var(--gold-bright); transform:translateY(-2px);}
-  .lixeira-btn.show{display:inline-flex;}
-  .lixeira-badge{
-    background:var(--alert); color:#fff; border-radius:20px;
-    padding:1px 8px; font-size:11px; font-family:'Space Mono',monospace;
-    min-width:18px; text-align:center;
-  }
-  .lixeira-badge.zero{background:rgba(20,20,20,0.12); color:rgba(20,20,20,0.4);}
-  .lixeira-item{
-    display:flex; justify-content:space-between; align-items:center; gap:10px;
-    background:var(--panel); border:1px solid var(--line); border-radius:10px;
-    padding:11px 13px;
-  }
-  .lixeira-item .task-title{font-size:13.5px;}
-  .btn-restaurar{
-    flex-shrink:0; padding:8px 14px; border-radius:8px; border:1px solid var(--ok);
-    background:rgba(63,178,127,0.12); color:#7fe0b4;
-    font-family:'Inter',sans-serif; font-weight:700; font-size:12px;
-    text-transform:uppercase; letter-spacing:0.02em; cursor:pointer;
-    transition:background .15s ease;
-  }
-  .btn-restaurar:hover{background:rgba(63,178,127,0.25);}
+  .color-swatch:hover{transform:scale(1.12);}
+  .color-swatch.selected{border-color:var(--text-primary);}
 
   /* -- AGENDA -- */
   .agenda-view{display:none;}
@@ -700,7 +667,7 @@
   }
 
   @media (max-width: 720px){
-    .kanban-board.active{grid-template-columns:1fr;}
+    .kanban-col{width:88vw;}
     .field-row{grid-template-columns:1fr;}
   }
 
@@ -855,32 +822,9 @@
     <div class="app-alert" id="appAlert"></div>
 
     <div class="dash-body">
-    <!-- KANBAN VIEW -->
+    <!-- KANBAN VIEW (colunas criadas pelo usuário) -->
     <div class="kanban-board" id="kanbanBoard">
-      <div class="kanban-col" data-status="todo">
-        <div class="kanban-col-head">
-          <span class="kanban-col-dot dot-todo"></span> A Fazer
-          <span class="kanban-count" id="countTodo">0</span>
-        </div>
-        <div class="kanban-col-body" id="colTodo" data-status="todo"></div>
-        <button type="button" class="kanban-add-btn" data-add-status="todo">+ Adicionar cartão</button>
-      </div>
-      <div class="kanban-col" data-status="doing">
-        <div class="kanban-col-head">
-          <span class="kanban-col-dot dot-doing"></span> Fazendo
-          <span class="kanban-count" id="countDoing">0</span>
-        </div>
-        <div class="kanban-col-body" id="colDoing" data-status="doing"></div>
-        <button type="button" class="kanban-add-btn" data-add-status="doing">+ Adicionar cartão</button>
-      </div>
-      <div class="kanban-col" data-status="done">
-        <div class="kanban-col-head">
-          <span class="kanban-col-dot dot-done"></span> Concluído
-          <span class="kanban-count" id="countDone">0</span>
-        </div>
-        <div class="kanban-col-body" id="colDone" data-status="done"></div>
-        <button type="button" class="kanban-add-btn" data-add-status="done">+ Adicionar cartão</button>
-      </div>
+      <!-- colunas + tile "+ Nova coluna" são renderizadas via JS em renderKanban() -->
     </div>
 
     <!-- AGENDA VIEW -->
@@ -895,11 +839,6 @@
           <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
         </div>
         <div class="cal-grid" id="calGrid"></div>
-        <div class="cal-legend">
-          <span><i class="dot-todo"></i> A Fazer</span>
-          <span><i class="dot-doing"></i> Fazendo</span>
-          <span><i class="dot-done"></i> Concluído</span>
-        </div>
       </div>
     </div>
 
@@ -909,34 +848,12 @@
         <div class="stats-title">Dashboard</div>
         <div class="stats-total" id="statsTotal">0 tarefas no total</div>
 
-        <div class="stats-row">
-          <div class="stats-row-top">
-            <span class="stats-row-label"><span class="kanban-col-dot dot-todo"></span>A Fazer</span>
-            <span class="stats-row-nums"><b id="statsTodoCount">0</b><span id="statsTodoPct">0%</span></span>
-          </div>
-          <div class="stats-bar-track"><div class="stats-bar-fill fill-todo" id="statsTodoBar" style="width:0%"></div></div>
-        </div>
-
-        <div class="stats-row">
-          <div class="stats-row-top">
-            <span class="stats-row-label"><span class="kanban-col-dot dot-doing"></span>Fazendo</span>
-            <span class="stats-row-nums"><b id="statsDoingCount">0</b><span id="statsDoingPct">0%</span></span>
-          </div>
-          <div class="stats-bar-track"><div class="stats-bar-fill fill-doing" id="statsDoingBar" style="width:0%"></div></div>
-        </div>
-
-        <div class="stats-row">
-          <div class="stats-row-top">
-            <span class="stats-row-label"><span class="kanban-col-dot dot-done"></span>Concluído</span>
-            <span class="stats-row-nums"><b id="statsDoneCount">0</b><span id="statsDonePct">0%</span></span>
-          </div>
-          <div class="stats-bar-track"><div class="stats-bar-fill fill-done" id="statsDoneBar" style="width:0%"></div></div>
-        </div>
+        <div id="statsColumnsContainer"><!-- linhas por coluna renderizadas via JS --></div>
 
         <div class="stats-divider"></div>
         <div class="stats-finalizadas">
-          <span>Na lixeira</span>
-          <b id="statsFinalizadas">0</b>
+          <span>Arquivadas</span>
+          <b id="statsArquivadas">0</b>
         </div>
       </div>
     </div>
@@ -1006,11 +923,27 @@
             <input type="hidden" id="taskImagemData">
           </div>
         </div>
+
+        <div class="gcal-row">
+          <span class="gcal-icon">📋</span>
+          <div class="gcal-row-body">
+            <select id="taskColuna" class="gcal-plain-select" required></select>
+          </div>
+        </div>
+
+        <div class="gcal-row" style="align-items:flex-start;">
+          <span class="gcal-icon">🎨</span>
+          <div class="gcal-row-body">
+            <div class="color-swatches" id="colorSwatches"><!-- opções de cor renderizadas via JS --></div>
+            <input type="hidden" id="taskCor" value="">
+          </div>
+        </div>
       </div>
 
-      <input type="hidden" id="taskStatus" value="todo">
-
-      <button type="button" class="btn-secondary" id="btnDeleteTask" style="display:none; border-color:var(--alert); color:#ff8b85; margin-top:16px;">Excluir tarefa</button>
+      <div style="display:flex; gap:10px; margin-top:16px;">
+        <button type="button" class="btn-secondary" id="btnArchiveTask" style="display:none;">Arquivar</button>
+        <button type="button" class="btn-secondary" id="btnDeleteTask" style="display:none; border-color:var(--alert); color:#ff8b85;">Excluir tarefa</button>
+      </div>
     </form>
   </div>
 </div>
@@ -1024,22 +957,6 @@
     </div>
     <div id="dayModalList" class="day-task-list"></div>
     <button type="button" class="btn-primary" id="btnAddTaskFromDay" style="margin-top:18px;">+ Adicionar tarefa neste dia</button>
-  </div>
-</div>
-
-<!-- BOTÃO FIXO DA LIXEIRA -->
-<button type="button" class="lixeira-btn" id="btnLixeira">
-  🗑️ Lixeira <span class="lixeira-badge zero" id="lixeiraBadge">0</span>
-</button>
-
-<!-- MODAL: LIXEIRA -->
-<div class="modal-overlay" id="lixeiraModalOverlay">
-  <div class="modal-box">
-    <div class="modal-head">
-      <div class="modal-title">Lixeira</div>
-      <button type="button" class="modal-close" id="lixeiraModalClose">✕</button>
-    </div>
-    <div id="lixeiraList" class="day-task-list"></div>
   </div>
 </div>
 
@@ -1125,7 +1042,6 @@
     document.querySelector('.brand').style.display = 'none';
     dash.classList.add('active');
     wrap.classList.add('dash-mode');
-    document.getElementById('btnLixeira').classList.add('show');
     document.getElementById('dashNome').textContent = (user.displayName || user.email.split('@')[0]);
     document.getElementById('dashEmailBadge').textContent = user.email;
     startTaskApp(user);
@@ -1135,7 +1051,6 @@
     document.querySelector('.brand').style.display = 'flex';
     dash.classList.remove('active');
     wrap.classList.remove('dash-mode');
-    document.getElementById('btnLixeira').classList.remove('show');
     stopTaskApp();
   }
 
@@ -1319,38 +1234,33 @@
   }
 
   // ============================================================
-  // KANBAN + AGENDA + NOTIFICAÇÕES
+  // KANBAN (colunas livres) + AGENDA + DASHBOARD + NOTIFICAÇÕES
   // ============================================================
 
   let currentUser = null;
   let unsubTasks = null;
-  let tasks = []; // {id, title, description, label, status, startDate, endDate, startTime, endTime, finalizado, userId}
+  let unsubColumns = null;
+  let tasks = [];   // {id, title, description, label, columnId, color, archived, startDate, endDate, startTime, endTime, userId}
+  let columns = []; // {id, title, order, userId}
   let currentView = 'kanban';
   let calRefDate = new Date(); // mês exibido na agenda
   let selectedDay = null; // 'YYYY-MM-DD'
   let notifyTimer = null;
   const notifiedToday = new Set();
 
-  const STATUS_NAMES = { todo: 'A Fazer', doing: 'Fazendo', done: 'Concluído' };
-
-  // ---------- COR DINÂMICA POR ETIQUETA (criada livremente pelo usuário) ----------
-  const LABEL_PALETTE = [
-    { bg:'rgba(122,139,255,0.16)', fg:'#3346c9', stripe:'#7a8bff' },   // azul
-    { bg:'rgba(224,170,31,0.18)',  fg:'#a8760f', stripe:'#e0aa1f' },   // dourado
-    { bg:'rgba(63,178,127,0.16)',  fg:'#1f7a4d', stripe:'#3fb27f' },   // verde
-    { bg:'rgba(224,120,220,0.16)', fg:'#a83aa0', stripe:'#c96bc4' },   // rosa
-    { bg:'rgba(255,159,102,0.18)', fg:'#c1691a', stripe:'#ff9f66' },   // laranja
-    { bg:'rgba(96,205,220,0.18)',  fg:'#1a8fa3', stripe:'#4fc2d6' },   // ciano
-    { bg:'rgba(180,160,255,0.16)', fg:'#6b3fd6', stripe:'#8f6bff' },   // roxo
-    { bg:'rgba(20,20,20,0.08)',  fg:'rgba(20,20,20,0.65)', stripe:'rgba(20,20,20,0.3)' }, // neutro
+  // ---------- CORES DISPONÍVEIS PARA O CARTÃO (escolha manual) ----------
+  const CARD_COLORS = [
+    '#7a8bff', // azul
+    '#e0aa1f', // dourado
+    '#3fb27f', // verde
+    '#c96bc4', // rosa
+    '#ff9f66', // laranja
+    '#4fc2d6', // ciano
+    '#8f6bff', // roxo
+    'rgba(20,20,20,0.3)', // neutro
   ];
-  function labelColor(text){
-    const t = (text || '').trim().toLowerCase();
-    if (!t) return LABEL_PALETTE[LABEL_PALETTE.length - 1];
-    let hash = 0;
-    for (let i = 0; i < t.length; i++) hash = (hash * 31 + t.charCodeAt(i)) >>> 0;
-    return LABEL_PALETTE[hash % (LABEL_PALETTE.length - 1)];
-  }
+  const DEFAULT_CARD_COLOR = CARD_COLORS[CARD_COLORS.length - 1];
+
   function labelText(t){
     return (t && t.trim()) ? t.trim() : 'Sem etiqueta';
   }
@@ -1371,16 +1281,24 @@
     currentUser = user;
     if (!firebaseReady) return;
     if (unsubTasks) unsubTasks();
-    const q = query(collection(db, 'tasks'), where('userId', '==', user.uid));
-    unsubTasks = onSnapshot(q, (snap) => {
+    if (unsubColumns) unsubColumns();
+
+    const qCols = query(collection(db, 'columns'), where('userId', '==', user.uid));
+    unsubColumns = onSnapshot(qCols, (snap) => {
+      columns = [];
+      snap.forEach(d => columns.push({ id: d.id, ...d.data() }));
+      columns.sort((a,b) => (a.order ?? 0) - (b.order ?? 0));
+      renderAll();
+    }, (err) => {
+      console.error('Erro ao carregar colunas:', err);
+      showAppAlert('Não foi possível carregar suas colunas. Verifique as regras do Firestore.');
+    });
+
+    const qTasks = query(collection(db, 'tasks'), where('userId', '==', user.uid));
+    unsubTasks = onSnapshot(qTasks, (snap) => {
       tasks = [];
       snap.forEach(d => tasks.push({ id: d.id, ...d.data() }));
-      renderKanban();
-      renderAgenda();
-      renderStats();
-      renderLixeira();
-      updateEtiquetaOptions();
-      checkDueSoon();
+      renderAll();
     }, (err) => {
       console.error('Erro ao carregar tarefas:', err);
       showAppAlert('Não foi possível carregar suas tarefas. Verifique as regras do Firestore.');
@@ -1388,9 +1306,20 @@
   }
   function stopTaskApp(){
     if (unsubTasks) { unsubTasks(); unsubTasks = null; }
+    if (unsubColumns) { unsubColumns(); unsubColumns = null; }
     tasks = [];
+    columns = [];
     currentUser = null;
     if (notifyTimer) { clearInterval(notifyTimer); notifyTimer = null; }
+  }
+
+  function renderAll(){
+    renderKanban();
+    renderAgenda();
+    renderStats();
+    updateEtiquetaOptions();
+    populateColumnSelect();
+    checkDueSoon();
   }
 
   function showAppAlert(msg){
@@ -1414,9 +1343,43 @@
   // vista inicial
   document.getElementById('kanbanBoard').classList.add('active');
 
+  // ---------- GESTÃO DE COLUNAS ----------
+  async function addColumn(){
+    if (!currentUser) return;
+    const title = prompt('Nome da nova coluna:');
+    if (!title || !title.trim()) return;
+    try {
+      await addDoc(collection(db, 'columns'), {
+        title: title.trim(),
+        order: columns.length,
+        userId: currentUser.uid,
+        createdAt: serverTimestamp(),
+      });
+    } catch (err) {
+      console.error(err);
+      showAppAlert('Não foi possível criar a coluna.');
+    }
+  }
+  async function renameColumn(id, newTitle){
+    const title = (newTitle || '').trim();
+    if (!title) return;
+    try { await updateDoc(doc(db, 'columns', id), { title }); }
+    catch (err) { console.error(err); }
+  }
+  async function deleteColumn(id){
+    const hasTasks = tasks.some(t => t.columnId === id && !t.archived);
+    if (hasTasks) {
+      showAppAlert('Essa coluna tem cartões. Mova ou exclua os cartões antes de apagar a coluna.');
+      return;
+    }
+    if (!confirm('Excluir esta coluna?')) return;
+    try { await deleteDoc(doc(db, 'columns', id)); }
+    catch (err) { console.error(err); showAppAlert('Não foi possível excluir a coluna.'); }
+  }
+
   // ---------- RENDER KANBAN ----------
-  function dateBadgeClass(endDateStr, status){
-    if (!endDateStr || status === 'done') return '';
+  function dateBadgeClass(endDateStr){
+    if (!endDateStr) return '';
     if (endDateStr < todayStr()) return 'overdue';
     if (endDateStr === todayStr()) return 'today';
     return '';
@@ -1427,11 +1390,10 @@
   }
 
   function taskCardHTML(t){
-    const dcls = dateBadgeClass(t.endDate, t.status);
-    const col = labelColor(t.label);
+    const dcls = dateBadgeClass(t.endDate);
     const isOverdue = dcls === 'overdue';
-    const cardStateClass = isOverdue ? 'overdue-card' : `status-${t.status}`;
-    const labelStyle = `background:rgba(0,0,0,0.28); color:#fff;`;
+    const cardStateClass = isOverdue ? 'overdue-card' : '';
+    const color = t.color || DEFAULT_CARD_COLOR;
     let dateLine = '';
     if (t.startDate || t.endDate) {
       const startTxt = t.startDate ? fmtDate(t.startDate) + (t.startTime ? ' ' + t.startTime : '') : '';
@@ -1444,20 +1406,19 @@
     return `
       <div class="task-card ${cardStateClass}" draggable="true" data-id="${t.id}">
         ${t.image ? `<img src="${t.image}" class="task-card-image" alt="">` : ''}
-        <div class="task-card-stripe" style="background:${col.stripe};"></div>
+        <div class="task-card-stripe" style="background:${color};"></div>
         <div class="task-card-inner">
           <div class="task-card-top">
             <div class="task-title">${escapeHTML(t.title)}</div>
           </div>
           ${t.description ? `<div class="task-desc">${escapeHTML(t.description)}</div>` : ''}
           <div class="task-meta">
-            <span class="task-label" style="${labelStyle}"><span class="task-label-dot" style="background:${col.stripe};"></span>${escapeHTML(labelText(t.label))}</span>
+            <span class="task-label" style="background:rgba(0,0,0,0.28); color:#fff;"><span class="task-label-dot" style="background:${color};"></span>${escapeHTML(labelText(t.label))}</span>
             ${dateLine}
           </div>
-          ${t.status === 'done' ? `<div class="task-concluida-msg">✅ Tarefa Concluída</div>` : ''}
-          <div class="task-finalizado">
-            <input type="checkbox" id="fin-${t.id}" data-fin-id="${t.id}">
-            <label for="fin-${t.id}">Finalizado</label>
+          <div class="task-actions">
+            <button type="button" class="task-archive-btn" data-archive-id="${t.id}">Arquivar</button>
+            <button type="button" class="task-delete-btn" data-delete-id="${t.id}">Excluir</button>
           </div>
         </div>
       </div>`;
@@ -1467,86 +1428,105 @@
   }
 
   function renderKanban(){
-    const cols = { todo: [], doing: [], done: [] };
-    tasks.forEach(t => { if (!t.trashed && cols[t.status]) cols[t.status].push(t); });
-    Object.entries(cols).forEach(([status, list]) => {
-      list.sort((a,b) => ((a.startDate||'9999')+(a.startTime||'99:99')).localeCompare((b.startDate||'9999')+(b.startTime||'99:99')));
+    const board = document.getElementById('kanbanBoard');
+    if (!columns.length) {
+      board.innerHTML = `<div class="empty-col" style="width:100%;">Você ainda não criou nenhuma coluna. Clique em "+ Nova coluna" para começar.</div>`;
+    } else {
+      board.innerHTML = columns.map(col => {
+        const list = tasks
+          .filter(t => t.columnId === col.id && !t.archived)
+          .sort((a,b) => ((a.startDate||'9999')+(a.startTime||'99:99')).localeCompare((b.startDate||'9999')+(b.startTime||'99:99')));
+        return `
+          <div class="kanban-col" data-column-id="${col.id}">
+            <div class="kanban-col-head">
+              <input type="text" class="kanban-col-title" value="${escapeHTML(col.title)}" data-rename-id="${col.id}" style="width:${Math.max(60, col.title.length*7)}px;">
+              <span class="kanban-count">${list.length}</span>
+              <button type="button" class="kanban-col-delete" data-delcol-id="${col.id}" title="Excluir coluna">✕</button>
+            </div>
+            <div class="kanban-col-body" id="colbody-${col.id}" data-column-id="${col.id}">
+              ${list.length ? list.map(taskCardHTML).join('') : `<div class="empty-col">Sem tarefas</div>`}
+            </div>
+            <button type="button" class="kanban-add-btn" data-add-column="${col.id}">+ Adicionar cartão</button>
+          </div>`;
+      }).join('');
+    }
+    board.insertAdjacentHTML('beforeend', `<button type="button" class="kanban-col-new" id="btnNewColumn">+ Nova coluna</button>`);
+
+    document.getElementById('btnNewColumn').addEventListener('click', addColumn);
+
+    // renomear coluna (ao sair do campo ou pressionar Enter)
+    board.querySelectorAll('[data-rename-id]').forEach(input => {
+      input.addEventListener('click', (e) => e.stopPropagation());
+      input.addEventListener('keydown', (e) => { if (e.key === 'Enter') input.blur(); });
+      input.addEventListener('blur', () => renameColumn(input.dataset.renameId, input.value));
     });
 
-    const map = { todo: 'colTodo', doing: 'colDoing', done: 'colDone' };
-    Object.entries(map).forEach(([status, elId]) => {
-      const el = document.getElementById(elId);
-      const list = cols[status];
-      el.innerHTML = list.length
-        ? list.map(taskCardHTML).join('')
-        : `<div class="empty-col">Sem tarefas</div>`;
+    // excluir coluna
+    board.querySelectorAll('[data-delcol-id]').forEach(btn => {
+      btn.addEventListener('click', () => deleteColumn(btn.dataset.delcolId));
     });
-    document.getElementById('countTodo').textContent = cols.todo.length;
-    document.getElementById('countDoing').textContent = cols.doing.length;
-    document.getElementById('countDone').textContent = cols.done.length;
+
+    // "+ Adicionar cartão" em cada coluna
+    board.querySelectorAll('[data-add-column]').forEach(btn => {
+      btn.addEventListener('click', () => openTaskModal(null, null, btn.dataset.addColumn));
+    });
 
     // clique no card abre edição
-    document.querySelectorAll('.task-card').forEach(card => {
+    board.querySelectorAll('.task-card').forEach(card => {
       card.addEventListener('click', (e) => {
-        if (e.target.closest('.task-finalizado')) return;
+        if (e.target.closest('.task-actions')) return;
         openTaskModal(card.dataset.id);
       });
       card.addEventListener('dragstart', () => card.classList.add('dragging'));
       card.addEventListener('dragend', () => card.classList.remove('dragging'));
     });
 
-    // checkbox "Finalizado" — manda o card para a Lixeira (pode ser restaurado depois)
-    document.querySelectorAll('[data-fin-id]').forEach(chk => {
-      chk.addEventListener('click', (e) => e.stopPropagation());
-      chk.addEventListener('change', async (e) => {
+    // botão "Arquivar" no cartão
+    board.querySelectorAll('[data-archive-id]').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
         e.stopPropagation();
-        const id = chk.dataset.finId;
-        if (!chk.checked) return;
+        const id = btn.dataset.archiveId;
+        try { await updateDoc(doc(db, 'tasks', id), { archived: true }); }
+        catch (err) { console.error(err); showAppAlert('Não foi possível arquivar a tarefa.'); }
+      });
+    });
+
+    // botão "Excluir" no cartão — apaga de verdade
+    board.querySelectorAll('[data-delete-id]').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const id = btn.dataset.deleteId;
+        if (!confirm('Excluir esta tarefa? Essa ação não pode ser desfeita.')) return;
+        try { await deleteDoc(doc(db, 'tasks', id)); }
+        catch (err) { console.error(err); showAppAlert('Não foi possível excluir a tarefa.'); }
+      });
+    });
+
+    // ---------- DRAG AND DROP ----------
+    board.querySelectorAll('.kanban-col-body').forEach(colBody => {
+      colBody.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        colBody.classList.add('drag-over');
+      });
+      colBody.addEventListener('dragleave', () => colBody.classList.remove('drag-over'));
+      colBody.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        colBody.classList.remove('drag-over');
+        const dragging = board.querySelector('.task-card.dragging');
+        if (!dragging) return;
+        const id = dragging.dataset.id;
+        const newColumnId = colBody.dataset.columnId;
         const t = tasks.find(x => x.id === id);
-        const card = chk.closest('.task-card');
-        if (card) card.style.opacity = '0.3';
-        try {
-          await updateDoc(doc(db, 'tasks', id), {
-            trashed: true,
-            trashedFromStatus: (t && t.status) || 'todo',
-          });
-        } catch (err) {
-          console.error(err);
-          showAppAlert('Não foi possível mover a tarefa para a lixeira.');
-          if (card) card.style.opacity = '1';
+        if (t && t.columnId !== newColumnId) {
+          try { await updateDoc(doc(db, 'tasks', id), { columnId: newColumnId }); }
+          catch (err) { console.error(err); }
         }
       });
     });
   }
 
-  // ---------- DRAG AND DROP ----------
-  document.querySelectorAll('.kanban-col-body').forEach(colBody => {
-    colBody.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      colBody.classList.add('drag-over');
-    });
-    colBody.addEventListener('dragleave', () => colBody.classList.remove('drag-over'));
-    colBody.addEventListener('drop', async (e) => {
-      e.preventDefault();
-      colBody.classList.remove('drag-over');
-      const dragging = document.querySelector('.task-card.dragging');
-      if (!dragging) return;
-      const id = dragging.dataset.id;
-      const newStatus = colBody.dataset.status;
-      const t = tasks.find(x => x.id === id);
-      if (t && t.status !== newStatus) {
-        try { await updateDoc(doc(db, 'tasks', id), { status: newStatus }); }
-        catch (err) { console.error(err); }
-      }
-    });
-  });
-
   // ---------- RENDER AGENDA ----------
   const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-
-  function statusColorDot(status){
-    return { todo: 'dot-todo', doing: 'dot-doing', done: 'dot-done' }[status] || 'dot-todo';
-  }
 
   function renderAgenda(){
     const year = calRefDate.getFullYear();
@@ -1560,7 +1540,7 @@
     // agrupar tarefas por data (cobrindo todo o intervalo início→fim, até 60 dias)
     const byDate = {};
     tasks.forEach(t => {
-      if (t.trashed) return;
+      if (t.archived) return;
       const start = t.startDate || t.endDate;
       const end = t.endDate || t.startDate;
       if (!start) return;
@@ -1592,8 +1572,7 @@
       if (dateStr === selectedDay) cell.classList.add('selected');
 
       const dayTasks = byDate[dateStr] || [];
-      const statusesPresent = [...new Set(dayTasks.map(t => t.status))];
-      const dotsHTML = statusesPresent.slice(0,3).map(s => `<span class="${statusColorDot(s)}"></span>`).join('');
+      const dotsHTML = dayTasks.slice(0,3).map(t => `<span style="background:${t.color || DEFAULT_CARD_COLOR}; width:5px; height:5px; border-radius:50%; display:inline-block;"></span>`).join('');
 
       cell.innerHTML = `<span>${day}</span><div class="cal-dots">${dotsHTML}</div>`;
       cell.addEventListener('click', () => openDayModal(dateStr));
@@ -1612,13 +1591,17 @@
 
   // ---------- MODAL DIA ----------
   const dayModalOverlay = document.getElementById('dayModalOverlay');
+  function columnTitle(columnId){
+    const c = columns.find(c => c.id === columnId);
+    return c ? c.title : 'Sem coluna';
+  }
   function openDayModal(dateStr){
     selectedDay = dateStr;
     renderAgenda();
     const [y,m,d] = dateStr.split('-');
     document.getElementById('dayModalTitle').textContent = `Tarefas em ${d}/${m}/${y}`;
     const dayTasks = tasks.filter(t => {
-      if (t.trashed) return false;
+      if (t.archived) return false;
       const start = t.startDate || t.endDate;
       const end = t.endDate || t.startDate;
       if (!start) return false;
@@ -1635,9 +1618,9 @@
             <div>
               ${timeTxt ? `<div style="font-family:'Space Mono',monospace; font-size:11px; color:var(--gold-bright); margin-bottom:3px;">${timeTxt}</div>` : ''}
               <div class="task-title">${escapeHTML(t.title)}</div>
-              <span class="task-label" style="margin-top:4px; display:inline-block; background:${labelColor(t.label).bg}; color:${labelColor(t.label).fg};">${escapeHTML(labelText(t.label))}</span>
+              <span class="task-label" style="margin-top:4px; display:inline-block; background:rgba(0,0,0,0.28); color:#fff;">${escapeHTML(labelText(t.label))}</span>
             </div>
-            <span class="task-label" style="background:rgba(20,20,20,0.08); color:rgba(20,20,20,0.7);">${STATUS_NAMES[t.status]}</span>
+            <span class="task-label" style="background:rgba(20,20,20,0.08); color:rgba(20,20,20,0.7);">${escapeHTML(columnTitle(t.columnId))}</span>
           </div>`;
         }).join('')
       : `<div class="day-empty">Nenhuma tarefa neste dia.</div>`;
@@ -1661,11 +1644,34 @@
   const taskModalOverlay = document.getElementById('taskModalOverlay');
   const gcalTimeRow = document.getElementById('gcalTimeRow');
   const taskDiaInteiro = document.getElementById('taskDiaInteiro');
+  const taskColunaSelect = document.getElementById('taskColuna');
+  const colorSwatchesEl = document.getElementById('colorSwatches');
+  const taskCorField = document.getElementById('taskCor');
 
   function toggleAllDayRow(){
     gcalTimeRow.style.display = taskDiaInteiro.checked ? 'none' : 'flex';
   }
   taskDiaInteiro.addEventListener('change', toggleAllDayRow);
+
+  function populateColumnSelect(){
+    const current = taskColunaSelect.value;
+    taskColunaSelect.innerHTML = columns.map(c => `<option value="${c.id}">${escapeHTML(c.title)}</option>`).join('');
+    if (current && columns.some(c => c.id === current)) taskColunaSelect.value = current;
+  }
+
+  function renderColorSwatches(selected){
+    colorSwatchesEl.innerHTML = CARD_COLORS.map(c => `
+      <span class="color-swatch ${c === selected ? 'selected' : ''}" data-color="${c}" style="background:${c};"></span>
+    `).join('');
+    taskCorField.value = selected;
+    colorSwatchesEl.querySelectorAll('.color-swatch').forEach(sw => {
+      sw.addEventListener('click', () => {
+        colorSwatchesEl.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+        sw.classList.add('selected');
+        taskCorField.value = sw.dataset.color;
+      });
+    });
+  }
 
   // ---------- IMAGEM DO CARTÃO (comprimida no navegador antes de salvar) ----------
   const imgInput = document.getElementById('taskImagemInput');
@@ -1724,12 +1730,18 @@
   });
   document.getElementById('btnRemoveImage').addEventListener('click', clearImage);
 
-  function openTaskModal(id, presetDate, presetStatus){
+  function openTaskModal(id, presetDate, presetColumnId){
+    if (!columns.length) {
+      showAppAlert('Crie uma coluna antes de adicionar tarefas.');
+      return;
+    }
     const form = document.getElementById('formTask');
     form.reset();
     clearImage();
     document.getElementById('taskId').value = id || '';
     document.getElementById('btnDeleteTask').style.display = id ? 'block' : 'none';
+    document.getElementById('btnArchiveTask').style.display = id ? 'block' : 'none';
+    populateColumnSelect();
 
     if (id) {
       const t = tasks.find(x => x.id === id);
@@ -1741,16 +1753,18 @@
         document.getElementById('taskDataFim').value = t.endDate || '';
         document.getElementById('taskHoraFim').value = t.endTime || '';
         document.getElementById('taskEtiqueta').value = t.label || '';
-        document.getElementById('taskStatus').value = t.status || 'todo';
+        taskColunaSelect.value = t.columnId || columns[0].id;
         taskDiaInteiro.checked = !t.startTime && !t.endTime;
+        renderColorSwatches(t.color || DEFAULT_CARD_COLOR);
         if (t.image) showImagePreview(t.image);
       }
     } else {
       const d = presetDate || todayStr();
       document.getElementById('taskDataInicio').value = d;
       document.getElementById('taskDataFim').value = d;
-      if (presetStatus) document.getElementById('taskStatus').value = presetStatus;
+      taskColunaSelect.value = presetColumnId || columns[0].id;
       taskDiaInteiro.checked = true;
+      renderColorSwatches(DEFAULT_CARD_COLOR);
     }
     toggleAllDayRow();
     taskModalOverlay.classList.add('show');
@@ -1759,9 +1773,6 @@
   document.getElementById('modalClose').addEventListener('click', closeTaskModal);
   taskModalOverlay.addEventListener('click', (e) => { if (e.target === taskModalOverlay) closeTaskModal(); });
   document.getElementById('btnAddTask').addEventListener('click', () => openTaskModal(null));
-  document.querySelectorAll('.kanban-add-btn').forEach(btn => {
-    btn.addEventListener('click', () => openTaskModal(null, null, btn.dataset.addStatus));
-  });
 
   document.getElementById('formTask').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -1782,8 +1793,10 @@
       startTime: isAllDay ? null : (document.getElementById('taskHoraInicio').value || null),
       endTime: isAllDay ? null : (document.getElementById('taskHoraFim').value || null),
       label: document.getElementById('taskEtiqueta').value.trim(),
-      status: document.getElementById('taskStatus').value,
+      columnId: taskColunaSelect.value,
+      color: taskCorField.value || DEFAULT_CARD_COLOR,
       image: imgDataField.value || null,
+      archived: false,
       userId: currentUser.uid,
     };
     const btn = document.getElementById('btnSaveTask');
@@ -1804,98 +1817,60 @@
     }
   });
 
+  // "Excluir tarefa" dentro do modal — apaga de verdade
   document.getElementById('btnDeleteTask').addEventListener('click', async () => {
     const id = document.getElementById('taskId').value;
     if (!id) return;
-    if (!confirm('Mover esta tarefa para a lixeira?')) return;
-    const t = tasks.find(x => x.id === id);
+    if (!confirm('Excluir esta tarefa? Essa ação não pode ser desfeita.')) return;
     try {
-      await updateDoc(doc(db, 'tasks', id), {
-        trashed: true,
-        trashedFromStatus: (t && t.status) || 'todo',
-      });
+      await deleteDoc(doc(db, 'tasks', id));
       closeTaskModal();
     } catch (err) {
       console.error(err);
-      showAppAlert('Não foi possível mover a tarefa para a lixeira.');
+      showAppAlert('Não foi possível excluir a tarefa.');
+    }
+  });
+
+  // "Arquivar" dentro do modal
+  document.getElementById('btnArchiveTask').addEventListener('click', async () => {
+    const id = document.getElementById('taskId').value;
+    if (!id) return;
+    try {
+      await updateDoc(doc(db, 'tasks', id), { archived: true });
+      closeTaskModal();
+    } catch (err) {
+      console.error(err);
+      showAppAlert('Não foi possível arquivar a tarefa.');
     }
   });
 
   // ---------- DASHBOARD / ESTATÍSTICAS ----------
   function renderStats(){
-    const ativas = tasks.filter(t => !t.trashed);
+    const ativas = tasks.filter(t => !t.archived);
     const total = ativas.length;
-    const counts = { todo: 0, doing: 0, done: 0 };
-    ativas.forEach(t => { if (counts[t.status] !== undefined) counts[t.status]++; });
     const pct = n => total ? Math.round((n / total) * 100) : 0;
 
     document.getElementById('statsTotal').textContent = `${total} tarefa${total === 1 ? '' : 's'} ativa${total === 1 ? '' : 's'} no total`;
 
-    document.getElementById('statsTodoCount').textContent = counts.todo;
-    document.getElementById('statsTodoPct').textContent = pct(counts.todo) + '%';
-    document.getElementById('statsTodoBar').style.width = pct(counts.todo) + '%';
-
-    document.getElementById('statsDoingCount').textContent = counts.doing;
-    document.getElementById('statsDoingPct').textContent = pct(counts.doing) + '%';
-    document.getElementById('statsDoingBar').style.width = pct(counts.doing) + '%';
-
-    document.getElementById('statsDoneCount').textContent = counts.done;
-    document.getElementById('statsDonePct').textContent = pct(counts.done) + '%';
-    document.getElementById('statsDoneBar').style.width = pct(counts.done) + '%';
-
-    document.getElementById('statsFinalizadas').textContent = tasks.filter(t => t.trashed).length;
-  }
-
-  // ---------- LIXEIRA ----------
-  const lixeiraModalOverlay = document.getElementById('lixeiraModalOverlay');
-  const btnLixeira = document.getElementById('btnLixeira');
-  const lixeiraBadge = document.getElementById('lixeiraBadge');
-
-  function renderLixeira(){
-    const trashed = tasks.filter(t => t.trashed);
-    lixeiraBadge.textContent = trashed.length;
-    lixeiraBadge.classList.toggle('zero', trashed.length === 0);
-
-    const list = document.getElementById('lixeiraList');
-    list.innerHTML = trashed.length
-      ? trashed.map(t => `
-          <div class="lixeira-item" data-id="${t.id}">
-            <div>
-              <div class="task-title">${escapeHTML(t.title)}</div>
-              <span class="task-label" style="margin-top:4px; display:inline-block; background:rgba(20,20,20,0.08); color:rgba(20,20,20,0.7);">${escapeHTML(labelText(t.label))}</span>
+    const container = document.getElementById('statsColumnsContainer');
+    if (!columns.length) {
+      container.innerHTML = `<div class="empty-col">Nenhuma coluna criada ainda.</div>`;
+    } else {
+      container.innerHTML = columns.map(col => {
+        const count = ativas.filter(t => t.columnId === col.id).length;
+        return `
+          <div class="stats-row">
+            <div class="stats-row-top">
+              <span class="stats-row-label">${escapeHTML(col.title)}</span>
+              <span class="stats-row-nums"><b>${count}</b><span>${pct(count)}%</span></span>
             </div>
-            <button type="button" class="btn-restaurar" data-restore-id="${t.id}">Restaurar</button>
-          </div>`).join('')
-      : `<div class="day-empty">A lixeira está vazia.</div>`;
+            <div class="stats-bar-track"><div class="stats-bar-fill" style="width:${pct(count)}%; background:var(--gold-bright);"></div></div>
+          </div>`;
+      }).join('');
+    }
 
-    list.querySelectorAll('[data-restore-id]').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const id = btn.dataset.restoreId;
-        const t = tasks.find(x => x.id === id);
-        btn.disabled = true; btn.textContent = 'Restaurando...';
-        try {
-          await updateDoc(doc(db, 'tasks', id), {
-            trashed: false,
-            status: (t && t.trashedFromStatus) || (t && t.status) || 'todo',
-            trashedFromStatus: null,
-          });
-        } catch (err) {
-          console.error(err);
-          showAppAlert('Não foi possível restaurar a tarefa.');
-          btn.disabled = false; btn.textContent = 'Restaurar';
-        }
-      });
-    });
+    document.getElementById('statsArquivadas').textContent = tasks.filter(t => t.archived).length;
   }
-
-  function openLixeiraModal(){
-    renderLixeira();
-    lixeiraModalOverlay.classList.add('show');
-  }
-  function closeLixeiraModal(){ lixeiraModalOverlay.classList.remove('show'); }
-  btnLixeira.addEventListener('click', openLixeiraModal);
-  document.getElementById('lixeiraModalClose').addEventListener('click', closeLixeiraModal);
-  lixeiraModalOverlay.addEventListener('click', (e) => { if (e.target === lixeiraModalOverlay) closeLixeiraModal(); });
 
   // ---------- NOTIFICAÇÕES ----------
   const btnNotify = document.getElementById('btnNotify');
@@ -1925,7 +1900,7 @@
     const tomorrowStr = `${tmrw.getFullYear()}-${String(tmrw.getMonth()+1).padStart(2,'0')}-${String(tmrw.getDate()).padStart(2,'0')}`;
 
     tasks.forEach(t => {
-      if (t.status === 'done' || t.trashed || !t.endDate) return;
+      if (t.archived || !t.endDate) return;
       const key = t.id + '_' + today;
       if (notifiedToday.has(key)) return;
       const horaTxt = t.endTime ? ` às ${t.endTime}` : '';
