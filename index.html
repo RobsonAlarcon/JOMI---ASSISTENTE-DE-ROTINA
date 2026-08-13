@@ -436,7 +436,6 @@
     font-weight:800 !important; color:#fff !important;
   }
   .task-card.overdue-card .task-desc{color:rgba(255,255,255,0.9) !important;}
-  .task-card.overdue-card .task-actions button{color:#fff; border-color:rgba(255,255,255,0.4);}
 
   .task-card-image{width:100%; height:110px; object-fit:cover; display:block; background:#e8e6df;}
   .task-card-stripe{height:4px; width:100%; background:rgba(20,20,20,0.15);}
@@ -452,6 +451,39 @@
   .task-flag.done{background:var(--ok); border-color:var(--ok);}
   .task-flag.done::after{content:'✓'; color:#fff; font-size:11px; font-weight:800; line-height:1;}
   .task-card.overdue-card .task-flag{border-color:rgba(255,255,255,0.6);}
+  .task-menu-btn{
+    width:22px; height:22px; border-radius:6px; flex-shrink:0;
+    border:1px solid rgba(20,20,20,0.15); background:rgba(255,255,255,0.7);
+    color:rgba(20,20,20,0.55); cursor:pointer;
+    display:flex; align-items:center; justify-content:center; font-size:12px;
+    transition:border-color .15s ease, color .15s ease, background .15s ease;
+  }
+  .task-menu-btn:hover{border-color:var(--gold-bright); color:var(--gold-bright); background:#fff;}
+  .task-card.overdue-card .task-menu-btn{border-color:rgba(255,255,255,0.5); color:#fff; background:rgba(255,255,255,0.15);}
+
+  /* -- MENU SUSPENSO DO CARD ("editar cartão") -- */
+  #taskMenuDropdown{
+    display:none; position:fixed; z-index:80;
+    background:#fff; border:1px solid var(--line); border-radius:10px;
+    box-shadow:0 12px 32px rgba(0,0,0,0.18); min-width:190px;
+    padding:6px; max-height:60vh; overflow-y:auto;
+  }
+  #taskMenuDropdown.open{display:block;}
+  .task-menu-item{
+    display:flex; align-items:center; gap:8px; width:100%; text-align:left;
+    padding:9px 10px; border:none; background:transparent; border-radius:7px;
+    font-family:'Inter',sans-serif; font-size:12.5px; font-weight:600; color:var(--text-primary);
+    cursor:pointer;
+  }
+  .task-menu-item:hover{background:rgba(20,20,20,0.06);}
+  .task-menu-item.danger{color:var(--alert);}
+  .task-menu-item.danger:hover{background:rgba(224,67,60,0.08);}
+  .task-menu-item.sub{padding-left:22px; font-weight:500; font-size:12px;}
+  .task-menu-label{
+    padding:8px 10px 4px; font-size:10px; font-weight:800; text-transform:uppercase;
+    letter-spacing:0.05em; color:rgba(20,20,20,0.4);
+  }
+  .task-menu-divider{height:1px; background:var(--line); margin:5px 0;}
   .task-title{font-weight:700; font-size:14px; line-height:1.35;}
   .task-desc{font-size:12px; color:rgba(20,20,20,0.5); margin-bottom:7px; line-height:1.4;}
   .task-meta{display:flex; align-items:center; gap:7px; flex-wrap:wrap;}
@@ -467,22 +499,6 @@
   }
   .task-date.overdue{color:var(--alert); font-weight:700;}
   .task-date.today{color:var(--gold-bright); font-weight:700;}
-  .task-actions{
-    display:flex; gap:8px; margin-top:8px;
-    padding-top:8px; border-top:1px solid rgba(0,0,0,0.08);
-  }
-  .task-actions button{
-    flex:1; padding:7px 0; border-radius:6px; border:1px solid var(--line);
-    background:transparent; font-family:'Inter',sans-serif; font-weight:700;
-    font-size:10.5px; text-transform:uppercase; letter-spacing:0.03em; cursor:pointer;
-    transition:background .15s ease, border-color .15s ease, color .15s ease;
-  }
-  .task-archive-btn{color:rgba(20,20,20,0.6);}
-  .task-archive-btn:hover{border-color:var(--gold-bright); color:var(--gold-bright); background:rgba(242,201,76,0.06);}
-  .task-edit-btn{color:rgba(20,20,20,0.6);}
-  .task-edit-btn:hover{border-color:var(--gold-bright); color:var(--gold-bright); background:rgba(242,201,76,0.06);}
-  .task-delete-btn{color:var(--alert); border-color:rgba(224,67,60,0.35);}
-  .task-delete-btn:hover{background:rgba(224,67,60,0.1);}
   .empty-col{
     text-align:center; color:rgba(20,20,20,0.3); font-size:12px;
     padding:16px 0; border:1px dashed var(--line); border-radius:8px;
@@ -1038,6 +1054,9 @@
   </div>
 </div>
 
+<!-- MENU SUSPENSO DO CARTÃO (posicionado via JS ao lado do botão "✎" clicado) -->
+<div id="taskMenuDropdown"></div>
+
 <script type="module">
   // ============================================================
   // CONFIGURAÇÃO DO FIREBASE — PREENCHA COM OS DADOS DO SEU PROJETO
@@ -1522,17 +1541,13 @@
           <div class="task-card-top">
             <button type="button" class="task-flag ${t.done ? 'done' : ''}" data-flag-id="${t.id}" aria-label="Marcar como concluída"></button>
             <div class="task-title" style="flex:1;">${escapeHTML(t.title)}</div>
+            <button type="button" class="task-menu-btn" data-menu-id="${t.id}" title="Editar cartão" aria-label="Editar cartão">✎</button>
           </div>
           <div class="task-card-details">
             ${t.description ? `<div class="task-desc">${escapeHTML(t.description)}</div>` : ''}
             <div class="task-meta">
               <span class="task-label" style="background:rgba(0,0,0,0.28); color:#fff;"><span class="task-label-dot" style="background:${color};"></span>${escapeHTML(labelText(t.label))}</span>
               ${dateLine}
-            </div>
-            <div class="task-actions">
-              <button type="button" class="task-edit-btn" data-edit-id="${t.id}">Editar</button>
-              <button type="button" class="task-archive-btn" data-archive-id="${t.id}">Arquivar</button>
-              <button type="button" class="task-delete-btn" data-delete-id="${t.id}">Excluir</button>
             </div>
           </div>
         </div>
@@ -1541,6 +1556,76 @@
   function escapeHTML(s){
     return (s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
+
+  // ---------- MENU SUSPENSO DO CARTÃO ("✎ Editar cartão") ----------
+  let taskMenuOpenId = null;
+  const taskMenuEl = document.getElementById('taskMenuDropdown');
+
+  function closeTaskMenu(){
+    taskMenuEl.classList.remove('open');
+    taskMenuEl.innerHTML = '';
+    taskMenuOpenId = null;
+  }
+
+  function openTaskMenu(btn, taskId){
+    const t = tasks.find(x => x.id === taskId);
+    if (!t) return;
+    const otherCols = columns.filter(c => c.id !== t.columnId);
+
+    taskMenuEl.innerHTML = `
+      <button type="button" class="task-menu-item" data-menu-action="open">📂 Abrir cartão</button>
+      ${otherCols.length ? `
+        <div class="task-menu-divider"></div>
+        <div class="task-menu-label">Mover para</div>
+        ${otherCols.map(c => `<button type="button" class="task-menu-item sub" data-menu-move="${c.id}">→ ${escapeHTML(c.title)}</button>`).join('')}
+      ` : ''}
+      <div class="task-menu-divider"></div>
+      <button type="button" class="task-menu-item" data-menu-action="archive">🗄️ Arquivar</button>
+      <button type="button" class="task-menu-item danger" data-menu-action="delete">🗑️ Excluir cartão</button>
+    `;
+
+    const rect = btn.getBoundingClientRect();
+    taskMenuEl.style.top = Math.min(rect.bottom + 4, window.innerHeight - 60) + 'px';
+    taskMenuEl.style.left = 'auto';
+    taskMenuEl.style.right = Math.max(8, window.innerWidth - rect.right) + 'px';
+    taskMenuEl.classList.add('open');
+    taskMenuOpenId = taskId;
+
+    taskMenuEl.querySelector('[data-menu-action="open"]').addEventListener('click', () => {
+      closeTaskMenu();
+      openTaskModal(taskId);
+    });
+    const archiveBtn = taskMenuEl.querySelector('[data-menu-action="archive"]');
+    if (archiveBtn) archiveBtn.addEventListener('click', async () => {
+      closeTaskMenu();
+      try { await updateDoc(doc(db, 'tasks', taskId), { archived: true }); }
+      catch (err) { console.error(err); showAppAlert('Não foi possível arquivar a tarefa.'); }
+    });
+    const deleteBtn = taskMenuEl.querySelector('[data-menu-action="delete"]');
+    if (deleteBtn) deleteBtn.addEventListener('click', async () => {
+      closeTaskMenu();
+      if (!confirm('Excluir este cartão? Essa ação não pode ser desfeita.')) return;
+      try { await deleteDoc(doc(db, 'tasks', taskId)); }
+      catch (err) { console.error(err); showAppAlert('Não foi possível excluir o cartão.'); }
+    });
+    taskMenuEl.querySelectorAll('[data-menu-move]').forEach(moveBtn => {
+      moveBtn.addEventListener('click', async () => {
+        const newColumnId = moveBtn.dataset.menuMove;
+        closeTaskMenu();
+        try { await updateDoc(doc(db, 'tasks', taskId), { columnId: newColumnId }); }
+        catch (err) { console.error(err); showAppAlert('Não foi possível mover o cartão.'); }
+      });
+    });
+  }
+
+  // fecha o menu ao clicar fora, rolar, ou apertar Esc
+  document.addEventListener('click', (e) => {
+    if (!taskMenuOpenId) return;
+    if (e.target.closest('#taskMenuDropdown') || e.target.closest('.task-menu-btn')) return;
+    closeTaskMenu();
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeTaskMenu(); });
+  window.addEventListener('scroll', () => { if (taskMenuOpenId) closeTaskMenu(); }, true);
 
   function renderKanban(){
     const board = document.getElementById('kanbanBoard');
@@ -1586,10 +1671,10 @@
       btn.addEventListener('click', () => openTaskModal(null, null, btn.dataset.addColumn));
     });
 
-    // clique no card recolhido/expandido: alterna mostrar etiqueta, data e ações
+    // clique no card recolhido/expandido: alterna mostrar etiqueta e data
     board.querySelectorAll('.task-card').forEach(card => {
       card.addEventListener('click', (e) => {
-        if (e.target.closest('.task-actions') || e.target.closest('.task-flag')) return;
+        if (e.target.closest('.task-flag') || e.target.closest('.task-menu-btn')) return;
         const nowExpanded = card.classList.toggle('expanded');
         // card vencido: em vez de piscar continuamente, dá um flash na cor escolhida só ao abrir
         if (nowExpanded && card.classList.contains('overdue-card')) {
@@ -1603,11 +1688,12 @@
       card.addEventListener('dragend', () => card.classList.remove('dragging'));
     });
 
-    // botão "Editar" no cartão — abre o modal completo
-    board.querySelectorAll('[data-edit-id]').forEach(btn => {
+    // botão "✎" no cartão — abre o menu com várias opções
+    board.querySelectorAll('[data-menu-id]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        openTaskModal(btn.dataset.editId);
+        if (taskMenuOpenId === btn.dataset.menuId) { closeTaskMenu(); return; }
+        openTaskMenu(btn, btn.dataset.menuId);
       });
     });
 
@@ -1620,27 +1706,6 @@
         btn.classList.toggle('done');
         try { await updateDoc(doc(db, 'tasks', id), { done: !(t && t.done) }); }
         catch (err) { console.error(err); showAppAlert('Não foi possível atualizar a tarefa.'); btn.classList.toggle('done'); }
-      });
-    });
-
-    // botão "Arquivar" no cartão
-    board.querySelectorAll('[data-archive-id]').forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        const id = btn.dataset.archiveId;
-        try { await updateDoc(doc(db, 'tasks', id), { archived: true }); }
-        catch (err) { console.error(err); showAppAlert('Não foi possível arquivar a tarefa.'); }
-      });
-    });
-
-    // botão "Excluir" no cartão — apaga de verdade
-    board.querySelectorAll('[data-delete-id]').forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        const id = btn.dataset.deleteId;
-        if (!confirm('Excluir esta tarefa? Essa ação não pode ser desfeita.')) return;
-        try { await deleteDoc(doc(db, 'tasks', id)); }
-        catch (err) { console.error(err); showAppAlert('Não foi possível excluir a tarefa.'); }
       });
     });
 
