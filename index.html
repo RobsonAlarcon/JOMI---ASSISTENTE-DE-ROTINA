@@ -13,12 +13,12 @@
     --bg-card:#ffffff;
     --panel:#ffffff;
     --text-primary:#1a1a1a;
-    --gold:#c9971f;
-    --gold-bright:#e0aa1f;
+    --navy:#1b3358;
+    --navy-bright:#2f5c94;
     --alert:#d43a33;
     --ok:#2f9e69;
     --line:rgba(20,20,20,0.12);
-    --shadow-gold: 0 0 0 rgba(242,201,76,0);
+    --shadow-navy: 0 0 0 rgba(58,102,163,0);
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   html,body{height:100%;}
@@ -41,7 +41,7 @@
   }
   .noise-glow{
     position:fixed; top:-25%; left:-12%; width:65%; height:65%;
-    background:radial-gradient(circle, rgba(224,170,31,0.12) 0%, transparent 70%);
+    background:radial-gradient(circle, rgba(47,92,148,0.12) 0%, transparent 70%);
     z-index:0; pointer-events:none;
     animation: driftGlow 16s ease-in-out infinite alternate;
   }
@@ -57,7 +57,7 @@
   }
   .scan-line{
     position:fixed; left:0; right:0; height:1px; z-index:0; pointer-events:none;
-    background:linear-gradient(90deg, transparent, rgba(201,151,31,0.5), transparent);
+    background:linear-gradient(90deg, transparent, rgba(27,51,88,0.5), transparent);
     animation: scanMove 7s linear infinite;
     opacity:0.45;
   }
@@ -92,7 +92,7 @@
     line-height:0.9;
     letter-spacing:0.03em;
     margin-bottom:6px;
-    background:linear-gradient(115deg, #b8860f 0%, #e0aa1f 30%, #a8760f 55%, #f0c14a 75%, #b8860f 100%);
+    background:linear-gradient(115deg, #163055 0%, #2f5c94 30%, #1b3358 55%, #4a7ab8 75%, #163055 100%);
     background-size:220% 100%;
     -webkit-background-clip:text; background-clip:text; color:transparent;
     filter:drop-shadow(0 4px 20px rgba(184,134,15,0.2));
@@ -125,7 +125,7 @@
     background:rgba(255,255,255,0.72);
     backdrop-filter:blur(18px);
     -webkit-backdrop-filter:blur(18px);
-    border:1px solid rgba(201,151,31,0.25);
+    border:1px solid rgba(27,51,88,0.25);
     border-radius:18px;
     padding:34px 32px;
     box-shadow:
@@ -136,10 +136,10 @@
   .card .hud-br, .card .hud-bl{
     content:""; position:absolute; width:18px; height:18px; pointer-events:none;
   }
-  .card::before{ top:-1px; left:-1px; border-top:2px solid var(--gold-bright); border-left:2px solid var(--gold-bright); border-radius:6px 0 0 0;}
-  .card::after{ top:-1px; right:-1px; border-top:2px solid var(--gold-bright); border-right:2px solid var(--gold-bright); border-radius:0 6px 0 0;}
-  .card .hud-bl{ bottom:-1px; left:-1px; border-bottom:2px solid var(--gold-bright); border-left:2px solid var(--gold-bright); border-radius:0 0 0 6px;}
-  .card .hud-br{ bottom:-1px; right:-1px; border-bottom:2px solid var(--gold-bright); border-right:2px solid var(--gold-bright); border-radius:0 0 6px 0;}
+  .card::before{ top:-1px; left:-1px; border-top:2px solid var(--navy-bright); border-left:2px solid var(--navy-bright); border-radius:6px 0 0 0;}
+  .card::after{ top:-1px; right:-1px; border-top:2px solid var(--navy-bright); border-right:2px solid var(--navy-bright); border-radius:0 6px 0 0;}
+  .card .hud-bl{ bottom:-1px; left:-1px; border-bottom:2px solid var(--navy-bright); border-left:2px solid var(--navy-bright); border-radius:0 0 0 6px;}
+  .card .hud-br{ bottom:-1px; right:-1px; border-bottom:2px solid var(--navy-bright); border-right:2px solid var(--navy-bright); border-radius:0 0 6px 0;}
   .tabbar{
     display:flex; gap:0; margin-bottom:36px;
     border:1px solid var(--line); border-radius:10px; overflow:hidden;
@@ -153,7 +153,7 @@
     transition:all .2s ease;
   }
   .tabbar button.active{
-    background:var(--gold-bright); color:#1a1a1a;
+    background:var(--navy-bright); color:#fff;
   }
 
   .panel{display:none;}
@@ -181,8 +181,8 @@
     outline:none; transition:border-color .2s ease, box-shadow .2s ease;
   }
   .field input:focus{
-    border-color:var(--gold-bright);
-    box-shadow:0 0 0 3px rgba(242,201,76,0.15), 0 0 16px rgba(242,201,76,0.12);
+    border-color:var(--navy-bright);
+    box-shadow:0 0 0 3px rgba(58,102,163,0.15), 0 0 16px rgba(58,102,163,0.12);
   }
   .field input::placeholder{color:rgba(20,20,20,0.28);}
 
@@ -191,7 +191,7 @@
     margin-bottom:22px; font-size:13px;
   }
   .link-btn{
-    background:none; border:none; color:var(--gold-bright); font-size:13px;
+    background:none; border:none; color:var(--navy-bright); font-size:13px;
     font-weight:600; cursor:pointer; padding:0; text-decoration:underline;
     text-underline-offset:3px;
   }
@@ -199,9 +199,9 @@
 
   .btn-primary{
     width:100%; padding:15px 0; border:none; border-radius:8px;
-    background:linear-gradient(100deg, #f2c94c 0%, #f6d774 45%, #f2c94c 100%);
+    background:linear-gradient(100deg, #3a66a3 0%, #6b93c9 45%, #3a66a3 100%);
     background-size:220% 100%;
-    color:#1a1a1a;
+    color:#fff;
     font-family:'Inter',sans-serif; font-weight:800; font-size:15px;
     letter-spacing:0.03em; text-transform:uppercase;
     cursor:pointer; position:relative; overflow:hidden;
@@ -209,7 +209,7 @@
   }
   .btn-primary:hover{
     transform:translateY(-1px);
-    box-shadow:0 8px 26px rgba(242,201,76,0.35);
+    box-shadow:0 8px 26px rgba(58,102,163,0.35);
     background-position:100% 0;
   }
   .btn-primary:disabled{opacity:0.5; cursor:not-allowed; transform:none; box-shadow:none;}
@@ -220,7 +220,7 @@
     font-weight:700; font-size:14px; text-transform:uppercase; letter-spacing:0.03em;
     cursor:pointer; transition:border-color .2s ease, background .2s ease;
   }
-  .btn-secondary:hover{border-color:var(--gold-bright); background:rgba(242,201,76,0.06);}
+  .btn-secondary:hover{border-color:var(--navy-bright); background:rgba(58,102,163,0.06);}
 
   .switch-line{
     text-align:center; margin-top:24px; font-size:13.5px; color:rgba(20,20,20,0.55);
@@ -237,13 +237,13 @@
   /* -- VERIFY EMAIL SCREEN -- */
   .verify-icon{
     width:64px; height:64px; border-radius:50%;
-    background:rgba(242,201,76,0.12); border:1px solid rgba(242,201,76,0.3);
+    background:rgba(58,102,163,0.12); border:1px solid rgba(58,102,163,0.3);
     display:flex; align-items:center; justify-content:center;
     margin-bottom:22px;
   }
   .verify-icon svg{width:28px; height:28px;}
   .verify-email-highlight{
-    color:var(--gold-bright); font-weight:700;
+    color:var(--navy-bright); font-weight:700;
   }
   .status-pill{
     display:inline-flex; align-items:center; gap:6px;
@@ -251,7 +251,7 @@
     letter-spacing:0.04em; text-transform:uppercase;
     padding:6px 12px; border-radius:20px; margin-bottom:22px;
   }
-  .status-pill.pending{background:rgba(242,201,76,0.12); color:var(--gold-bright); border:1px solid rgba(242,201,76,0.3);}
+  .status-pill.pending{background:rgba(58,102,163,0.12); color:var(--navy-bright); border:1px solid rgba(58,102,163,0.3);}
   .status-pill.dot{width:6px; height:6px; border-radius:50%; background:currentColor;}
 
   .cooldown-note{font-size:12px; color:rgba(20,20,20,0.4); text-align:center; margin-top:10px;}
@@ -261,7 +261,7 @@
   .dash.active{display:block; animation:fadein .4s ease;}
   .dash-top{display:flex; justify-content:space-between; align-items:center; margin-bottom:40px; flex-wrap:wrap; gap:16px;}
   .dash-welcome{font-family:'Anton',sans-serif; font-size:34px; text-transform:uppercase;}
-  .dash-welcome span{color:var(--gold-bright);}
+  .dash-welcome span{color:var(--navy-bright);}
   .dash-user-badge{
     display:flex; align-items:center; gap:12px;
     font-family:'Space Mono',monospace; font-size:12.5px; color:rgba(20,20,20,0.6);
@@ -283,7 +283,7 @@
     border:1px dashed var(--line); border-radius:12px; padding:32px;
     color:rgba(20,20,20,0.55); font-size:14.5px; line-height:1.7; max-width:640px;
   }
-  .dash-note b{color:var(--gold-bright);}
+  .dash-note b{color:var(--navy-bright);}
 
   /* -- TOOLBAR -- */
   .app-toolbar{
@@ -299,7 +299,7 @@
     color:rgba(20,20,20,0.55); font-weight:700; font-size:13px;
     text-transform:uppercase; letter-spacing:0.04em; cursor:pointer;
   }
-  .view-switch button.active{background:var(--gold-bright); color:#1a1a1a;}
+  .view-switch button.active{background:var(--navy-bright); color:#fff;}
   .toolbar-actions{display:flex; gap:12px; flex-wrap:wrap;}
   .btn-notify, .btn-add-task{
     padding:11px 18px; border-radius:10px; font-weight:700; font-size:13px;
@@ -308,12 +308,12 @@
   .btn-notify{
     background:transparent; border:1px solid var(--line); color:var(--text-primary);
   }
-  .btn-notify:hover{border-color:var(--gold-bright);}
+  .btn-notify:hover{border-color:var(--navy-bright);}
   .btn-notify.on{border-color:var(--ok); color:var(--ok);}
   .btn-add-task{
-    background:var(--gold-bright); border:none; color:#1a1a1a;
+    background:var(--navy-bright); border:none; color:#fff;
   }
-  .btn-add-task:hover{box-shadow:0 6px 18px rgba(242,201,76,0.25); transform:translateY(-1px);}
+  .btn-add-task:hover{box-shadow:0 6px 18px rgba(58,102,163,0.25); transform:translateY(-1px);}
 
   .app-alert{
     display:none; padding:12px 16px; border-radius:10px; margin-bottom:20px;
@@ -381,7 +381,7 @@
     border-bottom:1px solid transparent; flex:1; min-width:0;
     text-overflow:ellipsis; white-space:nowrap; overflow:hidden;
   }
-  .kanban-col-title:focus{outline:none; border-bottom:1px solid var(--gold-bright); text-overflow:clip;}
+  .kanban-col-title:focus{outline:none; border-bottom:1px solid var(--navy-bright); text-overflow:clip;}
   .kanban-count{
     margin-left:auto; background:rgba(20,20,20,0.08); border-radius:6px;
     padding:2px 8px; font-size:11px; font-family:'Space Mono',monospace;
@@ -396,13 +396,13 @@
     display:flex; flex-direction:column; gap:8px; min-height:40px;
     overflow-y:auto; padding-right:2px; flex:1;
   }
-  .kanban-col-body.drag-over{background:rgba(242,201,76,0.05); border-radius:8px;}
+  .kanban-col-body.drag-over{background:rgba(58,102,163,0.05); border-radius:8px;}
   .kanban-add-btn{
     margin-top:10px; padding:9px 10px; border-radius:8px; border:1px dashed var(--line);
     background:transparent; color:rgba(20,20,20,0.55); font-size:12.5px; font-weight:600;
     text-align:left; cursor:pointer; flex-shrink:0; transition:border-color .15s ease, color .15s ease, background .15s ease;
   }
-  .kanban-add-btn:hover{border-color:var(--gold-bright); color:var(--gold-bright); background:rgba(242,201,76,0.05);}
+  .kanban-add-btn:hover{border-color:var(--navy-bright); color:var(--navy-bright); background:rgba(58,102,163,0.05);}
 
   .kanban-col-new{
     width:220px; flex-shrink:0; min-height:80px;
@@ -412,7 +412,7 @@
     font-size:13px; font-weight:700; cursor:pointer;
     transition:border-color .15s ease, color .15s ease, background .15s ease;
   }
-  .kanban-col-new:hover{border-color:var(--gold-bright); color:var(--gold-bright); background:rgba(242,201,76,0.05);}
+  .kanban-col-new:hover{border-color:var(--navy-bright); color:var(--navy-bright); background:rgba(58,102,163,0.05);}
 
   .task-card{
     background:#ffffff; border:1px solid var(--line); border-radius:8px;
@@ -420,7 +420,7 @@
     box-shadow:0 1px 3px rgba(20,20,20,0.08);
     transition:border-color .15s ease, transform .15s ease, box-shadow .15s ease, background .2s ease;
   }
-  .task-card:hover{border-color:var(--gold-bright); transform:translateY(-1px); box-shadow:0 6px 18px rgba(20,20,20,0.14);}
+  .task-card:hover{border-color:var(--navy-bright); transform:translateY(-1px); box-shadow:0 6px 18px rgba(20,20,20,0.14);}
   .task-card.dragging{opacity:0.4;}
 
   /* -- VENCIDA (a única cor "automática" que resta — sinaliza atraso) -- */
@@ -458,7 +458,7 @@
     display:flex; align-items:center; justify-content:center; font-size:12px;
     transition:border-color .15s ease, color .15s ease, background .15s ease;
   }
-  .task-menu-btn:hover{border-color:var(--gold-bright); color:var(--gold-bright); background:#fff;}
+  .task-menu-btn:hover{border-color:var(--navy-bright); color:var(--navy-bright); background:#fff;}
   .task-card.overdue-card .task-menu-btn{border-color:rgba(255,255,255,0.5); color:#fff; background:rgba(255,255,255,0.15);}
 
   /* -- MENU SUSPENSO DO CARD ("editar cartão") -- */
@@ -498,7 +498,7 @@
     font-family:'Space Mono',monospace; font-size:10.5px; color:rgba(20,20,20,0.45);
   }
   .task-date.overdue{color:var(--alert); font-weight:700;}
-  .task-date.today{color:var(--gold-bright); font-weight:700;}
+  .task-date.today{color:var(--navy-bright); font-weight:700;}
   .empty-col{
     text-align:center; color:rgba(20,20,20,0.3); font-size:12px;
     padding:16px 0; border:1px dashed var(--line); border-radius:8px;
@@ -516,7 +516,7 @@
   /* -- PULSO DISCRETO: tarefa com prazo ainda não vencido -- */
   .task-date-pulse{
     display:inline-block; width:6px; height:6px; border-radius:50%;
-    background:var(--gold-bright); margin-right:2px; vertical-align:middle;
+    background:var(--navy-bright); margin-right:2px; vertical-align:middle;
     animation:discreetPulse 1.8s ease-in-out infinite;
   }
   @keyframes discreetPulse{
@@ -559,7 +559,7 @@
     width:28px; height:28px; border-radius:7px; border:1px solid var(--line);
     background:transparent; color:var(--text-primary); font-size:15px; cursor:pointer;
   }
-  .cal-nav:hover{border-color:var(--gold-bright); color:var(--gold-bright);}
+  .cal-nav:hover{border-color:var(--navy-bright); color:var(--navy-bright);}
   .cal-weekdays{
     display:grid; grid-template-columns:repeat(7, 1fr); text-align:center;
     font-size:10px; color:rgba(20,20,20,0.4); font-weight:700; margin-bottom:5px;
@@ -573,8 +573,8 @@
   }
   .cal-day:hover{border-color:var(--line); background:rgba(20,20,20,0.03);}
   .cal-day.empty{cursor:default; visibility:hidden;}
-  .cal-day.today{border-color:var(--gold-bright); color:var(--gold-bright); font-weight:800;}
-  .cal-day.selected{background:var(--gold-bright); color:#1a1a1a; font-weight:800;}
+  .cal-day.today{border-color:var(--navy-bright); color:var(--navy-bright); font-weight:800;}
+  .cal-day.selected{background:var(--navy-bright); color:#fff; font-weight:800;}
   .cal-dots{display:flex; gap:2px;}
   .cal-dots span{width:4px; height:4px; border-radius:50%;}
   .cal-legend{
@@ -620,7 +620,7 @@
   }
   .stats-bar-fill{height:100%; border-radius:6px; transition:width .5s ease;}
   .stats-bar-fill.fill-todo{background:#7a8bff;}
-  .stats-bar-fill.fill-doing{background:var(--gold-bright);}
+  .stats-bar-fill.fill-doing{background:var(--navy-bright);}
   .stats-bar-fill.fill-done{background:var(--ok);}
   .stats-divider{border-top:1px solid var(--line); margin:20px 0;}
   .stats-finalizadas{
@@ -666,16 +666,16 @@
     color:var(--text-primary); font-family:'Inter',sans-serif; font-size:18px; font-weight:700;
     outline:none; transition:border-color .2s ease;
   }
-  .gcal-title-input:focus{border-color:var(--gold-bright);}
+  .gcal-title-input:focus{border-color:var(--navy-bright);}
   .gcal-title-input::placeholder{color:rgba(20,20,20,0.3); font-weight:600;}
   .gcal-save-btn{
     flex-shrink:0; padding:10px 20px; border-radius:20px; border:none;
-    background:var(--gold-bright); color:#1a1a1a;
+    background:var(--navy-bright); color:#fff;
     font-family:'Inter',sans-serif; font-weight:800; font-size:12.5px;
     text-transform:uppercase; letter-spacing:0.03em; cursor:pointer;
     transition:transform .15s ease, box-shadow .15s ease;
   }
-  .gcal-save-btn:hover{transform:translateY(-1px); box-shadow:0 6px 16px rgba(242,201,76,0.3);}
+  .gcal-save-btn:hover{transform:translateY(-1px); box-shadow:0 6px 16px rgba(58,102,163,0.3);}
 
   .gcal-date-row{display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap;}
   .gcal-date-chip{
@@ -684,14 +684,14 @@
     font-family:'Inter',sans-serif; font-size:13px; outline:none;
     transition:border-color .2s ease;
   }
-  .gcal-date-chip:focus{border-color:var(--gold-bright);}
+  .gcal-date-chip:focus{border-color:var(--navy-bright);}
   .gcal-ate{font-size:13px; color:rgba(20,20,20,0.5);}
 
   .gcal-allday{
     display:flex; align-items:center; gap:8px; font-size:13px;
     color:rgba(20,20,20,0.7); margin-bottom:18px; cursor:pointer;
   }
-  .gcal-allday input{width:15px; height:15px; accent-color:var(--gold-bright); cursor:pointer;}
+  .gcal-allday input{width:15px; height:15px; accent-color:var(--navy-bright); cursor:pointer;}
 
   .gcal-time-row{display:flex; gap:14px; margin-bottom:18px;}
   .gcal-time-block{flex:1;}
@@ -701,7 +701,7 @@
     color:var(--text-primary); font-family:'Inter',sans-serif; font-size:13.5px;
     outline:none; transition:border-color .2s ease;
   }
-  .gcal-time-block input:focus{border-color:var(--gold-bright);}
+  .gcal-time-block input:focus{border-color:var(--navy-bright);}
 
   .gcal-card{
     background:rgba(20,20,20,0.03); border:1px solid var(--line);
@@ -723,7 +723,7 @@
     color:var(--text-primary); font-family:'Inter',sans-serif; font-size:14px;
     outline:none; transition:border-color .2s ease;
   }
-  .gcal-plain-input:focus, .gcal-plain-select:focus{border-color:var(--gold-bright);}
+  .gcal-plain-input:focus, .gcal-plain-select:focus{border-color:var(--navy-bright);}
   .gcal-plain-input::placeholder{color:rgba(20,20,20,0.3);}
   .gcal-plain-select{cursor:pointer;}
   .gcal-plain-select option{background:var(--bg-card); color:var(--text-primary);}
@@ -738,7 +738,7 @@
     font-family:'Inter',sans-serif; font-size:12px; font-weight:700;
     cursor:pointer; transition:border-color .2s ease;
   }
-  .gcal-file-input::file-selector-button:hover{border-color:var(--gold-bright);}
+  .gcal-file-input::file-selector-button:hover{border-color:var(--navy-bright);}
   .gcal-image-preview-wrap{
     display:flex; align-items:center; gap:12px; margin-top:10px;
   }
@@ -756,7 +756,7 @@
     background:var(--panel); border:1px solid var(--line); border-radius:10px;
     padding:11px 13px; cursor:pointer;
   }
-  .day-task-item:hover{border-color:var(--gold-bright);}
+  .day-task-item:hover{border-color:var(--navy-bright);}
   .day-task-item .task-title{font-size:13.5px;}
   .day-empty{
     text-align:center; color:rgba(20,20,20,0.35); font-size:13px; padding:24px 0;
@@ -775,8 +775,8 @@
     .dash{padding:40px 24px;}
   }
 
-  ::selection{background:var(--gold-bright); color:#1a1a1a;}
-  :focus-visible{outline:2px solid var(--gold-bright); outline-offset:2px;}
+  ::selection{background:var(--navy-bright); color:#fff;}
+  :focus-visible{outline:2px solid var(--navy-bright); outline-offset:2px;}
 </style>
 </head>
 <body>
@@ -874,8 +874,8 @@
       <section class="panel" id="panel-verify">
         <div class="verify-icon">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M3 6L12 13L21 6" stroke="#f2c94c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <rect x="3" y="4" width="18" height="16" rx="2" stroke="#f2c94c" stroke-width="2"/>
+            <path d="M3 6L12 13L21 6" stroke="#3a66a3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="3" y="4" width="18" height="16" rx="2" stroke="#3a66a3" stroke-width="2"/>
           </svg>
         </div>
         <div class="status-pill pending"><span class="dot"></span> Verificação pendente</div>
@@ -1374,8 +1374,8 @@
 
   // ---------- CORES DISPONÍVEIS PARA O CARTÃO (escolha manual) ----------
   const CARD_COLORS = [
-    '#7a8bff', // azul
-    '#e0aa1f', // dourado
+    '#7a8bff', // azul claro
+    '#2f5c94', // azul marinho
     '#3fb27f', // verde
     '#c96bc4', // rosa
     '#ff9f66', // laranja
@@ -1430,7 +1430,7 @@
 
     // recalcula "vencida"/"vence hoje" a cada minuto, mesmo sem nenhuma mudança nos dados
     if (dueStatusTimer) clearInterval(dueStatusTimer);
-    dueStatusTimer = setInterval(() => { renderKanban(); renderAgenda(); }, 60 * 1000);
+    dueStatusTimer = setInterval(() => { renderKanban(); renderAgenda(); }, 20 * 1000);
   }
   function stopTaskApp(){
     if (unsubTasks) { unsubTasks(); unsubTasks = null; }
@@ -1837,7 +1837,7 @@
           return `
           <div class="day-task-item" data-id="${t.id}">
             <div>
-              ${timeTxt ? `<div style="font-family:'Space Mono',monospace; font-size:11px; color:var(--gold-bright); margin-bottom:3px;">${timeTxt}</div>` : ''}
+              ${timeTxt ? `<div style="font-family:'Space Mono',monospace; font-size:11px; color:var(--navy-bright); margin-bottom:3px;">${timeTxt}</div>` : ''}
               <div class="task-title">${escapeHTML(t.title)}</div>
               <span class="task-label" style="margin-top:4px; display:inline-block; background:rgba(0,0,0,0.28); color:#fff;">${escapeHTML(labelText(t.label))}</span>
             </div>
@@ -2090,7 +2090,7 @@
               <span class="stats-row-label">${escapeHTML(col.title)}</span>
               <span class="stats-row-nums"><b>${count}</b><span>${pct(count)}%</span></span>
             </div>
-            <div class="stats-bar-track"><div class="stats-bar-fill" style="width:${pct(count)}%; background:var(--gold-bright);"></div></div>
+            <div class="stats-bar-track"><div class="stats-bar-fill" style="width:${pct(count)}%; background:var(--navy-bright);"></div></div>
           </div>`;
       }).join('');
     }
@@ -2146,6 +2146,19 @@
   updateNotifyBtn();
   if (notifyTimer) clearInterval(notifyTimer);
   notifyTimer = setInterval(checkDueSoon, 30 * 60 * 1000); // checa a cada 30 min
+
+  // navegadores pausam setInterval quando a aba fica em segundo plano — ao voltar,
+  // recalcula na hora "vencida"/"vence hoje" em vez de esperar o próximo tick do timer
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && currentUser) {
+      renderKanban();
+      renderAgenda();
+      checkDueSoon();
+    }
+  });
+  window.addEventListener('focus', () => {
+    if (currentUser) { renderKanban(); renderAgenda(); }
+  });
 </script>
 </body>
 </html>
