@@ -1430,7 +1430,7 @@
 
     // recalcula "vencida"/"vence hoje" a cada minuto, mesmo sem nenhuma mudança nos dados
     if (dueStatusTimer) clearInterval(dueStatusTimer);
-    dueStatusTimer = setInterval(() => { renderKanban(); renderAgenda(); }, 20 * 1000);
+    dueStatusTimer = setInterval(() => { renderKanban(); renderAgenda(); }, 5 * 1000);
   }
   function stopTaskApp(){
     if (unsubTasks) { unsubTasks(); unsubTasks = null; }
