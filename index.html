@@ -341,24 +341,24 @@
   }
 
   /* -- SCROLLBAR DISCRETA -- */
-  .kanban-board, .kanban-col-body, .day-task-list, .stats-view {
+  .kanban-board, .kanban-col-body, .day-task-list, .stats-view, .agenda-card {
     scrollbar-width: thin;
     scrollbar-color: rgba(20,20,20,0.18) transparent;
   }
   .kanban-board::-webkit-scrollbar, .kanban-col-body::-webkit-scrollbar,
-  .day-task-list::-webkit-scrollbar, .stats-view::-webkit-scrollbar {
+  .day-task-list::-webkit-scrollbar, .stats-view::-webkit-scrollbar, .agenda-card::-webkit-scrollbar {
     width:6px; height:6px;
   }
   .kanban-board::-webkit-scrollbar-track, .kanban-col-body::-webkit-scrollbar-track,
-  .day-task-list::-webkit-scrollbar-track, .stats-view::-webkit-scrollbar-track {
+  .day-task-list::-webkit-scrollbar-track, .stats-view::-webkit-scrollbar-track, .agenda-card::-webkit-scrollbar-track {
     background:transparent;
   }
   .kanban-board::-webkit-scrollbar-thumb, .kanban-col-body::-webkit-scrollbar-thumb,
-  .day-task-list::-webkit-scrollbar-thumb, .stats-view::-webkit-scrollbar-thumb {
+  .day-task-list::-webkit-scrollbar-thumb, .stats-view::-webkit-scrollbar-thumb, .agenda-card::-webkit-scrollbar-thumb {
     background:rgba(20,20,20,0.16); border-radius:10px;
   }
   .kanban-board::-webkit-scrollbar-thumb:hover, .kanban-col-body::-webkit-scrollbar-thumb:hover,
-  .day-task-list::-webkit-scrollbar-thumb:hover, .stats-view::-webkit-scrollbar-thumb:hover {
+  .day-task-list::-webkit-scrollbar-thumb:hover, .stats-view::-webkit-scrollbar-thumb:hover, .agenda-card::-webkit-scrollbar-thumb:hover {
     background:rgba(20,20,20,0.3);
   }
 
@@ -550,6 +550,27 @@
     background:var(--panel); border:1px solid var(--line); border-radius:16px;
     padding:16px; width:100%; max-width:520px; margin:0 auto;
     max-height:42vh; overflow-y:auto;
+  }
+  .agenda-drag-handle{
+    display:none; align-items:center; justify-content:space-between;
+    cursor:grab; padding:5px 8px; margin:-4px -4px 10px -4px;
+    background:rgba(20,20,20,0.05); border-radius:8px;
+    font-size:9.5px; color:rgba(20,20,20,0.45); font-weight:800;
+    text-transform:uppercase; letter-spacing:0.06em; user-select:none;
+  }
+  .agenda-drag-handle:active{cursor:grabbing;}
+  .agenda-reset-btn{
+    background:transparent; border:none; color:rgba(20,20,20,0.45);
+    font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.03em;
+    cursor:pointer; text-decoration:underline;
+  }
+  @media (min-width: 1100px){
+    .agenda-card.floating{
+      position:fixed; z-index:35; resize:both; overflow:auto;
+      max-width:92vw; max-height:88vh; min-width:280px; min-height:240px;
+      box-shadow:0 20px 50px rgba(20,20,20,0.28);
+    }
+    .agenda-card.floating .agenda-drag-handle{display:flex;}
   }
   .agenda-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;}
   .agenda-month{
@@ -928,7 +949,11 @@
 
     <!-- AGENDA VIEW -->
     <div class="agenda-view" id="agendaView">
-      <div class="agenda-card">
+      <div class="agenda-card" id="agendaCard">
+        <div class="agenda-drag-handle" id="agendaDragHandle">
+          <span>⠿⠿ Arraste para mover · puxe o canto para redimensionar</span>
+          <button type="button" class="agenda-reset-btn" id="btnResetAgendaPos">Redefinir</button>
+        </div>
         <div class="agenda-head">
           <button type="button" class="cal-nav" id="calPrev">‹</button>
           <div class="agenda-month" id="agendaMonthLabel">Mês / Ano</div>
@@ -1103,6 +1128,133 @@
     });
   }
 
+  // ---------- CALENDÁRIO FLUTUANTE (arrastar + redimensionar, só no desktop) ----------
+  let agendaFloatInitialized = false;
+  let applyFloatingAgendaPosition = () => {};
+  function initFloatingAgenda(){
+    const agendaCard = document.getElementById('agendaCard');
+    const dragHandle = document.getElementById('agendaDragHandle');
+    const resetBtn = document.getElementById('btnResetAgendaPos');
+    if (!agendaCard || !dragHandle) return;
+    if (agendaFloatInitialized) {
+      // já tem os listeners presos — só reaplica a posição/tamanho
+      applyFloatingAgendaPosition();
+      return;
+    }
+    agendaFloatInitialized = true;
+
+    const STORAGE_KEY = 'jomi_agenda_float_v1';
+    const isDesktop = () => window.innerWidth >= 1100;
+
+    function applyFloating(){
+      if (!isDesktop()) {
+        agendaCard.classList.remove('floating');
+        agendaCard.style.left = '';
+        agendaCard.style.top = '';
+        agendaCard.style.width = '';
+        agendaCard.style.height = '';
+        return;
+      }
+      agendaCard.classList.add('floating');
+      let saved = null;
+      try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch (e) { saved = null; }
+      if (saved) {
+        agendaCard.style.left = saved.left + 'px';
+        agendaCard.style.top = saved.top + 'px';
+        agendaCard.style.width = saved.width + 'px';
+        agendaCard.style.height = saved.height + 'px';
+      } else {
+        const rect = agendaCard.getBoundingClientRect();
+        agendaCard.style.left = Math.max(8, rect.left) + 'px';
+        agendaCard.style.top = Math.max(8, rect.top) + 'px';
+        agendaCard.style.width = rect.width + 'px';
+        agendaCard.style.height = rect.height + 'px';
+      }
+    }
+    applyFloatingAgendaPosition = applyFloating;
+
+    function savePos(){
+      if (!isDesktop()) return;
+      const rect = agendaCard.getBoundingClientRect();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        left: rect.left, top: rect.top, width: rect.width, height: rect.height
+      }));
+    }
+
+    // ---- arrastar pela alça ----
+    let dragging = false, offsetX = 0, offsetY = 0;
+    function startDrag(clientX, clientY){
+      if (!isDesktop()) return;
+      dragging = true;
+      const rect = agendaCard.getBoundingClientRect();
+      offsetX = clientX - rect.left;
+      offsetY = clientY - rect.top;
+    }
+    function moveDrag(clientX, clientY){
+      if (!dragging) return;
+      const rect = agendaCard.getBoundingClientRect();
+      let left = clientX - offsetX;
+      let top = clientY - offsetY;
+      left = Math.max(0, Math.min(left, window.innerWidth - 100));
+      top = Math.max(0, Math.min(top, window.innerHeight - 40));
+      agendaCard.style.left = left + 'px';
+      agendaCard.style.top = top + 'px';
+    }
+    function endDrag(){
+      if (dragging) { dragging = false; savePos(); }
+    }
+
+    dragHandle.addEventListener('mousedown', (e) => {
+      if (e.target.closest('.agenda-reset-btn')) return;
+      e.preventDefault();
+      startDrag(e.clientX, e.clientY);
+    });
+    document.addEventListener('mousemove', (e) => moveDrag(e.clientX, e.clientY));
+    document.addEventListener('mouseup', endDrag);
+
+    dragHandle.addEventListener('touchstart', (e) => {
+      if (e.target.closest('.agenda-reset-btn')) return;
+      const t = e.touches[0];
+      startDrag(t.clientX, t.clientY);
+    }, { passive: true });
+    document.addEventListener('touchmove', (e) => {
+      if (!dragging) return;
+      const t = e.touches[0];
+      moveDrag(t.clientX, t.clientY);
+    }, { passive: true });
+    document.addEventListener('touchend', endDrag);
+
+    // ---- redimensionar (usa o "resize" nativo do CSS no canto do card) ----
+    if ('ResizeObserver' in window) {
+      let resizeSaveTimeout;
+      const ro = new ResizeObserver(() => {
+        if (!isDesktop() || dragging) return;
+        clearTimeout(resizeSaveTimeout);
+        resizeSaveTimeout = setTimeout(savePos, 300);
+      });
+      ro.observe(agendaCard);
+    }
+
+    if (resetBtn) {
+      resetBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        localStorage.removeItem(STORAGE_KEY);
+        agendaCard.classList.remove('floating');
+        agendaCard.style.left = '';
+        agendaCard.style.top = '';
+        agendaCard.style.width = '';
+        agendaCard.style.height = '';
+        void agendaCard.offsetWidth; // reflow
+        applyFloating();
+      });
+    }
+
+    applyFloating();
+    window.addEventListener('resize', applyFloating);
+  }
+  // chamada real acontece em setAuthed(), quando o dashboard já está visível
+  // (senão a posição inicial seria medida com o painel ainda escondido)
+
   // ---------- UI HELPERS ----------
   const wrap = document.getElementById('wrap');
   const card = document.getElementById('card');
@@ -1150,6 +1302,8 @@
     document.getElementById('dashNome').textContent = (user.displayName || user.email.split('@')[0]);
     document.getElementById('dashEmailBadge').textContent = user.email;
     startTaskApp(user);
+    // dashboard já está visível agora — só aqui dá pra medir a posição certa do calendário
+    initFloatingAgenda();
   }
   function setLoggedOutView(){
     card.style.display = 'block';
