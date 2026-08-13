@@ -4,1947 +4,636 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JOMI — Assistente de Rotina</title>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
 <style>
   :root{
-    --black:#f7f6f2;
-    --black-soft:#ffffff;
-    --panel:#ffffff;
-    --white:#1a1a1a;
-    --gold:#c9971f;
-    --gold-bright:#e0aa1f;
-    --alert:#d43a33;
-    --ok:#2f9e69;
-    --line:rgba(20,20,20,0.12);
-    --shadow-gold: 0 0 0 rgba(242,201,76,0);
+    --gold: #e0aa1f;
+    --gold-dark: #c98f12;
+    --bg: #faf7f0;
+    --card: #ffffff;
+    --border: #e4e0d4;
+    --text: #2c2c2a;
+    --text-muted: #8a8578;
+    --danger: #c0392b;
+    --danger-bg: #fbeceb;
+    --success: #3b6d11;
+    --radius: 12px;
   }
-  *{box-sizing:border-box; margin:0; padding:0;}
-  html,body{height:100%;}
+
+  *{ box-sizing: border-box; }
+
   body{
-    font-family:'Inter',sans-serif;
-    background:var(--black);
-    color:var(--white);
+    margin:0;
     min-height:100vh;
+    background:var(--bg);
+    font-family:'Inter', sans-serif;
+    color:var(--text);
     display:flex;
-    align-items:stretch;
-    overflow-x:hidden;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
   }
 
-  /* ---------- BACKGROUND TEXTURE (futurista) ---------- */
-  .stripes{
-    position:fixed; inset:0; z-index:0; pointer-events:none;
-    background:
-      radial-gradient(circle, rgba(20,20,20,0.09) 1px, transparent 1.4px);
-    background-size: 26px 26px;
-  }
-  .noise-glow{
-    position:fixed; top:-25%; left:-12%; width:65%; height:65%;
-    background:radial-gradient(circle, rgba(224,170,31,0.12) 0%, transparent 70%);
-    z-index:0; pointer-events:none;
-    animation: driftGlow 16s ease-in-out infinite alternate;
-  }
-  .noise-glow-2{
-    position:fixed; bottom:-25%; right:-12%; width:55%; height:55%;
-    background:radial-gradient(circle, rgba(122,139,255,0.09) 0%, transparent 70%);
-    z-index:0; pointer-events:none;
-    animation: driftGlow 20s ease-in-out infinite alternate-reverse;
-  }
-  @keyframes driftGlow{
-    0%{transform:translate(0,0) scale(1);}
-    100%{transform:translate(4%, 5%) scale(1.08);}
-  }
-  .scan-line{
-    position:fixed; left:0; right:0; height:1px; z-index:0; pointer-events:none;
-    background:linear-gradient(90deg, transparent, rgba(201,151,31,0.5), transparent);
-    animation: scanMove 7s linear infinite;
-    opacity:0.45;
-  }
-  @keyframes scanMove{
-    0%{top:0%;}
-    100%{top:100%;}
-  }
-
-  /* ---------- LAYOUT ---------- */
   .wrap{
-    position:relative; z-index:1;
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    width:100%; min-height:100vh;
-    padding:64px 24px;
-    gap:44px;
-  }
-  .wrap.dash-mode{
-    justify-content:flex-start;
-    padding:24px clamp(12px, 2vw, 32px);
-  }
-
-  /* -- BRAND (bloco central, sem divisões) -- */
-  .brand{
-    display:flex; flex-direction:column; align-items:center;
-    text-align:center;
-    max-width:560px;
-  }
-  .jomi-logo{
-    position:relative;
-    font-family:'Anton', sans-serif;
-    font-size:clamp(64px, 11vw, 128px);
-    line-height:0.9;
-    letter-spacing:0.03em;
-    margin-bottom:6px;
-    background:linear-gradient(115deg, #b8860f 0%, #e0aa1f 30%, #a8760f 55%, #f0c14a 75%, #b8860f 100%);
-    background-size:220% 100%;
-    -webkit-background-clip:text; background-clip:text; color:transparent;
-    filter:drop-shadow(0 4px 20px rgba(184,134,15,0.2));
-    animation: shimmerText 6s ease-in-out infinite;
-  }
-  @keyframes shimmerText{
-    0%, 100%{background-position:0% 0;}
-    50%{background-position:100% 0;}
-  }
-  .brand-tagline{
-    font-family:'Inter',sans-serif; font-weight:800; font-size:clamp(16px, 2vw, 20px);
-    letter-spacing:0.08em; text-transform:uppercase; color:var(--white);
-    margin-bottom:20px;
-    opacity:0.9;
-  }
-  .brand p{
-    font-size:16px; line-height:1.65; color:rgba(20,20,20,0.6);
-    max-width:420px; margin-bottom:32px;
-  }
-
-  /* -- FORM STAGE -- */
-  .stage{
-    display:flex; align-items:center; justify-content:center;
     width:100%;
-    position:relative;
-  }
-  .card{
-    width:100%; max-width:420px;
-    position:relative;
-    background:rgba(255,255,255,0.72);
-    backdrop-filter:blur(18px);
-    -webkit-backdrop-filter:blur(18px);
-    border:1px solid rgba(201,151,31,0.25);
-    border-radius:18px;
-    padding:34px 32px;
-    box-shadow:
-      0 20px 50px rgba(20,20,20,0.12),
-      inset 0 1px 0 rgba(255,255,255,0.6);
-  }
-  .card::before, .card::after,
-  .card .hud-br, .card .hud-bl{
-    content:""; position:absolute; width:18px; height:18px; pointer-events:none;
-  }
-  .card::before{ top:-1px; left:-1px; border-top:2px solid var(--gold-bright); border-left:2px solid var(--gold-bright); border-radius:6px 0 0 0;}
-  .card::after{ top:-1px; right:-1px; border-top:2px solid var(--gold-bright); border-right:2px solid var(--gold-bright); border-radius:0 6px 0 0;}
-  .card .hud-bl{ bottom:-1px; left:-1px; border-bottom:2px solid var(--gold-bright); border-left:2px solid var(--gold-bright); border-radius:0 0 0 6px;}
-  .card .hud-br{ bottom:-1px; right:-1px; border-bottom:2px solid var(--gold-bright); border-right:2px solid var(--gold-bright); border-radius:0 0 6px 0;}
-  .tabbar{
-    display:flex; gap:0; margin-bottom:36px;
-    border:1px solid var(--line); border-radius:10px; overflow:hidden;
-    background:var(--panel);
-  }
-  .tabbar button{
-    flex:1; padding:13px 0; background:transparent; border:none;
-    font-family:'Inter',sans-serif; font-weight:700; font-size:13px;
-    letter-spacing:0.06em; text-transform:uppercase;
-    color:rgba(20,20,20,0.5); cursor:pointer;
-    transition:all .2s ease;
-  }
-  .tabbar button.active{
-    background:var(--gold-bright); color:#1a1a1a;
+    max-width:400px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
   }
 
-  .panel{display:none;}
-  .panel.active{display:block; animation:fadein .35s ease;}
-  @keyframes fadein{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
-
-  .panel-title{
+  .logo{
     font-family:'Anton', sans-serif;
-    font-size:26px; text-transform:uppercase; letter-spacing:0.01em;
-    margin-bottom:8px;
-  }
-  .panel-sub{
-    font-size:14px; color:rgba(20,20,20,0.55); margin-bottom:28px; line-height:1.5;
+    font-size:40px;
+    letter-spacing:0.5px;
+    background:linear-gradient(90deg, var(--gold), var(--gold-dark));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    margin-bottom:2px;
   }
 
-  .field{margin-bottom:18px;}
-  .field label{
-    display:block; font-size:12px; font-weight:700; letter-spacing:0.05em;
-    text-transform:uppercase; color:rgba(20,20,20,0.6); margin-bottom:8px;
+  .tagline{
+    font-size:12.5px;
+    color:var(--text-muted);
+    text-align:center;
+    margin-bottom:28px;
+    max-width:320px;
+    line-height:1.5;
   }
-  .field input{
-    width:100%; padding:13px 14px; background:rgba(20,20,20,0.04);
-    border:1px solid var(--line); border-radius:8px;
-    color:var(--white); font-family:'Inter',sans-serif; font-size:15px;
-    outline:none; transition:border-color .2s ease, box-shadow .2s ease;
-  }
-  .field input:focus{
-    border-color:var(--gold-bright);
-    box-shadow:0 0 0 3px rgba(242,201,76,0.15), 0 0 16px rgba(242,201,76,0.12);
-  }
-  .field input::placeholder{color:rgba(20,20,20,0.28);}
 
-  .row-between{
-    display:flex; justify-content:space-between; align-items:center;
-    margin-bottom:22px; font-size:13px;
+  .card{
+    width:100%;
+    background:var(--card);
+    border:0.5px solid var(--border);
+    border-radius:var(--radius);
+    padding:28px 26px;
   }
-  .link-btn{
-    background:none; border:none; color:var(--gold-bright); font-size:13px;
-    font-weight:600; cursor:pointer; padding:0; text-decoration:underline;
-    text-underline-offset:3px;
-  }
-  .link-btn:hover{color:var(--white);}
 
-  .btn-primary{
-    width:100%; padding:15px 0; border:none; border-radius:8px;
-    background:linear-gradient(100deg, #f2c94c 0%, #f6d774 45%, #f2c94c 100%);
-    background-size:220% 100%;
-    color:#1a1a1a;
-    font-family:'Inter',sans-serif; font-weight:800; font-size:15px;
-    letter-spacing:0.03em; text-transform:uppercase;
-    cursor:pointer; position:relative; overflow:hidden;
-    transition:transform .15s ease, box-shadow .15s ease, background-position .5s ease;
+  .tabs{
+    display:flex;
+    background:#f1eee5;
+    border-radius:9px;
+    padding:3px;
+    margin-bottom:22px;
   }
-  .btn-primary:hover{
-    transform:translateY(-1px);
-    box-shadow:0 8px 26px rgba(242,201,76,0.35);
-    background-position:100% 0;
-  }
-  .btn-primary:disabled{opacity:0.5; cursor:not-allowed; transform:none; box-shadow:none;}
 
-  .btn-secondary{
-    width:100%; padding:14px 0; margin-top:12px; border-radius:8px;
-    background:transparent; border:1px solid var(--line); color:var(--white);
-    font-weight:700; font-size:14px; text-transform:uppercase; letter-spacing:0.03em;
-    cursor:pointer; transition:border-color .2s ease, background .2s ease;
+  .tab{
+    flex:1;
+    text-align:center;
+    padding:8px 0;
+    border-radius:7px;
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--text-muted);
+    cursor:pointer;
+    background:transparent;
+    border:none;
+    transition:all .15s ease;
   }
-  .btn-secondary:hover{border-color:var(--gold-bright); background:rgba(242,201,76,0.06);}
 
-  .switch-line{
-    text-align:center; margin-top:24px; font-size:13.5px; color:rgba(20,20,20,0.55);
+  .tab.active{
+    background:#fff;
+    color:var(--text);
+    box-shadow:0 1px 2px rgba(0,0,0,0.06);
+  }
+
+  h2{
+    font-size:16px;
+    font-weight:600;
+    margin:0 0 4px;
+  }
+
+  .sub{
+    font-size:12.5px;
+    color:var(--text-muted);
+    margin:0 0 20px;
+    line-height:1.5;
+  }
+
+  label{
+    font-size:12px;
+    color:var(--text-muted);
+    display:block;
+    margin-bottom:5px;
+    font-weight:500;
+  }
+
+  input{
+    width:100%;
+    padding:10px 12px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    font-size:14px;
+    font-family:'Inter', sans-serif;
+    margin-bottom:14px;
+    background:#fdfcf9;
+    color:var(--text);
+  }
+
+  input:focus{
+    outline:none;
+    border-color:var(--gold);
+    box-shadow:0 0 0 3px rgba(224,170,31,0.15);
+  }
+
+  .row-end{
+    text-align:right;
+    margin-top:-8px;
+    margin-bottom:16px;
+  }
+
+  .link{
+    color:var(--gold-dark);
+    font-size:12.5px;
+    cursor:pointer;
+    font-weight:500;
+    text-decoration:none;
+  }
+
+  .link:hover{ text-decoration:underline; }
+
+  button.primary{
+    width:100%;
+    padding:11px 0;
+    border:none;
+    border-radius:8px;
+    background:linear-gradient(90deg, var(--gold), var(--gold-dark));
+    color:#412402;
+    font-weight:700;
+    font-size:14px;
+    cursor:pointer;
+    transition:opacity .15s ease;
+  }
+
+  button.primary:hover{ opacity:0.92; }
+  button.primary:disabled{ opacity:0.55; cursor:default; }
+
+  button.ghost{
+    width:100%;
+    padding:10px 0;
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:transparent;
+    color:var(--text);
+    font-weight:500;
+    font-size:13.5px;
+    cursor:pointer;
+    margin-top:8px;
+  }
+
+  button.ghost:hover{ background:#f7f5ef; }
+
+  .foot-note{
+    text-align:center;
+    font-size:12.5px;
+    color:var(--text-muted);
+    margin-top:16px;
+  }
+
+  .disclaimer{
+    font-size:11px;
+    color:#b0aca0;
+    text-align:center;
+    max-width:320px;
+    margin-top:18px;
+    line-height:1.5;
   }
 
   .msg{
-    display:none; padding:12px 14px; border-radius:8px; font-size:13.5px;
-    margin-bottom:18px; line-height:1.5; font-weight:500;
+    display:none;
+    font-size:12.5px;
+    padding:9px 12px;
+    border-radius:8px;
+    margin-bottom:14px;
+    line-height:1.5;
   }
-  .msg.show{display:block; animation:fadein .3s ease;}
-  .msg.error{background:rgba(224,67,60,0.12); border:1px solid rgba(224,67,60,0.35); color:#ff8b85;}
-  .msg.success{background:rgba(63,178,127,0.12); border:1px solid rgba(63,178,127,0.35); color:#7fe0b4;}
 
-  /* -- VERIFY EMAIL SCREEN -- */
+  .msg.error{
+    display:block;
+    background:var(--danger-bg);
+    color:var(--danger);
+  }
+
+  .msg-code{
+    font-family:'Space Mono', monospace;
+    font-size:10.5px;
+    opacity:0.75;
+    display:block;
+    margin-top:3px;
+  }
+
+  .msg.info{
+    display:block;
+    background:#fff6e2;
+    color:#7a5a06;
+  }
+
   .verify-icon{
-    width:64px; height:64px; border-radius:50%;
-    background:rgba(242,201,76,0.12); border:1px solid rgba(242,201,76,0.3);
-    display:flex; align-items:center; justify-content:center;
-    margin-bottom:22px;
-  }
-  .verify-icon svg{width:28px; height:28px;}
-  .verify-email-highlight{
-    color:var(--gold-bright); font-weight:700;
-  }
-  .status-pill{
-    display:inline-flex; align-items:center; gap:6px;
-    font-family:'Space Mono',monospace; font-size:11.5px; font-weight:700;
-    letter-spacing:0.04em; text-transform:uppercase;
-    padding:6px 12px; border-radius:20px; margin-bottom:22px;
-  }
-  .status-pill.pending{background:rgba(242,201,76,0.12); color:var(--gold-bright); border:1px solid rgba(242,201,76,0.3);}
-  .status-pill.dot{width:6px; height:6px; border-radius:50%; background:currentColor;}
-
-  .cooldown-note{font-size:12px; color:rgba(20,20,20,0.4); text-align:center; margin-top:10px;}
-
-  /* -- DASHBOARD PLACEHOLDER -- */
-  .dash{display:none; padding:32px clamp(16px, 2.5vw, 44px); width:100%;}
-  .dash.active{display:block; animation:fadein .4s ease;}
-  .dash-top{display:flex; justify-content:space-between; align-items:center; margin-bottom:40px; flex-wrap:wrap; gap:16px;}
-  .dash-welcome{font-family:'Anton',sans-serif; font-size:34px; text-transform:uppercase;}
-  .dash-welcome span{color:var(--gold-bright);}
-  .dash-user-badge{
-    display:flex; align-items:center; gap:12px;
-    font-family:'Space Mono',monospace; font-size:12.5px; color:rgba(20,20,20,0.6);
-  }
-  .logout-btn{
-    background:transparent; border:1px solid var(--line); color:var(--white);
-    padding:9px 16px; border-radius:8px; font-size:12.5px; font-weight:700;
-    text-transform:uppercase; letter-spacing:0.04em; cursor:pointer;
-  }
-  .logout-btn:hover{border-color:var(--alert); color:#ff8b85;}
-  .dash-note{
-    border:1px dashed var(--line); border-radius:12px; padding:32px;
-    color:rgba(20,20,20,0.55); font-size:14.5px; line-height:1.7; max-width:640px;
-  }
-  .dash-note b{color:var(--gold-bright);}
-
-  /* -- TOOLBAR -- */
-  .app-toolbar{
-    display:flex; justify-content:space-between; align-items:center;
-    flex-wrap:wrap; gap:16px; margin-bottom:24px;
-  }
-  .view-switch{
-    display:inline-flex; border:1px solid var(--line); border-radius:10px;
-    overflow:hidden; background:var(--panel);
-  }
-  .view-switch button{
-    padding:11px 22px; background:transparent; border:none;
-    color:rgba(20,20,20,0.55); font-weight:700; font-size:13px;
-    text-transform:uppercase; letter-spacing:0.04em; cursor:pointer;
-  }
-  .view-switch button.active{background:var(--gold-bright); color:#1a1a1a;}
-  .toolbar-actions{display:flex; gap:12px; flex-wrap:wrap;}
-  .btn-notify, .btn-add-task{
-    padding:11px 18px; border-radius:10px; font-weight:700; font-size:13px;
-    letter-spacing:0.02em; cursor:pointer; white-space:nowrap;
-  }
-  .btn-notify{
-    background:transparent; border:1px solid var(--line); color:var(--white);
-  }
-  .btn-notify:hover{border-color:var(--gold-bright);}
-  .btn-notify.on{border-color:var(--ok); color:var(--ok);}
-  .btn-add-task{
-    background:var(--gold-bright); border:none; color:#1a1a1a;
-  }
-  .btn-add-task:hover{box-shadow:0 6px 18px rgba(242,201,76,0.25); transform:translateY(-1px);}
-
-  .app-alert{
-    display:none; padding:12px 16px; border-radius:10px; margin-bottom:20px;
-    font-size:13.5px; font-weight:600;
-    background:rgba(224,67,60,0.10); border:1px solid rgba(224,67,60,0.3); color:#ff8b85;
-  }
-  .app-alert.show{display:block;}
-
-  /* -- SPLIT LAYOUT (Kanban + Agenda + Dashboard lado a lado) -- */
-  .dash-body{display:flex; flex-direction:column; gap:20px;}
-  @media (min-width: 1100px){
-    .dash-body{display:grid; grid-template-columns:1.9fr 1.1fr 1.1fr; align-items:start; gap:20px;}
-    .kanban-board{display:grid !important; grid-template-columns:repeat(3, minmax(0,1fr)) !important;}
-    .agenda-view{display:block !important;}
-    .stats-view{display:block !important;}
-    .view-switch{display:none;}
+    width:52px;
+    height:52px;
+    border-radius:50%;
+    background:#fff6e2;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin:0 auto 16px;
+    font-size:24px;
   }
 
-  /* -- KANBAN (estilo quadro) -- */
-  .kanban-board{display:none; gap:16px; align-items:flex-start;}
-  .kanban-board.active{display:grid; grid-template-columns:repeat(3, minmax(0,1fr));}
-  .kanban-col{
-    background:#f2f1ec; border:1px solid var(--line); border-radius:12px;
-    padding:14px; min-height:160px; max-height:70vh; display:flex; flex-direction:column;
-  }
-  .kanban-col-head{
-    display:flex; align-items:center; gap:8px;
-    font-weight:800; font-size:12.5px; text-transform:uppercase; letter-spacing:0.05em;
-    margin-bottom:12px; color:rgba(20,20,20,0.85); flex-shrink:0;
-  }
-  .kanban-count{
-    margin-left:auto; background:rgba(20,20,20,0.08); border-radius:6px;
-    padding:2px 8px; font-size:11px; font-family:'Space Mono',monospace;
-  }
-  .kanban-col-dot{width:8px; height:8px; border-radius:50%; display:inline-block;}
-  .dot-todo{background:#7a8bff;}
-  .dot-doing{background:var(--gold-bright);}
-  .dot-done{background:var(--ok);}
+  .center{ text-align:center; }
 
-  .kanban-col-body{
-    display:flex; flex-direction:column; gap:8px; min-height:40px;
-    overflow-y:auto; padding-right:2px; flex:1;
-  }
-  .kanban-col-body.drag-over{background:rgba(242,201,76,0.05); border-radius:8px;}
-  .kanban-add-btn{
-    margin-top:10px; padding:9px 10px; border-radius:8px; border:1px dashed var(--line);
-    background:transparent; color:rgba(20,20,20,0.55); font-size:12.5px; font-weight:600;
-    text-align:left; cursor:pointer; flex-shrink:0; transition:border-color .15s ease, color .15s ease, background .15s ease;
-  }
-  .kanban-add-btn:hover{border-color:var(--gold-bright); color:var(--gold-bright); background:rgba(242,201,76,0.05);}
+  .screen{ display:none; }
+  .screen.active{ display:block; }
 
-  .task-card{
-    background:#ffffff; border:1px solid var(--line); border-radius:8px;
-    padding:0; cursor:grab; overflow:hidden;
-    box-shadow:0 1px 3px rgba(20,20,20,0.08);
-    transition:border-color .15s ease, transform .15s ease, box-shadow .15s ease, background .2s ease;
-  }
-  .task-card:hover{border-color:var(--gold-bright); transform:translateY(-1px); box-shadow:0 6px 18px rgba(20,20,20,0.14);}
-  .task-card.dragging{opacity:0.4;}
-
-  /* -- CORES POR STATUS -- */
-  .task-card.status-todo{
-    background:linear-gradient(160deg, #3251d4 0%, #23348c 100%);
-    border-color:#5c7cfa;
-  }
-  .task-card.status-doing{
-    background:linear-gradient(160deg, #f2c94c 0%, #c99a2e 100%);
-    border-color:#f2c94c;
-  }
-  .task-card.status-done{
-    background:linear-gradient(160deg, #2e9d67 0%, #1c6e46 100%);
-    border-color:#3fb27f;
-  }
-  .task-card.status-todo .task-title, .task-card.status-todo .task-desc,
-  .task-card.status-todo .task-date, .task-card.status-todo .task-finalizado label,
-  .task-card.status-done .task-title, .task-card.status-done .task-desc,
-  .task-card.status-done .task-date, .task-card.status-done .task-finalizado label{
-    color:#fff !important;
-  }
-  .task-card.status-doing .task-title, .task-card.status-doing .task-desc,
-  .task-card.status-doing .task-date, .task-card.status-doing .task-finalizado label{
-    color:#211a00 !important;
-  }
-  .task-card.status-todo .task-desc, .task-card.status-done .task-desc{color:rgba(255,255,255,0.85) !important;}
-  .task-card.status-doing .task-desc{color:rgba(33,26,0,0.75) !important;}
-  .task-concluida-msg{
-    font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.03em;
-    color:#fff; background:rgba(0,0,0,0.2); border-radius:6px;
-    padding:6px 8px; margin-top:8px; text-align:center;
+  /* Área do app (placeholder pós-login) */
+  #appShell{
+    display:none;
+    width:100%;
+    max-width:1200px;
   }
 
-  /* -- VENCIDA (prevalece sobre a cor de status) -- */
-  .task-card.overdue-card{
-    background:linear-gradient(160deg, #9a2a25 0%, #6e1c19 100%);
-    border-color:#e0433c;
-    box-shadow:0 0 0 1px rgba(224,67,60,0.5), 0 4px 16px rgba(224,67,60,0.3);
-  }
-  .task-card.overdue-card:hover{border-color:#ff6b62; box-shadow:0 4px 18px rgba(224,67,60,0.5);}
-  .task-card.overdue-card .task-title,
-  .task-card.overdue-card .task-desc,
-  .task-card.overdue-card .task-date,
-  .task-card.overdue-card .task-finalizado label{
-    font-weight:800 !important; color:#fff !important;
-  }
-  .task-card.overdue-card .task-desc{color:rgba(255,255,255,0.9) !important;}
+  #appShell.active{ display:block; }
 
-  .task-card-image{width:100%; height:110px; object-fit:cover; display:block; background:#e8e6df;}
-  .task-card-stripe{height:4px; width:100%;}
-  .task-card-inner{padding:11px 12px;}
-  .task-card-top{display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:5px;}
-  .task-title{font-weight:700; font-size:14px; line-height:1.35;}
-  .task-desc{font-size:12px; color:rgba(20,20,20,0.5); margin-bottom:7px; line-height:1.4;}
-  .task-meta{display:flex; align-items:center; gap:7px; flex-wrap:wrap;}
-  .task-label{
-    display:inline-flex; align-items:center; gap:5px;
-    font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.03em;
-    padding:2px 8px; border-radius:20px;
-    background:rgba(0,0,0,0.28); color:#fff;
-  }
-  .task-label-dot{width:6px; height:6px; border-radius:50%; flex-shrink:0;}
-  .task-date{
-    font-family:'Space Mono',monospace; font-size:10.5px; color:rgba(20,20,20,0.45);
-  }
-  .task-date.overdue{color:var(--alert); font-weight:700;}
-  .task-date.today{color:var(--gold-bright); font-weight:700;}
-  .task-finalizado{
-    display:flex; align-items:center; gap:6px; margin-top:8px;
-    padding-top:8px; border-top:1px solid rgba(255,255,255,0.15);
-  }
-  .task-finalizado input[type="checkbox"]{
-    width:14px; height:14px; accent-color:var(--ok); cursor:pointer;
-  }
-  .task-finalizado label{
-    font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.03em;
-    color:rgba(20,20,20,0.5); cursor:pointer;
-  }
-  .empty-col{
-    text-align:center; color:rgba(20,20,20,0.3); font-size:12px;
-    padding:16px 0; border:1px dashed var(--line); border-radius:8px;
+  .app-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:14px 4px 20px;
   }
 
-  /* -- LIXEIRA -- */
-  .lixeira-btn{
-    display:none; position:fixed; left:22px; bottom:22px; z-index:40;
-    align-items:center; gap:8px;
-    background:var(--panel); border:1px solid var(--line); border-radius:24px;
-    padding:11px 18px; color:var(--white);
-    font-family:'Inter',sans-serif; font-weight:700; font-size:13px;
-    cursor:pointer; box-shadow:0 8px 22px rgba(0,0,0,0.4);
-    transition:border-color .2s ease, transform .15s ease;
-  }
-  .lixeira-btn:hover{border-color:var(--gold-bright); transform:translateY(-2px);}
-  .lixeira-btn.show{display:inline-flex;}
-  .lixeira-badge{
-    background:var(--alert); color:#fff; border-radius:20px;
-    padding:1px 8px; font-size:11px; font-family:'Space Mono',monospace;
-    min-width:18px; text-align:center;
-  }
-  .lixeira-badge.zero{background:rgba(20,20,20,0.12); color:rgba(20,20,20,0.4);}
-  .lixeira-item{
-    display:flex; justify-content:space-between; align-items:center; gap:10px;
-    background:var(--panel); border:1px solid var(--line); border-radius:10px;
-    padding:11px 13px;
-  }
-  .lixeira-item .task-title{font-size:13.5px;}
-  .btn-restaurar{
-    flex-shrink:0; padding:8px 14px; border-radius:8px; border:1px solid var(--ok);
-    background:rgba(63,178,127,0.12); color:#7fe0b4;
-    font-family:'Inter',sans-serif; font-weight:700; font-size:12px;
-    text-transform:uppercase; letter-spacing:0.02em; cursor:pointer;
-    transition:background .15s ease;
-  }
-  .btn-restaurar:hover{background:rgba(63,178,127,0.25);}
+  .app-header .who{ font-size:13px; color:var(--text-muted); }
+  .app-header .who b{ color:var(--text); font-weight:600; }
 
-  /* -- AGENDA -- */
-  .agenda-view{display:none;}
-  .agenda-view.active{display:block;}
-  .agenda-card{
-    background:var(--panel); border:1px solid var(--line); border-radius:16px;
-    padding:22px; width:100%;
-  }
-  .agenda-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;}
-  .agenda-month{
-    font-family:'Anton',sans-serif; font-size:20px; text-transform:uppercase; letter-spacing:0.02em;
-  }
-  .cal-nav{
-    width:34px; height:34px; border-radius:8px; border:1px solid var(--line);
-    background:transparent; color:var(--white); font-size:17px; cursor:pointer;
-  }
-  .cal-nav:hover{border-color:var(--gold-bright); color:var(--gold-bright);}
-  .cal-weekdays{
-    display:grid; grid-template-columns:repeat(7, 1fr); text-align:center;
-    font-size:11px; color:rgba(20,20,20,0.4); font-weight:700; margin-bottom:8px;
-  }
-  .cal-grid{display:grid; grid-template-columns:repeat(7, 1fr); gap:4px;}
-  .cal-day{
-    aspect-ratio:1; border-radius:9px; display:flex; flex-direction:column;
-    align-items:center; justify-content:center; gap:4px; cursor:pointer;
-    font-size:13px; color:rgba(20,20,20,0.75); background:transparent;
-    border:1px solid transparent; transition:border-color .15s ease, background .15s ease;
-  }
-  .cal-day:hover{border-color:var(--line); background:rgba(20,20,20,0.03);}
-  .cal-day.empty{cursor:default; visibility:hidden;}
-  .cal-day.today{border-color:var(--gold-bright); color:var(--gold-bright); font-weight:800;}
-  .cal-day.selected{background:var(--gold-bright); color:#1a1a1a; font-weight:800;}
-  .cal-dots{display:flex; gap:3px;}
-  .cal-dots span{width:5px; height:5px; border-radius:50%;}
-  .cal-legend{
-    display:flex; gap:16px; margin-top:18px; padding-top:16px; border-top:1px solid var(--line);
-    font-size:12px; color:rgba(20,20,20,0.5);
-  }
-  .cal-legend span{display:flex; align-items:center; gap:6px;}
-  .cal-legend i{width:8px; height:8px; border-radius:50%; display:inline-block;}
-
-  /* -- DASHBOARD / ESTATÍSTICAS -- */
-  .stats-view{display:none;}
-  .stats-view.active{display:block;}
-  .stats-card{
-    background:var(--panel); border:1px solid var(--line); border-radius:16px;
-    padding:22px; width:100%;
-  }
-  .stats-title{
-    font-family:'Anton',sans-serif; font-size:18px; text-transform:uppercase; letter-spacing:0.02em;
-    margin-bottom:4px;
-  }
-  .stats-total{
-    font-family:'Space Mono',monospace; font-size:12px; color:rgba(20,20,20,0.5);
-    margin-bottom:20px;
-  }
-  .stats-row{margin-bottom:18px;}
-  .stats-row:last-child{margin-bottom:0;}
-  .stats-row-top{
-    display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;
-  }
-  .stats-row-label{
-    display:flex; align-items:center; gap:8px;
-    font-size:12.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.03em;
-    color:rgba(20,20,20,0.75);
-  }
-  .stats-row-nums{
-    font-family:'Space Mono',monospace; font-size:12px; color:rgba(20,20,20,0.5);
-  }
-  .stats-row-nums b{
-    font-size:20px; color:var(--white); font-family:'Anton',sans-serif; margin-right:4px;
-  }
-  .stats-bar-track{
-    height:8px; border-radius:6px; background:rgba(20,20,20,0.06); overflow:hidden;
-  }
-  .stats-bar-fill{height:100%; border-radius:6px; transition:width .5s ease;}
-  .stats-bar-fill.fill-todo{background:#7a8bff;}
-  .stats-bar-fill.fill-doing{background:var(--gold-bright);}
-  .stats-bar-fill.fill-done{background:var(--ok);}
-  .stats-divider{border-top:1px solid var(--line); margin:20px 0;}
-  .stats-finalizadas{
-    display:flex; justify-content:space-between; align-items:center;
-    font-size:12.5px; color:rgba(20,20,20,0.5);
-  }
-  .stats-finalizadas b{color:var(--ok); font-family:'Space Mono',monospace; font-size:14px;}
-
-  /* -- MODALS -- */
-  .modal-overlay{
-    display:none; position:fixed; inset:0; z-index:50;
-    background:rgba(0,0,0,0.6); backdrop-filter:blur(3px);
-    align-items:center; justify-content:center; padding:20px;
-  }
-  .modal-overlay.show{display:flex;}
-  .modal-box{
-    background:var(--black-soft); border:1px solid var(--line); border-radius:16px;
-    padding:28px; width:100%; max-width:440px; max-height:88vh; overflow-y:auto;
-    animation:fadein .25s ease;
-  }
-  .modal-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;}
-  .modal-title{font-family:'Anton',sans-serif; font-size:20px; text-transform:uppercase;}
-  .modal-close{
-    background:transparent; border:none; color:rgba(20,20,20,0.5);
-    font-size:18px; cursor:pointer; line-height:1; flex-shrink:0;
-  }
-  .modal-close:hover{color:var(--white);}
-  .field-row{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
-  .field select{
-    width:100%; padding:13px 14px; background:var(--panel);
-    border:1px solid var(--line); border-radius:8px;
-    color:var(--white); font-family:'Inter',sans-serif; font-size:14.5px;
-    outline:none;
+  .app-placeholder{
+    background:var(--card);
+    border:0.5px dashed var(--border);
+    border-radius:var(--radius);
+    padding:40px 24px;
+    text-align:center;
+    color:var(--text-muted);
+    font-size:13.5px;
+    line-height:1.6;
   }
 
-  /* -- MODAL DE TAREFA ESTILO GOOGLE AGENDA -- */
-  .gcal-box{max-width:460px;}
-  .gcal-topbar{display:flex; align-items:center; gap:12px; margin-bottom:20px;}
-  .gcal-title-input{
-    flex:1; min-width:0;
-    padding:8px 2px; background:transparent;
-    border:none; border-bottom:2px solid var(--line);
-    color:var(--white); font-family:'Inter',sans-serif; font-size:18px; font-weight:700;
-    outline:none; transition:border-color .2s ease;
+  .app-placeholder code{
+    font-family:'Space Mono', monospace;
+    font-size:12px;
+    background:#f1eee5;
+    padding:2px 6px;
+    border-radius:4px;
   }
-  .gcal-title-input:focus{border-color:var(--gold-bright);}
-  .gcal-title-input::placeholder{color:rgba(20,20,20,0.3); font-weight:600;}
-  .gcal-save-btn{
-    flex-shrink:0; padding:10px 20px; border-radius:20px; border:none;
-    background:var(--gold-bright); color:#1a1a1a;
-    font-family:'Inter',sans-serif; font-weight:800; font-size:12.5px;
-    text-transform:uppercase; letter-spacing:0.03em; cursor:pointer;
-    transition:transform .15s ease, box-shadow .15s ease;
-  }
-  .gcal-save-btn:hover{transform:translateY(-1px); box-shadow:0 6px 16px rgba(242,201,76,0.3);}
-
-  .gcal-date-row{display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap;}
-  .gcal-date-chip{
-    padding:8px 12px; border-radius:20px; background:rgba(20,20,20,0.06);
-    border:1px solid var(--line); color:var(--white);
-    font-family:'Inter',sans-serif; font-size:13px; outline:none;
-    transition:border-color .2s ease;
-  }
-  .gcal-date-chip:focus{border-color:var(--gold-bright);}
-  .gcal-ate{font-size:13px; color:rgba(20,20,20,0.5);}
-
-  .gcal-allday{
-    display:flex; align-items:center; gap:8px; font-size:13px;
-    color:rgba(20,20,20,0.7); margin-bottom:18px; cursor:pointer;
-  }
-  .gcal-allday input{width:15px; height:15px; accent-color:var(--gold-bright); cursor:pointer;}
-
-  .gcal-time-row{display:flex; gap:14px; margin-bottom:18px;}
-  .gcal-time-block{flex:1;}
-  .gcal-time-block input{
-    width:100%; padding:9px 11px; background:rgba(20,20,20,0.04);
-    border:1px solid var(--line); border-radius:7px;
-    color:var(--white); font-family:'Inter',sans-serif; font-size:13.5px;
-    outline:none; transition:border-color .2s ease;
-  }
-  .gcal-time-block input:focus{border-color:var(--gold-bright);}
-
-  .gcal-card{
-    background:rgba(20,20,20,0.03); border:1px solid var(--line);
-    border-radius:12px; padding:16px 16px 4px;
-  }
-  .gcal-row{display:flex; gap:14px; margin-bottom:16px; align-items:center;}
-  .gcal-icon{
-    width:20px; flex-shrink:0; text-align:center; font-size:15px;
-    opacity:0.6;
-  }
-  .gcal-row-body{flex:1; min-width:0;}
-  .gcal-datetime-label{
-    font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;
-    color:rgba(20,20,20,0.45); margin-bottom:8px;
-  }
-  .gcal-plain-input, .gcal-plain-select{
-    width:100%; padding:8px 2px; background:transparent;
-    border:none; border-bottom:1px solid var(--line);
-    color:var(--white); font-family:'Inter',sans-serif; font-size:14px;
-    outline:none; transition:border-color .2s ease;
-  }
-  .gcal-plain-input:focus, .gcal-plain-select:focus{border-color:var(--gold-bright);}
-  .gcal-plain-input::placeholder{color:rgba(20,20,20,0.3);}
-  .gcal-plain-select{cursor:pointer;}
-  .gcal-plain-select option{background:var(--black-soft); color:var(--white);}
-
-  .gcal-file-input{
-    width:100%; font-family:'Inter',sans-serif; font-size:13px;
-    color:rgba(20,20,20,0.6); cursor:pointer;
-  }
-  .gcal-file-input::file-selector-button{
-    padding:7px 14px; margin-right:12px; border-radius:20px; border:1px solid var(--line);
-    background:rgba(20,20,20,0.06); color:var(--white);
-    font-family:'Inter',sans-serif; font-size:12px; font-weight:700;
-    cursor:pointer; transition:border-color .2s ease;
-  }
-  .gcal-file-input::file-selector-button:hover{border-color:var(--gold-bright);}
-  .gcal-image-preview-wrap{
-    display:flex; align-items:center; gap:12px; margin-top:10px;
-  }
-  .gcal-image-preview{
-    width:64px; height:64px; object-fit:cover; border-radius:8px;
-    border:1px solid var(--line);
-  }
-  .gcal-image-remove{
-    background:none; border:none; color:#ff8b85; font-size:12px; font-weight:700;
-    cursor:pointer; text-decoration:underline; text-underline-offset:3px;
-  }
-  .day-task-list{display:flex; flex-direction:column; gap:10px; max-height:44vh; overflow-y:auto;}
-  .day-task-item{
-    display:flex; justify-content:space-between; align-items:center; gap:10px;
-    background:var(--panel); border:1px solid var(--line); border-radius:10px;
-    padding:11px 13px; cursor:pointer;
-  }
-  .day-task-item:hover{border-color:var(--gold-bright);}
-  .day-task-item .task-title{font-size:13.5px;}
-  .day-empty{
-    text-align:center; color:rgba(20,20,20,0.35); font-size:13px; padding:24px 0;
-  }
-
-  @media (max-width: 720px){
-    .kanban-board.active{grid-template-columns:1fr;}
-    .field-row{grid-template-columns:1fr;}
-  }
-
-  @media (max-width: 880px){
-    .wrap{padding:44px 20px; gap:32px;}
-    .stage{padding:0;}
-    .dash{padding:40px 24px;}
-  }
-
-  ::selection{background:var(--gold-bright); color:#1a1a1a;}
-  :focus-visible{outline:2px solid var(--gold-bright); outline-offset:2px;}
 </style>
 </head>
 <body>
 
-<div class="stripes"></div>
-<div class="noise-glow"></div>
-<div class="noise-glow-2"></div>
-<div class="scan-line"></div>
+<div class="wrap" id="authWrap">
+  <div class="logo">JOMI</div>
+  <div class="tagline">Seu kanban e sua agenda pessoal em um só lugar. Pessoal, Personalizado e Intransferível.</div>
 
-<div class="wrap" id="wrap">
+  <div class="card">
 
-  <!-- BRAND PANEL -->
-  <aside class="brand">
-    <h1 class="jomi-logo">JOMI</h1>
-    <div class="brand-tagline">Assistente de Rotina</div>
-    <p>Seu kanban e sua agenda pessoal em um só lugar. Pessoal, Personalizado e Intransferível.</p>
-  </aside>
-
-  <!-- FORM STAGE -->
-  <main class="stage">
-    <div class="card" id="card">
-      <span class="hud-bl"></span><span class="hud-br"></span>
-
-      <!-- TABS (login / cadastro) -->
-      <div class="tabbar" id="tabbar">
-        <button type="button" class="active" data-tab="login">Entrar</button>
-        <button type="button" data-tab="signup">Criar conta</button>
+    <!-- ===== LOGIN / CADASTRO TABS ===== -->
+    <div id="tabsScreen" class="screen active">
+      <div class="tabs">
+        <button class="tab active" id="tabLogin" onclick="showScreen('login')">Entrar</button>
+        <button class="tab" id="tabSignup" onclick="showScreen('signup')">Criar conta</button>
       </div>
 
-      <div id="globalMsg" class="msg"></div>
+      <!-- LOGIN -->
+      <div id="loginForm">
+        <h2>Bem-vindo de volta</h2>
+        <p class="sub">Entre com seu e-mail e senha para acessar seu painel.</p>
 
-      <!-- LOGIN PANEL -->
-      <section class="panel active" id="panel-login">
-        <div class="panel-title">Bem-vindo de volta</div>
-        <div class="panel-sub">Entre com seu e-mail e senha para acessar seu painel.</div>
-        <form id="formLogin">
-          <div class="field">
-            <label for="loginEmail">E-mail</label>
-            <input type="email" id="loginEmail" placeholder="seuemail@exemplo.com" required autocomplete="email">
-          </div>
-          <div class="field">
-            <label for="loginSenha">Senha</label>
-            <input type="password" id="loginSenha" placeholder="••••••••" required autocomplete="current-password">
-          </div>
-          <div class="row-between">
-            <span></span>
-            <button type="button" class="link-btn" data-tab="forgot">Esqueci minha senha</button>
-          </div>
-          <button type="submit" class="btn-primary" id="btnLogin">Entrar</button>
-        </form>
-        <div class="switch-line">Ainda não tem conta? <button type="button" class="link-btn" data-tab="signup">Criar agora</button></div>
-      </section>
+        <div class="msg" id="loginMsg"></div>
 
-      <!-- SIGNUP PANEL -->
-      <section class="panel" id="panel-signup">
-        <div class="panel-title">Criar minha conta</div>
-        <div class="panel-sub">Seu acesso é pessoal e intransferível — os dados ficam vinculados só a este e-mail.</div>
-        <form id="formSignup">
-          <div class="field">
-            <label for="suNome">Nome</label>
-            <input type="text" id="suNome" placeholder="Seu nome" required autocomplete="name">
-          </div>
-          <div class="field">
-            <label for="suEmail">E-mail</label>
-            <input type="email" id="suEmail" placeholder="seuemail@exemplo.com" required autocomplete="email">
-          </div>
-          <div class="field">
-            <label for="suSenha">Senha</label>
-            <input type="password" id="suSenha" placeholder="Mínimo 6 caracteres" required minlength="6" autocomplete="new-password">
-          </div>
-          <div class="field">
-            <label for="suSenha2">Confirmar senha</label>
-            <input type="password" id="suSenha2" placeholder="Repita a senha" required minlength="6" autocomplete="new-password">
-          </div>
-          <button type="submit" class="btn-primary" id="btnSignup">Criar conta e enviar verificação</button>
-        </form>
-        <div class="switch-line">Já tem conta? <button type="button" class="link-btn" data-tab="login">Entrar</button></div>
-      </section>
+        <label for="loginEmail">E-mail</label>
+        <input id="loginEmail" type="email" placeholder="seuemail@exemplo.com" autocomplete="email">
 
-      <!-- FORGOT PASSWORD PANEL -->
-      <section class="panel" id="panel-forgot">
-        <div class="panel-title">Redefinir senha</div>
-        <div class="panel-sub">Informe seu e-mail e enviaremos um link para criar uma nova senha.</div>
-        <form id="formForgot">
-          <div class="field">
-            <label for="fgEmail">E-mail</label>
-            <input type="email" id="fgEmail" placeholder="seuemail@exemplo.com" required autocomplete="email">
-          </div>
-          <button type="submit" class="btn-primary" id="btnForgot">Enviar link de redefinição</button>
-        </form>
-        <div class="switch-line">Lembrou a senha? <button type="button" class="link-btn" data-tab="login">Voltar ao login</button></div>
-      </section>
+        <label for="loginPass">Senha</label>
+        <input id="loginPass" type="password" placeholder="********" autocomplete="current-password">
 
-      <!-- VERIFY EMAIL PANEL -->
-      <section class="panel" id="panel-verify">
-        <div class="verify-icon">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M3 6L12 13L21 6" stroke="#f2c94c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <rect x="3" y="4" width="18" height="16" rx="2" stroke="#f2c94c" stroke-width="2"/>
-          </svg>
-        </div>
-        <div class="status-pill pending"><span class="dot"></span> Verificação pendente</div>
-        <div class="panel-title">Confirme seu e-mail</div>
-        <div class="panel-sub">
-          Enviamos um link de verificação para <span class="verify-email-highlight" id="verifyEmailShown">seuemail@exemplo.com</span>.
-          Abra sua caixa de entrada (e a pasta de spam) e clique no link para ativar sua conta.
-        </div>
-        <button type="button" class="btn-primary" id="btnCheckVerified">Já verifiquei, continuar</button>
-        <button type="button" class="btn-secondary" id="btnResend">Reenviar e-mail de verificação</button>
-        <div class="cooldown-note" id="cooldownNote"></div>
-        <div class="switch-line"><button type="button" class="link-btn" id="btnBackToLoginFromVerify">Sair e voltar ao login</button></div>
-      </section>
+        <div class="row-end"><span class="link" onclick="showScreen('reset')">Esqueci minha senha</span></div>
 
-    </div>
-  </main>
+        <button class="primary" id="loginBtn" onclick="doLogin()">Entrar</button>
 
-  <!-- DASHBOARD (após login + verificação) -->
-  <section class="dash" id="dash">
-    <div class="dash-top">
-      <div>
-        <div class="dash-welcome">Olá, <span id="dashNome">Robson</span></div>
+        <div class="foot-note">Ainda não tem conta? <span class="link" onclick="showScreen('signup')">Criar agora</span></div>
       </div>
-      <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
-        <div class="dash-user-badge" id="dashEmailBadge">seuemail@exemplo.com</div>
-        <button class="logout-btn" id="btnLogout">Sair</button>
+
+      <!-- CADASTRO -->
+      <div id="signupForm" style="display:none;">
+        <h2>Criar minha conta</h2>
+        <p class="sub">Seu acesso é pessoal e intransferível — os dados ficam vinculados só a este e-mail.</p>
+
+        <div class="msg" id="signupMsg"></div>
+
+        <label for="signupName">Nome</label>
+        <input id="signupName" type="text" placeholder="Seu nome" autocomplete="name">
+
+        <label for="signupEmail">E-mail</label>
+        <input id="signupEmail" type="email" placeholder="seuemail@exemplo.com" autocomplete="email">
+
+        <label for="signupPass">Senha</label>
+        <input id="signupPass" type="password" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+
+        <label for="signupPassConfirm">Confirmar senha</label>
+        <input id="signupPassConfirm" type="password" placeholder="Repita a senha" autocomplete="new-password">
+
+        <button class="primary" id="signupBtn" onclick="doSignup()">Criar conta e enviar verificação</button>
+
+        <div class="foot-note">Já tem conta? <span class="link" onclick="showScreen('login')">Entrar</span></div>
       </div>
     </div>
 
-    <div class="app-toolbar">
-      <div class="view-switch" id="viewSwitch">
-        <button type="button" class="active" data-view="kanban">Kanban</button>
-        <button type="button" data-view="agenda">Agenda</button>
-        <button type="button" data-view="stats">Dashboard</button>
-      </div>
-      <div class="toolbar-actions">
-        <button type="button" class="btn-notify" id="btnNotify" title="Ativar notificações">🔔 Notificações</button>
-        <button type="button" class="btn-add-task" id="btnAddTask">+ Nova tarefa</button>
-      </div>
+    <!-- ===== REDEFINIR SENHA ===== -->
+    <div id="resetScreen" class="screen">
+      <h2>Redefinir senha</h2>
+      <p class="sub">Informe seu e-mail e enviaremos um link para criar uma nova senha.</p>
+
+      <div class="msg" id="resetMsg"></div>
+
+      <label for="resetEmail">E-mail</label>
+      <input id="resetEmail" type="email" placeholder="seuemail@exemplo.com" autocomplete="email">
+
+      <button class="primary" id="resetBtn" onclick="doReset()">Enviar link de redefinição</button>
+
+      <div class="foot-note">Lembrou a senha? <span class="link" onclick="showScreen('login')">Voltar ao login</span></div>
     </div>
 
-    <div class="app-alert" id="appAlert"></div>
+    <!-- ===== VERIFICAÇÃO PENDENTE ===== -->
+    <div id="verifyScreen" class="screen">
+      <div class="verify-icon">✉️</div>
+      <h2 class="center">Confirme seu e-mail</h2>
+      <p class="sub center">Enviamos um link de verificação para <b id="verifyEmailLabel">seuemail@exemplo.com</b>. Abra sua caixa de entrada (e a pasta de spam) e clique no link para ativar sua conta.</p>
 
-    <div class="dash-body">
-    <!-- KANBAN VIEW -->
-    <div class="kanban-board" id="kanbanBoard">
-      <div class="kanban-col" data-status="todo">
-        <div class="kanban-col-head">
-          <span class="kanban-col-dot dot-todo"></span> A Fazer
-          <span class="kanban-count" id="countTodo">0</span>
-        </div>
-        <div class="kanban-col-body" id="colTodo" data-status="todo"></div>
-        <button type="button" class="kanban-add-btn" data-add-status="todo">+ Adicionar cartão</button>
-      </div>
-      <div class="kanban-col" data-status="doing">
-        <div class="kanban-col-head">
-          <span class="kanban-col-dot dot-doing"></span> Fazendo
-          <span class="kanban-count" id="countDoing">0</span>
-        </div>
-        <div class="kanban-col-body" id="colDoing" data-status="doing"></div>
-        <button type="button" class="kanban-add-btn" data-add-status="doing">+ Adicionar cartão</button>
-      </div>
-      <div class="kanban-col" data-status="done">
-        <div class="kanban-col-head">
-          <span class="kanban-col-dot dot-done"></span> Concluído
-          <span class="kanban-count" id="countDone">0</span>
-        </div>
-        <div class="kanban-col-body" id="colDone" data-status="done"></div>
-        <button type="button" class="kanban-add-btn" data-add-status="done">+ Adicionar cartão</button>
-      </div>
+      <div class="msg" id="verifyMsg"></div>
+
+      <button class="primary" onclick="checkVerified()">Já verifiquei, continuar</button>
+      <button class="ghost" onclick="resendVerification()">Reenviar e-mail de verificação</button>
+      <button class="ghost" onclick="logout()">Sair e voltar ao login</button>
     </div>
 
-    <!-- AGENDA VIEW -->
-    <div class="agenda-view" id="agendaView">
-      <div class="agenda-card">
-        <div class="agenda-head">
-          <button type="button" class="cal-nav" id="calPrev">‹</button>
-          <div class="agenda-month" id="agendaMonthLabel">Mês / Ano</div>
-          <button type="button" class="cal-nav" id="calNext">›</button>
-        </div>
-        <div class="cal-weekdays">
-          <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
-        </div>
-        <div class="cal-grid" id="calGrid"></div>
-        <div class="cal-legend">
-          <span><i class="dot-todo"></i> A Fazer</span>
-          <span><i class="dot-doing"></i> Fazendo</span>
-          <span><i class="dot-done"></i> Concluído</span>
-        </div>
-      </div>
-    </div>
+  </div>
 
-    <!-- DASHBOARD / ESTATÍSTICAS -->
-    <div class="stats-view" id="statsView">
-      <div class="stats-card">
-        <div class="stats-title">Dashboard</div>
-        <div class="stats-total" id="statsTotal">0 tarefas no total</div>
-
-        <div class="stats-row">
-          <div class="stats-row-top">
-            <span class="stats-row-label"><span class="kanban-col-dot dot-todo"></span>A Fazer</span>
-            <span class="stats-row-nums"><b id="statsTodoCount">0</b><span id="statsTodoPct">0%</span></span>
-          </div>
-          <div class="stats-bar-track"><div class="stats-bar-fill fill-todo" id="statsTodoBar" style="width:0%"></div></div>
-        </div>
-
-        <div class="stats-row">
-          <div class="stats-row-top">
-            <span class="stats-row-label"><span class="kanban-col-dot dot-doing"></span>Fazendo</span>
-            <span class="stats-row-nums"><b id="statsDoingCount">0</b><span id="statsDoingPct">0%</span></span>
-          </div>
-          <div class="stats-bar-track"><div class="stats-bar-fill fill-doing" id="statsDoingBar" style="width:0%"></div></div>
-        </div>
-
-        <div class="stats-row">
-          <div class="stats-row-top">
-            <span class="stats-row-label"><span class="kanban-col-dot dot-done"></span>Concluído</span>
-            <span class="stats-row-nums"><b id="statsDoneCount">0</b><span id="statsDonePct">0%</span></span>
-          </div>
-          <div class="stats-bar-track"><div class="stats-bar-fill fill-done" id="statsDoneBar" style="width:0%"></div></div>
-        </div>
-
-        <div class="stats-divider"></div>
-        <div class="stats-finalizadas">
-          <span>Na lixeira</span>
-          <b id="statsFinalizadas">0</b>
-        </div>
-      </div>
-    </div>
-    </div>
-
-  </section>
+  <div class="disclaimer">Cada pessoa que acessa cria sua própria conta e só vê suas próprias tarefas.</div>
 </div>
 
-<!-- MODAL: NOVA/EDITAR TAREFA -->
-<div class="modal-overlay" id="taskModalOverlay">
-  <div class="modal-box gcal-box">
-    <form id="formTask">
-      <input type="hidden" id="taskId">
-
-      <div class="gcal-topbar">
-        <button type="button" class="modal-close" id="modalClose">✕</button>
-        <input type="text" id="taskTitulo" class="gcal-title-input" placeholder="Adicionar título" required>
-        <button type="submit" class="gcal-save-btn" id="btnSaveTask">Salvar</button>
-      </div>
-
-      <div class="gcal-date-row">
-        <input type="date" id="taskDataInicio" class="gcal-date-chip" required>
-        <span class="gcal-ate">até</span>
-        <input type="date" id="taskDataFim" class="gcal-date-chip" required>
-      </div>
-
-      <label class="gcal-allday">
-        <input type="checkbox" id="taskDiaInteiro" checked>
-        Dia inteiro
-      </label>
-
-      <div class="gcal-time-row" id="gcalTimeRow" style="display:none;">
-        <div class="gcal-time-block">
-          <div class="gcal-datetime-label">Horário início</div>
-          <input type="time" id="taskHoraInicio">
-        </div>
-        <div class="gcal-time-block">
-          <div class="gcal-datetime-label">Horário fim</div>
-          <input type="time" id="taskHoraFim">
-        </div>
-      </div>
-
-      <div class="gcal-card">
-        <div class="gcal-row">
-          <span class="gcal-icon">📝</span>
-          <div class="gcal-row-body">
-            <input type="text" id="taskDescricao" class="gcal-plain-input" placeholder="Adicionar descrição">
-          </div>
-        </div>
-
-        <div class="gcal-row">
-          <span class="gcal-icon">🏷️</span>
-          <div class="gcal-row-body">
-            <input type="text" id="taskEtiqueta" class="gcal-plain-input" list="etiquetaOptions" placeholder="Adicionar etiqueta (crie a sua)" autocomplete="off">
-            <datalist id="etiquetaOptions"></datalist>
-          </div>
-        </div>
-
-        <div class="gcal-row">
-          <span class="gcal-icon">🖼️</span>
-          <div class="gcal-row-body">
-            <input type="file" id="taskImagemInput" accept="image/*" class="gcal-file-input">
-            <div class="gcal-image-preview-wrap" id="gcalImagePreviewWrap" style="display:none;">
-              <img id="gcalImagePreview" class="gcal-image-preview" alt="">
-              <button type="button" id="btnRemoveImage" class="gcal-image-remove">Remover imagem</button>
-            </div>
-            <input type="hidden" id="taskImagemData">
-          </div>
-        </div>
-      </div>
-
-      <input type="hidden" id="taskStatus" value="todo">
-
-      <button type="button" class="btn-secondary" id="btnDeleteTask" style="display:none; border-color:var(--alert); color:#ff8b85; margin-top:16px;">Excluir tarefa</button>
-    </form>
+<!-- ===== ÁREA LOGADA (placeholder — plugar Kanban / Agenda / Dashboard aqui) ===== -->
+<div id="appShell">
+  <div class="app-header">
+    <div class="logo" style="font-size:22px;">JOMI</div>
+    <div class="who">Olá, <b id="userNameLabel">Robson</b> · <span id="userEmailLabel" style="opacity:.7;"></span> · <span class="link" onclick="logout()">Sair</span></div>
+  </div>
+  <div class="app-placeholder">
+    Login concluído e e-mail verificado.<br>
+    Este é o ponto onde o restante do app (<code>Kanban</code>, <code>Agenda</code>, <code>Dashboard</code>) deve ser inserido, dentro de <code>#appShell</code>.
   </div>
 </div>
 
-<!-- MODAL: DIA DA AGENDA -->
-<div class="modal-overlay" id="dayModalOverlay">
-  <div class="modal-box">
-    <div class="modal-head">
-      <div class="modal-title" id="dayModalTitle">Tarefas do dia</div>
-      <button type="button" class="modal-close" id="dayModalClose">✕</button>
-    </div>
-    <div id="dayModalList" class="day-task-list"></div>
-    <button type="button" class="btn-primary" id="btnAddTaskFromDay" style="margin-top:18px;">+ Adicionar tarefa neste dia</button>
-  </div>
-</div>
+<!-- ================= FIREBASE ================= -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
-<!-- BOTÃO FIXO DA LIXEIRA -->
-<button type="button" class="lixeira-btn" id="btnLixeira">
-  🗑️ Lixeira <span class="lixeira-badge zero" id="lixeiraBadge">0</span>
-</button>
+<script>
+// ============================================================
+// CONFIGURAÇÃO DO FIREBASE — troque pelos dados do seu projeto
+// (Firebase Console > Configurações do projeto > Seus apps)
+// ============================================================
+const firebaseConfig = {
+  apiKey: "SUA_API_KEY",
+  authDomain: "jomi---assistente-de-rotina.firebaseapp.com",
+  projectId: "jomi---assistente-de-rotina",
+  storageBucket: "jomi---assistente-de-rotina.appspot.com",
+  messagingSenderId: "SEU_SENDER_ID",
+  appId: "SEU_APP_ID"
+};
 
-<!-- MODAL: LIXEIRA -->
-<div class="modal-overlay" id="lixeiraModalOverlay">
-  <div class="modal-box">
-    <div class="modal-head">
-      <div class="modal-title">Lixeira</div>
-      <button type="button" class="modal-close" id="lixeiraModalClose">✕</button>
-    </div>
-    <div id="lixeiraList" class="day-task-list"></div>
-  </div>
-</div>
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
-<script type="module">
-  // ============================================================
-  // CONFIGURAÇÃO DO FIREBASE — PREENCHA COM OS DADOS DO SEU PROJETO
-  // (Console Firebase → Configurações do projeto → Seus apps → SDK)
-  // ============================================================
-  const firebaseConfig = {
-    apiKey: "AIzaSyBjhXHV-YxVG92Ps6hsusbPguf1wSfbTBQ",
-    authDomain: "jomi---assistente-de-rotina.firebaseapp.com",
-    projectId: "jomi---assistente-de-rotina",
-    storageBucket: "jomi---assistente-de-rotina.firebasestorage.app",
-    messagingSenderId: "320021703176",
-    appId: "1:320021703176:web:f093ed73a4bcbd12fd7fbd",
-    measurementId: "G-CMCQ1G20MS"
+// ============================================================
+// TRADUÇÃO DE ERROS DO FIREBASE AUTH
+// ============================================================
+function traduzErro(codigo){
+  const mapa = {
+    'auth/invalid-email': 'E-mail inválido.',
+    'auth/user-disabled': 'Esta conta foi desativada.',
+    'auth/user-not-found': 'Não encontramos uma conta com esse e-mail.',
+    'auth/wrong-password': 'Senha incorreta.',
+    'auth/invalid-credential': 'E-mail ou senha incorretos.',
+    'auth/email-already-in-use': 'Já existe uma conta com esse e-mail.',
+    'auth/weak-password': 'A senha precisa ter pelo menos 6 caracteres.',
+    'auth/missing-password': 'Digite uma senha.',
+    'auth/too-many-requests': 'Muitas tentativas. Aguarde um pouco e tente de novo.',
+    'auth/network-request-failed': 'Falha de conexão. Verifique sua internet.'
   };
-  // ============================================================
+  return mapa[codigo] || 'Ocorreu um erro inesperado.';
+}
 
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-  import {
-    getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
-    sendEmailVerification, onAuthStateChanged, sendPasswordResetEmail,
-    signOut, updateProfile, reload
-  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
-  import {
-    getFirestore, collection, query, where, onSnapshot,
-    addDoc, updateDoc, deleteDoc, doc, serverTimestamp
-  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+function mostrarMsg(elId, texto, codigo){
+  const el = document.getElementById(elId);
+  el.className = 'msg error';
+  el.innerHTML = texto + (codigo ? `<span class="msg-code">${codigo}</span>` : '');
+}
 
-  let app, auth, db;
-  let firebaseReady = false;
-  try {
-    app = initializeApp(firebaseConfig);
-    auth = getAuth(app);
-    db = getFirestore(app);
-    firebaseReady = true;
-  } catch (e) {
-    console.warn("Firebase ainda não configurado:", e);
+function limparMsg(elId){
+  const el = document.getElementById(elId);
+  el.className = 'msg';
+  el.innerHTML = '';
+}
+
+// ============================================================
+// NAVEGAÇÃO ENTRE TELAS
+// ============================================================
+function showScreen(nome){
+  document.getElementById('tabsScreen').classList.remove('active');
+  document.getElementById('resetScreen').classList.remove('active');
+  document.getElementById('verifyScreen').classList.remove('active');
+
+  ['loginMsg','signupMsg','resetMsg'].forEach(limparMsg);
+
+  if(nome === 'login' || nome === 'signup'){
+    document.getElementById('tabsScreen').classList.add('active');
+    document.getElementById('loginForm').style.display = nome === 'login' ? 'block' : 'none';
+    document.getElementById('signupForm').style.display = nome === 'signup' ? 'block' : 'none';
+    document.getElementById('tabLogin').classList.toggle('active', nome === 'login');
+    document.getElementById('tabSignup').classList.toggle('active', nome === 'signup');
+  } else if(nome === 'reset'){
+    document.getElementById('resetScreen').classList.add('active');
+  } else if(nome === 'verify'){
+    document.getElementById('verifyScreen').classList.add('active');
+  }
+}
+
+// ============================================================
+// LOGIN
+// ============================================================
+function doLogin(){
+  limparMsg('loginMsg');
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
+
+  if(!email || !pass){
+    mostrarMsg('loginMsg', 'Preencha e-mail e senha.');
+    return;
   }
 
-  // ---------- UI HELPERS ----------
-  const wrap = document.getElementById('wrap');
-  const card = document.getElementById('card');
-  const dash = document.getElementById('dash');
-  const tabbar = document.getElementById('tabbar');
-  const globalMsg = document.getElementById('globalMsg');
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true;
 
-  const panels = {
-    login: document.getElementById('panel-login'),
-    signup: document.getElementById('panel-signup'),
-    forgot: document.getElementById('panel-forgot'),
-    verify: document.getElementById('panel-verify'),
-  };
-
-  function showPanel(name){
-    Object.entries(panels).forEach(([key, el]) => {
-      el.classList.toggle('active', key === name);
-    });
-    tabbar.style.display = (name === 'login' || name === 'signup') ? 'flex' : 'none';
-    if (name === 'login' || name === 'signup') {
-      document.querySelectorAll('#tabbar button').forEach(b => {
-        b.classList.toggle('active', b.dataset.tab === name);
-      });
-    }
-    hideMsg();
-  }
-
-  function showMsg(text, type){
-    globalMsg.textContent = text;
-    globalMsg.className = 'msg show ' + type;
-  }
-  function hideMsg(){
-    globalMsg.className = 'msg';
-  }
-
-  document.querySelectorAll('[data-tab]').forEach(btn => {
-    btn.addEventListener('click', () => showPanel(btn.dataset.tab));
-  });
-
-  function setAuthed(user){
-    card.style.display = 'none';
-    document.querySelector('.brand').style.display = 'none';
-    dash.classList.add('active');
-    wrap.classList.add('dash-mode');
-    document.getElementById('btnLixeira').classList.add('show');
-    document.getElementById('dashNome').textContent = (user.displayName || user.email.split('@')[0]);
-    document.getElementById('dashEmailBadge').textContent = user.email;
-    startTaskApp(user);
-  }
-  function setLoggedOutView(){
-    card.style.display = 'block';
-    document.querySelector('.brand').style.display = 'flex';
-    dash.classList.remove('active');
-    wrap.classList.remove('dash-mode');
-    document.getElementById('btnLixeira').classList.remove('show');
-    stopTaskApp();
-  }
-
-  // ---------- MENSAGENS DE ERRO TRADUZIDAS ----------
-  function traduzErro(code){
-    const map = {
-      'auth/invalid-email': 'E-mail inválido.',
-      'auth/user-disabled': 'Esta conta foi desativada.',
-      'auth/user-not-found': 'E-mail ou senha incorretos.',
-      'auth/wrong-password': 'E-mail ou senha incorretos.',
-      'auth/invalid-credential': 'E-mail ou senha incorretos.',
-      'auth/email-already-in-use': 'Este e-mail já está cadastrado.',
-      'auth/weak-password': 'A senha precisa ter pelo menos 6 caracteres.',
-      'auth/too-many-requests': 'Muitas tentativas. Aguarde um pouco antes de tentar novamente.',
-      'auth/network-request-failed': 'Falha de conexão. Verifique sua internet.',
-      'auth/operation-not-allowed': 'Login por e-mail/senha ainda não está ativado no Firebase (Authentication → Sign-in method → E-mail/senha → Ativar).',
-      'auth/unauthorized-domain': 'Este domínio ainda não está autorizado no Firebase (Authentication → Settings → Authorized domains).',
-      'auth/configuration-not-found': 'O método de login por e-mail/senha não está configurado no Firebase (Authentication → Sign-in method → E-mail/senha → Ativar).',
-      'auth/api-key-not-valid': 'A apiKey do firebaseConfig parece inválida. Confira se foi colada corretamente.',
-      'auth/invalid-api-key': 'A apiKey do firebaseConfig parece inválida. Confira se foi colada corretamente.',
-    };
-    return (map[code] || ('Ocorreu um erro. Tente novamente.')) + (code ? `  [código: ${code}]` : '');
-  }
-
-  function firebaseNaoConfigurado(){
-    showMsg('Firebase ainda não configurado neste arquivo. Preencha o objeto firebaseConfig no código para ativar o login real.', 'error');
-  }
-
-  // ---------- LOGIN ----------
-  document.getElementById('formLogin').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if (!firebaseReady) return firebaseNaoConfigurado();
-    hideMsg();
-    const email = document.getElementById('loginEmail').value.trim();
-    const senha = document.getElementById('loginSenha').value;
-    const btn = document.getElementById('btnLogin');
-    btn.disabled = true; btn.textContent = 'Entrando...';
-    try {
-      const cred = await signInWithEmailAndPassword(auth, email, senha);
-      await reload(cred.user);
-      if (!cred.user.emailVerified) {
-        document.getElementById('verifyEmailShown').textContent = cred.user.email;
-        showPanel('verify');
-      }
-      // onAuthStateChanged cuida do redirecionamento se já estiver verificado
-    } catch (err) {
-      showMsg(traduzErro(err.code), 'error');
-    } finally {
-      btn.disabled = false; btn.textContent = 'Entrar';
-    }
-  });
-
-  // ---------- CADASTRO ----------
-  document.getElementById('formSignup').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if (!firebaseReady) return firebaseNaoConfigurado();
-    hideMsg();
-    const nome = document.getElementById('suNome').value.trim();
-    const email = document.getElementById('suEmail').value.trim();
-    const senha = document.getElementById('suSenha').value;
-    const senha2 = document.getElementById('suSenha2').value;
-    if (senha !== senha2) {
-      showMsg('As senhas não coincidem.', 'error');
-      return;
-    }
-    const btn = document.getElementById('btnSignup');
-    btn.disabled = true; btn.textContent = 'Criando conta...';
-    try {
-      const cred = await createUserWithEmailAndPassword(auth, email, senha);
-      if (nome) await updateProfile(cred.user, { displayName: nome });
-      await sendEmailVerification(cred.user);
-      document.getElementById('verifyEmailShown').textContent = email;
-      showPanel('verify');
-      startCooldown(60);
-    } catch (err) {
-      showMsg(traduzErro(err.code), 'error');
-    } finally {
-      btn.disabled = false; btn.textContent = 'Criar conta e enviar verificação';
-    }
-  });
-
-  // ---------- ESQUECI MINHA SENHA ----------
-  document.getElementById('formForgot').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if (!firebaseReady) return firebaseNaoConfigurado();
-    hideMsg();
-    const email = document.getElementById('fgEmail').value.trim();
-    const btn = document.getElementById('btnForgot');
-    btn.disabled = true; btn.textContent = 'Enviando...';
-    try {
-      await sendPasswordResetEmail(auth, email);
-      showMsg('Link de redefinição enviado. Verifique seu e-mail.', 'success');
-    } catch (err) {
-      showMsg(traduzErro(err.code), 'error');
-    } finally {
-      btn.disabled = false; btn.textContent = 'Enviar link de redefinição';
-    }
-  });
-
-  // ---------- VERIFICAÇÃO DE E-MAIL ----------
-  document.getElementById('btnCheckVerified').addEventListener('click', async () => {
-    if (!firebaseReady) return firebaseNaoConfigurado();
-    const user = auth.currentUser;
-    if (!user) return;
-    const btn = document.getElementById('btnCheckVerified');
-    btn.disabled = true; btn.textContent = 'Verificando...';
-    try {
-      await reload(user);
-      if (user.emailVerified) {
-        setAuthed(user);
+  auth.signInWithEmailAndPassword(email, pass)
+    .then(cred => {
+      if(!cred.user.emailVerified){
+        document.getElementById('verifyEmailLabel').textContent = cred.user.email;
+        showScreen('verify');
       } else {
-        showMsg('Ainda não identificamos a verificação. Confirme o clique no link do e-mail e tente de novo.', 'error');
+        entrarNoApp(cred.user);
       }
-    } finally {
-      btn.disabled = false; btn.textContent = 'Já verifiquei, continuar';
-    }
-  });
+    })
+    .catch(err => mostrarMsg('loginMsg', traduzErro(err.code), err.code))
+    .finally(() => btn.disabled = false);
+}
 
-  let cooldownTimer = null;
-  function startCooldown(seconds){
-    const btn = document.getElementById('btnResend');
-    const note = document.getElementById('cooldownNote');
-    btn.disabled = true;
-    let remaining = seconds;
-    clearInterval(cooldownTimer);
-    cooldownTimer = setInterval(() => {
-      note.textContent = `Você poderá reenviar em ${remaining}s`;
-      remaining--;
-      if (remaining < 0) {
-        clearInterval(cooldownTimer);
-        btn.disabled = false;
-        note.textContent = '';
-      }
-    }, 1000);
+// ============================================================
+// CADASTRO
+// ============================================================
+function doSignup(){
+  limparMsg('signupMsg');
+  const nome = document.getElementById('signupName').value.trim();
+  const email = document.getElementById('signupEmail').value.trim();
+  const pass = document.getElementById('signupPass').value;
+  const confirm = document.getElementById('signupPassConfirm').value;
+
+  if(!nome || !email || !pass || !confirm){
+    mostrarMsg('signupMsg', 'Preencha todos os campos.');
+    return;
+  }
+  if(pass !== confirm){
+    mostrarMsg('signupMsg', 'As senhas não coincidem.');
+    return;
+  }
+  if(pass.length < 6){
+    mostrarMsg('signupMsg', 'A senha precisa ter pelo menos 6 caracteres.');
+    return;
   }
 
-  document.getElementById('btnResend').addEventListener('click', async () => {
-    if (!firebaseReady) return firebaseNaoConfigurado();
-    const user = auth.currentUser;
-    if (!user) return;
-    try {
-      await sendEmailVerification(user);
-      showMsg('E-mail de verificação reenviado.', 'success');
-      startCooldown(60);
-    } catch (err) {
-      showMsg(traduzErro(err.code), 'error');
-    }
-  });
+  const btn = document.getElementById('signupBtn');
+  btn.disabled = true;
 
-  document.getElementById('btnBackToLoginFromVerify').addEventListener('click', async () => {
-    if (firebaseReady) await signOut(auth);
-    showPanel('login');
-  });
+  auth.createUserWithEmailAndPassword(email, pass)
+    .then(cred => {
+      return cred.user.updateProfile({ displayName: nome })
+        .then(() => cred.user.sendEmailVerification())
+        .then(() => {
+          document.getElementById('verifyEmailLabel').textContent = cred.user.email;
+          showScreen('verify');
+        });
+    })
+    .catch(err => mostrarMsg('signupMsg', traduzErro(err.code), err.code))
+    .finally(() => btn.disabled = false);
+}
 
-  // ---------- LOGOUT ----------
-  document.getElementById('btnLogout').addEventListener('click', async () => {
-    if (firebaseReady) await signOut(auth);
-    setLoggedOutView();
-    showPanel('login');
-  });
+// ============================================================
+// REDEFINIR SENHA
+// ============================================================
+function doReset(){
+  limparMsg('resetMsg');
+  const email = document.getElementById('resetEmail').value.trim();
 
-  // ---------- OBSERVADOR DE ESTADO DE LOGIN ----------
-  if (firebaseReady) {
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        await reload(user);
-        if (user.emailVerified) {
-          setAuthed(user);
-        } else {
-          setLoggedOutView();
-          document.getElementById('verifyEmailShown').textContent = user.email;
-          showPanel('verify');
-        }
-      } else {
-        setLoggedOutView();
-        showPanel('login');
-      }
-    });
-  } else {
-    showMsg('Firebase ainda não configurado neste arquivo. Preencha o objeto firebaseConfig no código para ativar o login real.', 'error');
+  if(!email){
+    mostrarMsg('resetMsg', 'Digite seu e-mail.');
+    return;
   }
 
-  // ============================================================
-  // KANBAN + AGENDA + NOTIFICAÇÕES
-  // ============================================================
+  const btn = document.getElementById('resetBtn');
+  btn.disabled = true;
 
-  let currentUser = null;
-  let unsubTasks = null;
-  let tasks = []; // {id, title, description, label, status, startDate, endDate, startTime, endTime, finalizado, userId}
-  let currentView = 'kanban';
-  let calRefDate = new Date(); // mês exibido na agenda
-  let selectedDay = null; // 'YYYY-MM-DD'
-  let notifyTimer = null;
-  const notifiedToday = new Set();
+  auth.sendPasswordResetEmail(email)
+    .then(() => {
+      const el = document.getElementById('resetMsg');
+      el.className = 'msg info';
+      el.textContent = 'Link enviado! Confira sua caixa de entrada.';
+    })
+    .catch(err => mostrarMsg('resetMsg', traduzErro(err.code), err.code))
+    .finally(() => btn.disabled = false);
+}
 
-  const STATUS_NAMES = { todo: 'A Fazer', doing: 'Fazendo', done: 'Concluído' };
+// ============================================================
+// VERIFICAÇÃO DE E-MAIL
+// ============================================================
+function checkVerified(){
+  limparMsg('verifyMsg');
+  const user = auth.currentUser;
+  if(!user){ showScreen('login'); return; }
 
-  // ---------- COR DINÂMICA POR ETIQUETA (criada livremente pelo usuário) ----------
-  const LABEL_PALETTE = [
-    { bg:'rgba(122,139,255,0.16)', fg:'#3346c9', stripe:'#7a8bff' },   // azul
-    { bg:'rgba(224,170,31,0.18)',  fg:'#a8760f', stripe:'#e0aa1f' },   // dourado
-    { bg:'rgba(63,178,127,0.16)',  fg:'#1f7a4d', stripe:'#3fb27f' },   // verde
-    { bg:'rgba(224,120,220,0.16)', fg:'#a83aa0', stripe:'#c96bc4' },   // rosa
-    { bg:'rgba(255,159,102,0.18)', fg:'#c1691a', stripe:'#ff9f66' },   // laranja
-    { bg:'rgba(96,205,220,0.18)',  fg:'#1a8fa3', stripe:'#4fc2d6' },   // ciano
-    { bg:'rgba(180,160,255,0.16)', fg:'#6b3fd6', stripe:'#8f6bff' },   // roxo
-    { bg:'rgba(20,20,20,0.08)',  fg:'rgba(20,20,20,0.65)', stripe:'rgba(20,20,20,0.3)' }, // neutro
-  ];
-  function labelColor(text){
-    const t = (text || '').trim().toLowerCase();
-    if (!t) return LABEL_PALETTE[LABEL_PALETTE.length - 1];
-    let hash = 0;
-    for (let i = 0; i < t.length; i++) hash = (hash * 31 + t.charCodeAt(i)) >>> 0;
-    return LABEL_PALETTE[hash % (LABEL_PALETTE.length - 1)];
-  }
-  function labelText(t){
-    return (t && t.trim()) ? t.trim() : 'Sem etiqueta';
-  }
-  function updateEtiquetaOptions(){
-    const dl = document.getElementById('etiquetaOptions');
-    if (!dl) return;
-    const uniq = [...new Set(tasks.map(t => (t.label || '').trim()).filter(Boolean))].sort();
-    dl.innerHTML = uniq.map(l => `<option value="${escapeHTML(l)}"></option>`).join('');
-  }
-
-  function todayStr(){
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-  }
-
-  // ---------- INICIAR / PARAR APP ----------
-  function startTaskApp(user){
-    currentUser = user;
-    if (!firebaseReady) return;
-    if (unsubTasks) unsubTasks();
-    const q = query(collection(db, 'tasks'), where('userId', '==', user.uid));
-    unsubTasks = onSnapshot(q, (snap) => {
-      tasks = [];
-      snap.forEach(d => tasks.push({ id: d.id, ...d.data() }));
-      renderKanban();
-      renderAgenda();
-      renderStats();
-      renderLixeira();
-      updateEtiquetaOptions();
-      checkDueSoon();
-    }, (err) => {
-      console.error('Erro ao carregar tarefas:', err);
-      showAppAlert('Não foi possível carregar suas tarefas. Verifique as regras do Firestore.');
-    });
-  }
-  function stopTaskApp(){
-    if (unsubTasks) { unsubTasks(); unsubTasks = null; }
-    tasks = [];
-    currentUser = null;
-    if (notifyTimer) { clearInterval(notifyTimer); notifyTimer = null; }
-  }
-
-  function showAppAlert(msg){
-    const el = document.getElementById('appAlert');
-    el.textContent = msg;
-    el.classList.add('show');
-  }
-
-  // ---------- ALTERNAR VISTA (Kanban / Agenda / Dashboard) ----------
-  document.getElementById('viewSwitch').addEventListener('click', (e) => {
-    const btn = e.target.closest('button[data-view]');
-    if (!btn) return;
-    currentView = btn.dataset.view;
-    document.querySelectorAll('#viewSwitch button').forEach(b => b.classList.toggle('active', b === btn));
-    document.getElementById('kanbanBoard').classList.toggle('active', currentView === 'kanban');
-    document.getElementById('agendaView').classList.toggle('active', currentView === 'agenda');
-    document.getElementById('statsView').classList.toggle('active', currentView === 'stats');
-    if (currentView === 'agenda') renderAgenda();
-    if (currentView === 'stats') renderStats();
-  });
-  // vista inicial
-  document.getElementById('kanbanBoard').classList.add('active');
-
-  // ---------- RENDER KANBAN ----------
-  function dateBadgeClass(endDateStr, status){
-    if (!endDateStr || status === 'done') return '';
-    if (endDateStr < todayStr()) return 'overdue';
-    if (endDateStr === todayStr()) return 'today';
-    return '';
-  }
-  function fmtDate(dateStr){
-    const [y,m,d] = dateStr.split('-');
-    return `${d}/${m}/${y}`;
-  }
-
-  function taskCardHTML(t){
-    const dcls = dateBadgeClass(t.endDate, t.status);
-    const col = labelColor(t.label);
-    const isOverdue = dcls === 'overdue';
-    const cardStateClass = isOverdue ? 'overdue-card' : `status-${t.status}`;
-    const labelStyle = `background:rgba(0,0,0,0.28); color:#fff;`;
-    let dateLine = '';
-    if (t.startDate || t.endDate) {
-      const startTxt = t.startDate ? fmtDate(t.startDate) + (t.startTime ? ' ' + t.startTime : '') : '';
-      const endTxt = t.endDate ? fmtDate(t.endDate) + (t.endTime ? ' ' + t.endTime : '') : '';
-      const rangeTxt = (t.startDate && t.endDate && t.startDate !== t.endDate)
-        ? `${startTxt} → ${endTxt}`
-        : (endTxt || startTxt);
-      dateLine = `<span class="task-date ${dcls}">${rangeTxt}${isOverdue ? ' · atrasada' : ''}${dcls==='today' ? ' · vence hoje' : ''}</span>`;
-    }
-    return `
-      <div class="task-card ${cardStateClass}" draggable="true" data-id="${t.id}">
-        ${t.image ? `<img src="${t.image}" class="task-card-image" alt="">` : ''}
-        <div class="task-card-stripe" style="background:${col.stripe};"></div>
-        <div class="task-card-inner">
-          <div class="task-card-top">
-            <div class="task-title">${escapeHTML(t.title)}</div>
-          </div>
-          ${t.description ? `<div class="task-desc">${escapeHTML(t.description)}</div>` : ''}
-          <div class="task-meta">
-            <span class="task-label" style="${labelStyle}"><span class="task-label-dot" style="background:${col.stripe};"></span>${escapeHTML(labelText(t.label))}</span>
-            ${dateLine}
-          </div>
-          ${t.status === 'done' ? `<div class="task-concluida-msg">✅ Tarefa Concluída</div>` : ''}
-          <div class="task-finalizado">
-            <input type="checkbox" id="fin-${t.id}" data-fin-id="${t.id}">
-            <label for="fin-${t.id}">Finalizado</label>
-          </div>
-        </div>
-      </div>`;
-  }
-  function escapeHTML(s){
-    return (s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  }
-
-  function renderKanban(){
-    const cols = { todo: [], doing: [], done: [] };
-    tasks.forEach(t => { if (!t.trashed && cols[t.status]) cols[t.status].push(t); });
-    Object.entries(cols).forEach(([status, list]) => {
-      list.sort((a,b) => ((a.startDate||'9999')+(a.startTime||'99:99')).localeCompare((b.startDate||'9999')+(b.startTime||'99:99')));
-    });
-
-    const map = { todo: 'colTodo', doing: 'colDoing', done: 'colDone' };
-    Object.entries(map).forEach(([status, elId]) => {
-      const el = document.getElementById(elId);
-      const list = cols[status];
-      el.innerHTML = list.length
-        ? list.map(taskCardHTML).join('')
-        : `<div class="empty-col">Sem tarefas</div>`;
-    });
-    document.getElementById('countTodo').textContent = cols.todo.length;
-    document.getElementById('countDoing').textContent = cols.doing.length;
-    document.getElementById('countDone').textContent = cols.done.length;
-
-    // clique no card abre edição
-    document.querySelectorAll('.task-card').forEach(card => {
-      card.addEventListener('click', (e) => {
-        if (e.target.closest('.task-finalizado')) return;
-        openTaskModal(card.dataset.id);
-      });
-      card.addEventListener('dragstart', () => card.classList.add('dragging'));
-      card.addEventListener('dragend', () => card.classList.remove('dragging'));
-    });
-
-    // checkbox "Finalizado" — manda o card para a Lixeira (pode ser restaurado depois)
-    document.querySelectorAll('[data-fin-id]').forEach(chk => {
-      chk.addEventListener('click', (e) => e.stopPropagation());
-      chk.addEventListener('change', async (e) => {
-        e.stopPropagation();
-        const id = chk.dataset.finId;
-        if (!chk.checked) return;
-        const t = tasks.find(x => x.id === id);
-        const card = chk.closest('.task-card');
-        if (card) card.style.opacity = '0.3';
-        try {
-          await updateDoc(doc(db, 'tasks', id), {
-            trashed: true,
-            trashedFromStatus: (t && t.status) || 'todo',
-          });
-        } catch (err) {
-          console.error(err);
-          showAppAlert('Não foi possível mover a tarefa para a lixeira.');
-          if (card) card.style.opacity = '1';
-        }
-      });
-    });
-  }
-
-  // ---------- DRAG AND DROP ----------
-  document.querySelectorAll('.kanban-col-body').forEach(colBody => {
-    colBody.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      colBody.classList.add('drag-over');
-    });
-    colBody.addEventListener('dragleave', () => colBody.classList.remove('drag-over'));
-    colBody.addEventListener('drop', async (e) => {
-      e.preventDefault();
-      colBody.classList.remove('drag-over');
-      const dragging = document.querySelector('.task-card.dragging');
-      if (!dragging) return;
-      const id = dragging.dataset.id;
-      const newStatus = colBody.dataset.status;
-      const t = tasks.find(x => x.id === id);
-      if (t && t.status !== newStatus) {
-        try { await updateDoc(doc(db, 'tasks', id), { status: newStatus }); }
-        catch (err) { console.error(err); }
-      }
-    });
-  });
-
-  // ---------- RENDER AGENDA ----------
-  const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-
-  function statusColorDot(status){
-    return { todo: 'dot-todo', doing: 'dot-doing', done: 'dot-done' }[status] || 'dot-todo';
-  }
-
-  function renderAgenda(){
-    const year = calRefDate.getFullYear();
-    const month = calRefDate.getMonth();
-    document.getElementById('agendaMonthLabel').textContent = `${MESES[month]} ${year}`;
-
-    const firstDay = new Date(year, month, 1);
-    const startOffset = firstDay.getDay(); // 0=domingo
-    const daysInMonth = new Date(year, month+1, 0).getDate();
-
-    // agrupar tarefas por data (cobrindo todo o intervalo início→fim, até 60 dias)
-    const byDate = {};
-    tasks.forEach(t => {
-      if (t.trashed) return;
-      const start = t.startDate || t.endDate;
-      const end = t.endDate || t.startDate;
-      if (!start) return;
-      let cursor = new Date(start + 'T00:00:00');
-      const endD = new Date(end + 'T00:00:00');
-      let guard = 0;
-      while (cursor <= endD && guard < 60) {
-        const ds = `${cursor.getFullYear()}-${String(cursor.getMonth()+1).padStart(2,'0')}-${String(cursor.getDate()).padStart(2,'0')}`;
-        (byDate[ds] = byDate[ds] || []).push(t);
-        cursor.setDate(cursor.getDate() + 1);
-        guard++;
-      }
-    });
-
-    const grid = document.getElementById('calGrid');
-    grid.innerHTML = '';
-
-    for (let i=0; i<startOffset; i++){
-      const empty = document.createElement('div');
-      empty.className = 'cal-day empty';
-      grid.appendChild(empty);
-    }
-
-    for (let day=1; day<=daysInMonth; day++){
-      const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-      const cell = document.createElement('div');
-      cell.className = 'cal-day';
-      if (dateStr === todayStr()) cell.classList.add('today');
-      if (dateStr === selectedDay) cell.classList.add('selected');
-
-      const dayTasks = byDate[dateStr] || [];
-      const statusesPresent = [...new Set(dayTasks.map(t => t.status))];
-      const dotsHTML = statusesPresent.slice(0,3).map(s => `<span class="${statusColorDot(s)}"></span>`).join('');
-
-      cell.innerHTML = `<span>${day}</span><div class="cal-dots">${dotsHTML}</div>`;
-      cell.addEventListener('click', () => openDayModal(dateStr));
-      grid.appendChild(cell);
-    }
-  }
-
-  document.getElementById('calPrev').addEventListener('click', () => {
-    calRefDate.setMonth(calRefDate.getMonth()-1);
-    renderAgenda();
-  });
-  document.getElementById('calNext').addEventListener('click', () => {
-    calRefDate.setMonth(calRefDate.getMonth()+1);
-    renderAgenda();
-  });
-
-  // ---------- MODAL DIA ----------
-  const dayModalOverlay = document.getElementById('dayModalOverlay');
-  function openDayModal(dateStr){
-    selectedDay = dateStr;
-    renderAgenda();
-    const [y,m,d] = dateStr.split('-');
-    document.getElementById('dayModalTitle').textContent = `Tarefas em ${d}/${m}/${y}`;
-    const dayTasks = tasks.filter(t => {
-      if (t.trashed) return false;
-      const start = t.startDate || t.endDate;
-      const end = t.endDate || t.startDate;
-      if (!start) return false;
-      return dateStr >= start && dateStr <= end;
-    }).sort((a,b) => (a.startTime||'99:99').localeCompare(b.startTime||'99:99'));
-    const list = document.getElementById('dayModalList');
-    list.innerHTML = dayTasks.length
-      ? dayTasks.map(t => {
-          const timeTxt = (t.startTime || t.endTime)
-            ? `${t.startTime || '--:--'}${t.endTime ? ' – ' + t.endTime : ''}`
-            : '';
-          return `
-          <div class="day-task-item" data-id="${t.id}">
-            <div>
-              ${timeTxt ? `<div style="font-family:'Space Mono',monospace; font-size:11px; color:var(--gold-bright); margin-bottom:3px;">${timeTxt}</div>` : ''}
-              <div class="task-title">${escapeHTML(t.title)}</div>
-              <span class="task-label" style="margin-top:4px; display:inline-block; background:${labelColor(t.label).bg}; color:${labelColor(t.label).fg};">${escapeHTML(labelText(t.label))}</span>
-            </div>
-            <span class="task-label" style="background:rgba(20,20,20,0.08); color:rgba(20,20,20,0.7);">${STATUS_NAMES[t.status]}</span>
-          </div>`;
-        }).join('')
-      : `<div class="day-empty">Nenhuma tarefa neste dia.</div>`;
-    list.querySelectorAll('.day-task-item').forEach(item => {
-      item.addEventListener('click', () => {
-        closeDayModal();
-        openTaskModal(item.dataset.id);
-      });
-    });
-    document.getElementById('btnAddTaskFromDay').onclick = () => {
-      closeDayModal();
-      openTaskModal(null, dateStr);
-    };
-    dayModalOverlay.classList.add('show');
-  }
-  function closeDayModal(){ dayModalOverlay.classList.remove('show'); }
-  document.getElementById('dayModalClose').addEventListener('click', closeDayModal);
-  dayModalOverlay.addEventListener('click', (e) => { if (e.target === dayModalOverlay) closeDayModal(); });
-
-  // ---------- MODAL TAREFA (criar/editar) ----------
-  const taskModalOverlay = document.getElementById('taskModalOverlay');
-  const gcalTimeRow = document.getElementById('gcalTimeRow');
-  const taskDiaInteiro = document.getElementById('taskDiaInteiro');
-
-  function toggleAllDayRow(){
-    gcalTimeRow.style.display = taskDiaInteiro.checked ? 'none' : 'flex';
-  }
-  taskDiaInteiro.addEventListener('change', toggleAllDayRow);
-
-  // ---------- IMAGEM DO CARTÃO (comprimida no navegador antes de salvar) ----------
-  const imgInput = document.getElementById('taskImagemInput');
-  const imgPreviewWrap = document.getElementById('gcalImagePreviewWrap');
-  const imgPreview = document.getElementById('gcalImagePreview');
-  const imgDataField = document.getElementById('taskImagemData');
-
-  function showImagePreview(dataUrl){
-    imgPreview.src = dataUrl;
-    imgPreviewWrap.style.display = 'flex';
-    imgDataField.value = dataUrl;
-  }
-  function clearImage(){
-    imgDataField.value = '';
-    imgPreview.src = '';
-    imgPreviewWrap.style.display = 'none';
-    imgInput.value = '';
-  }
-  function compressImage(file){
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onerror = reject;
-      reader.onload = () => {
-        const img = new Image();
-        img.onerror = reject;
-        img.onload = () => {
-          const maxW = 480;
-          const scale = Math.min(1, maxW / img.width);
-          const canvas = document.createElement('canvas');
-          canvas.width = img.width * scale;
-          canvas.height = img.height * scale;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          resolve(canvas.toDataURL('image/jpeg', 0.72));
-        };
-        img.src = reader.result;
-      };
-      reader.readAsDataURL(file);
-    });
-  }
-  imgInput.addEventListener('change', async () => {
-    const file = imgInput.files[0];
-    if (!file) return;
-    try {
-      const compressed = await compressImage(file);
-      if (compressed.length > 700000) {
-        showAppAlert('Essa imagem ficou grande demais mesmo após compressão. Tente uma foto menor.');
-        clearImage();
-        return;
-      }
-      showImagePreview(compressed);
-    } catch (err) {
-      console.error(err);
-      showAppAlert('Não foi possível processar essa imagem.');
-    }
-  });
-  document.getElementById('btnRemoveImage').addEventListener('click', clearImage);
-
-  function openTaskModal(id, presetDate, presetStatus){
-    const form = document.getElementById('formTask');
-    form.reset();
-    clearImage();
-    document.getElementById('taskId').value = id || '';
-    document.getElementById('btnDeleteTask').style.display = id ? 'block' : 'none';
-
-    if (id) {
-      const t = tasks.find(x => x.id === id);
-      if (t) {
-        document.getElementById('taskTitulo').value = t.title || '';
-        document.getElementById('taskDescricao').value = t.description || '';
-        document.getElementById('taskDataInicio').value = t.startDate || '';
-        document.getElementById('taskHoraInicio').value = t.startTime || '';
-        document.getElementById('taskDataFim').value = t.endDate || '';
-        document.getElementById('taskHoraFim').value = t.endTime || '';
-        document.getElementById('taskEtiqueta').value = t.label || '';
-        document.getElementById('taskStatus').value = t.status || 'todo';
-        taskDiaInteiro.checked = !t.startTime && !t.endTime;
-        if (t.image) showImagePreview(t.image);
-      }
+  user.reload().then(() => {
+    if(user.emailVerified){
+      entrarNoApp(user);
     } else {
-      const d = presetDate || todayStr();
-      document.getElementById('taskDataInicio').value = d;
-      document.getElementById('taskDataFim').value = d;
-      if (presetStatus) document.getElementById('taskStatus').value = presetStatus;
-      taskDiaInteiro.checked = true;
+      const el = document.getElementById('verifyMsg');
+      el.className = 'msg error';
+      el.textContent = 'Ainda não detectamos a verificação. Clique no link do e-mail e tente de novo.';
     }
-    toggleAllDayRow();
-    taskModalOverlay.classList.add('show');
-  }
-  function closeTaskModal(){ taskModalOverlay.classList.remove('show'); }
-  document.getElementById('modalClose').addEventListener('click', closeTaskModal);
-  taskModalOverlay.addEventListener('click', (e) => { if (e.target === taskModalOverlay) closeTaskModal(); });
-  document.getElementById('btnAddTask').addEventListener('click', () => openTaskModal(null));
-  document.querySelectorAll('.kanban-add-btn').forEach(btn => {
-    btn.addEventListener('click', () => openTaskModal(null, null, btn.dataset.addStatus));
   });
+}
 
-  document.getElementById('formTask').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if (!currentUser) return;
-    const id = document.getElementById('taskId').value;
-    let startDate = document.getElementById('taskDataInicio').value || null;
-    let endDate = document.getElementById('taskDataFim').value || null;
-    if (startDate && endDate && endDate < startDate) {
-      // corrige caso a data fim fique antes da data início
-      [startDate, endDate] = [endDate, startDate];
-    }
-    const isAllDay = taskDiaInteiro.checked;
-    const payload = {
-      title: document.getElementById('taskTitulo').value.trim(),
-      description: document.getElementById('taskDescricao').value.trim(),
-      startDate,
-      endDate,
-      startTime: isAllDay ? null : (document.getElementById('taskHoraInicio').value || null),
-      endTime: isAllDay ? null : (document.getElementById('taskHoraFim').value || null),
-      label: document.getElementById('taskEtiqueta').value.trim(),
-      status: document.getElementById('taskStatus').value,
-      image: imgDataField.value || null,
-      userId: currentUser.uid,
-    };
-    const btn = document.getElementById('btnSaveTask');
-    btn.disabled = true; btn.textContent = 'Salvando...';
-    try {
-      if (id) {
-        await updateDoc(doc(db, 'tasks', id), payload);
+function resendVerification(){
+  limparMsg('verifyMsg');
+  const user = auth.currentUser;
+  if(!user) return;
+
+  user.sendEmailVerification()
+    .then(() => {
+      const el = document.getElementById('verifyMsg');
+      el.className = 'msg info';
+      el.textContent = 'E-mail de verificação reenviado.';
+    })
+    .catch(err => mostrarMsg('verifyMsg', traduzErro(err.code), err.code));
+}
+
+// ============================================================
+// SAIR / ENTRAR NO APP
+// ============================================================
+function logout(){
+  auth.signOut().then(() => {
+    document.getElementById('appShell').classList.remove('active');
+    document.getElementById('authWrap').style.display = 'flex';
+    showScreen('login');
+  });
+}
+
+function entrarNoApp(user){
+  document.getElementById('authWrap').style.display = 'none';
+  document.getElementById('appShell').classList.add('active');
+  document.getElementById('userNameLabel').textContent = user.displayName || 'usuário';
+  document.getElementById('userEmailLabel').textContent = user.email;
+
+  // TODO: a partir daqui, inicializar Kanban / Agenda / Dashboard
+  // usando `db` (Firestore) e `user.uid` para filtrar a coleção "tasks".
+}
+
+// ============================================================
+// PERSISTÊNCIA DE SESSÃO
+// ============================================================
+auth.onAuthStateChanged(user => {
+  if(user){
+    user.reload().then(() => {
+      if(user.emailVerified){
+        entrarNoApp(user);
       } else {
-        payload.createdAt = serverTimestamp();
-        await addDoc(collection(db, 'tasks'), payload);
-      }
-      closeTaskModal();
-    } catch (err) {
-      console.error(err);
-      showAppAlert('Não foi possível salvar a tarefa. Verifique as regras do Firestore.');
-    } finally {
-      btn.disabled = false; btn.textContent = 'Salvar';
-    }
-  });
-
-  document.getElementById('btnDeleteTask').addEventListener('click', async () => {
-    const id = document.getElementById('taskId').value;
-    if (!id) return;
-    if (!confirm('Mover esta tarefa para a lixeira?')) return;
-    const t = tasks.find(x => x.id === id);
-    try {
-      await updateDoc(doc(db, 'tasks', id), {
-        trashed: true,
-        trashedFromStatus: (t && t.status) || 'todo',
-      });
-      closeTaskModal();
-    } catch (err) {
-      console.error(err);
-      showAppAlert('Não foi possível mover a tarefa para a lixeira.');
-    }
-  });
-
-  // ---------- DASHBOARD / ESTATÍSTICAS ----------
-  function renderStats(){
-    const ativas = tasks.filter(t => !t.trashed);
-    const total = ativas.length;
-    const counts = { todo: 0, doing: 0, done: 0 };
-    ativas.forEach(t => { if (counts[t.status] !== undefined) counts[t.status]++; });
-    const pct = n => total ? Math.round((n / total) * 100) : 0;
-
-    document.getElementById('statsTotal').textContent = `${total} tarefa${total === 1 ? '' : 's'} ativa${total === 1 ? '' : 's'} no total`;
-
-    document.getElementById('statsTodoCount').textContent = counts.todo;
-    document.getElementById('statsTodoPct').textContent = pct(counts.todo) + '%';
-    document.getElementById('statsTodoBar').style.width = pct(counts.todo) + '%';
-
-    document.getElementById('statsDoingCount').textContent = counts.doing;
-    document.getElementById('statsDoingPct').textContent = pct(counts.doing) + '%';
-    document.getElementById('statsDoingBar').style.width = pct(counts.doing) + '%';
-
-    document.getElementById('statsDoneCount').textContent = counts.done;
-    document.getElementById('statsDonePct').textContent = pct(counts.done) + '%';
-    document.getElementById('statsDoneBar').style.width = pct(counts.done) + '%';
-
-    document.getElementById('statsFinalizadas').textContent = tasks.filter(t => t.trashed).length;
-  }
-
-  // ---------- LIXEIRA ----------
-  const lixeiraModalOverlay = document.getElementById('lixeiraModalOverlay');
-  const btnLixeira = document.getElementById('btnLixeira');
-  const lixeiraBadge = document.getElementById('lixeiraBadge');
-
-  function renderLixeira(){
-    const trashed = tasks.filter(t => t.trashed);
-    lixeiraBadge.textContent = trashed.length;
-    lixeiraBadge.classList.toggle('zero', trashed.length === 0);
-
-    const list = document.getElementById('lixeiraList');
-    list.innerHTML = trashed.length
-      ? trashed.map(t => `
-          <div class="lixeira-item" data-id="${t.id}">
-            <div>
-              <div class="task-title">${escapeHTML(t.title)}</div>
-              <span class="task-label" style="margin-top:4px; display:inline-block; background:rgba(20,20,20,0.08); color:rgba(20,20,20,0.7);">${escapeHTML(labelText(t.label))}</span>
-            </div>
-            <button type="button" class="btn-restaurar" data-restore-id="${t.id}">Restaurar</button>
-          </div>`).join('')
-      : `<div class="day-empty">A lixeira está vazia.</div>`;
-
-    list.querySelectorAll('[data-restore-id]').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const id = btn.dataset.restoreId;
-        const t = tasks.find(x => x.id === id);
-        btn.disabled = true; btn.textContent = 'Restaurando...';
-        try {
-          await updateDoc(doc(db, 'tasks', id), {
-            trashed: false,
-            status: (t && t.trashedFromStatus) || (t && t.status) || 'todo',
-            trashedFromStatus: null,
-          });
-        } catch (err) {
-          console.error(err);
-          showAppAlert('Não foi possível restaurar a tarefa.');
-          btn.disabled = false; btn.textContent = 'Restaurar';
-        }
-      });
-    });
-  }
-
-  function openLixeiraModal(){
-    renderLixeira();
-    lixeiraModalOverlay.classList.add('show');
-  }
-  function closeLixeiraModal(){ lixeiraModalOverlay.classList.remove('show'); }
-  btnLixeira.addEventListener('click', openLixeiraModal);
-  document.getElementById('lixeiraModalClose').addEventListener('click', closeLixeiraModal);
-  lixeiraModalOverlay.addEventListener('click', (e) => { if (e.target === lixeiraModalOverlay) closeLixeiraModal(); });
-
-  // ---------- NOTIFICAÇÕES ----------
-  const btnNotify = document.getElementById('btnNotify');
-  function updateNotifyBtn(){
-    if (!('Notification' in window)) { btnNotify.style.display = 'none'; return; }
-    if (Notification.permission === 'granted') {
-      btnNotify.classList.add('on');
-      btnNotify.textContent = '🔔 Notificações ativas';
-    } else {
-      btnNotify.classList.remove('on');
-      btnNotify.textContent = '🔔 Ativar notificações';
-    }
-  }
-  btnNotify.addEventListener('click', async () => {
-    if (!('Notification' in window)) return;
-    if (Notification.permission === 'default') {
-      await Notification.requestPermission();
-    }
-    updateNotifyBtn();
-    checkDueSoon();
-  });
-
-  function checkDueSoon(){
-    if (!('Notification' in window) || Notification.permission !== 'granted') return;
-    const today = todayStr();
-    const tmrw = new Date(); tmrw.setDate(tmrw.getDate()+1);
-    const tomorrowStr = `${tmrw.getFullYear()}-${String(tmrw.getMonth()+1).padStart(2,'0')}-${String(tmrw.getDate()).padStart(2,'0')}`;
-
-    tasks.forEach(t => {
-      if (t.status === 'done' || t.trashed || !t.endDate) return;
-      const key = t.id + '_' + today;
-      if (notifiedToday.has(key)) return;
-      const horaTxt = t.endTime ? ` às ${t.endTime}` : '';
-      if (t.endDate === today) {
-        new Notification('JOMI — Tarefa vence hoje' + horaTxt, { body: t.title });
-        notifiedToday.add(key);
-      } else if (t.endDate === tomorrowStr) {
-        new Notification('JOMI — Tarefa vence amanhã' + horaTxt, { body: t.title });
-        notifiedToday.add(key);
-      } else if (t.endDate < today) {
-        new Notification('JOMI — Tarefa atrasada', { body: t.title });
-        notifiedToday.add(key);
+        document.getElementById('verifyEmailLabel').textContent = user.email;
+        showScreen('verify');
       }
     });
   }
-
-  updateNotifyBtn();
-  if (notifyTimer) clearInterval(notifyTimer);
-  notifyTimer = setInterval(checkDueSoon, 30 * 60 * 1000); // checa a cada 30 min
+});
 </script>
+
 </body>
 </html>
