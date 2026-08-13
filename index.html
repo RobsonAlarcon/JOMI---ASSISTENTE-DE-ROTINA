@@ -315,14 +315,44 @@
   }
   .app-alert.show{display:block;}
 
-  /* -- SPLIT LAYOUT (Kanban + Agenda + Dashboard lado a lado) -- */
+  /* -- SPLIT LAYOUT: Kanban + Dashboard na metade de cima, Agenda embaixo em largura total -- */
   .dash-body{display:flex; flex-direction:column; gap:20px;}
   @media (min-width: 1100px){
-    .dash-body{display:grid; grid-template-columns:1.9fr 1.1fr 1.1fr; align-items:start; gap:20px;}
-    .kanban-board{display:flex !important; overflow-x:auto;}
-    .agenda-view{display:block !important;}
-    .stats-view{display:block !important;}
+    .dash-body{
+      display:grid;
+      grid-template-columns: 1.9fr 1.1fr;
+      grid-template-areas:
+        "kanban stats"
+        "agenda agenda";
+      align-items:start;
+      gap:20px;
+    }
+    #kanbanBoard{grid-area:kanban; display:flex !important; overflow-x:auto; max-height:50vh;}
+    #statsView{grid-area:stats; display:block !important; max-height:50vh; overflow-y:auto;}
+    #agendaView{grid-area:agenda; display:block !important;}
     .view-switch{display:none;}
+  }
+
+  /* -- SCROLLBAR DISCRETA -- */
+  .kanban-board, .kanban-col-body, .day-task-list, .stats-view {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(20,20,20,0.18) transparent;
+  }
+  .kanban-board::-webkit-scrollbar, .kanban-col-body::-webkit-scrollbar,
+  .day-task-list::-webkit-scrollbar, .stats-view::-webkit-scrollbar {
+    width:6px; height:6px;
+  }
+  .kanban-board::-webkit-scrollbar-track, .kanban-col-body::-webkit-scrollbar-track,
+  .day-task-list::-webkit-scrollbar-track, .stats-view::-webkit-scrollbar-track {
+    background:transparent;
+  }
+  .kanban-board::-webkit-scrollbar-thumb, .kanban-col-body::-webkit-scrollbar-thumb,
+  .day-task-list::-webkit-scrollbar-thumb, .stats-view::-webkit-scrollbar-thumb {
+    background:rgba(20,20,20,0.16); border-radius:10px;
+  }
+  .kanban-board::-webkit-scrollbar-thumb:hover, .kanban-col-body::-webkit-scrollbar-thumb:hover,
+  .day-task-list::-webkit-scrollbar-thumb:hover, .stats-view::-webkit-scrollbar-thumb:hover {
+    background:rgba(20,20,20,0.3);
   }
 
   /* -- KANBAN (colunas criadas livremente pelo usuário) -- */
@@ -330,7 +360,7 @@
   .kanban-board.active{display:flex; overflow-x:auto; padding-bottom:6px;}
   .kanban-col{
     background:#f2f1ec; border:1px solid var(--line); border-radius:12px;
-    padding:14px; min-height:160px; max-height:70vh; display:flex; flex-direction:column;
+    padding:14px; min-height:160px; max-height:48vh; display:flex; flex-direction:column;
     width:280px; flex-shrink:0;
   }
   .kanban-col-head{
@@ -924,12 +954,7 @@
           </div>
         </div>
 
-        <div class="gcal-row">
-          <span class="gcal-icon">📋</span>
-          <div class="gcal-row-body">
-            <select id="taskColuna" class="gcal-plain-select" required></select>
-          </div>
-        </div>
+        <input type="hidden" id="taskColuna">
 
         <div class="gcal-row" style="align-items:flex-start;">
           <span class="gcal-icon">🎨</span>
@@ -1394,6 +1419,8 @@
     const isOverdue = dcls === 'overdue';
     const cardStateClass = isOverdue ? 'overdue-card' : '';
     const color = t.color || DEFAULT_CARD_COLOR;
+    // tom bem suave da cor escolhida, só pra diferenciar do fundo branco — não aplica se estiver vencido (o vermelho de atraso tem prioridade)
+    const cardStyle = isOverdue ? '' : `style="background:color-mix(in srgb, ${color} 12%, white); border-color:color-mix(in srgb, ${color} 35%, white);"`;
     let dateLine = '';
     if (t.startDate || t.endDate) {
       const startTxt = t.startDate ? fmtDate(t.startDate) + (t.startTime ? ' ' + t.startTime : '') : '';
@@ -1404,7 +1431,7 @@
       dateLine = `<span class="task-date ${dcls}">${rangeTxt}${isOverdue ? ' · atrasada' : ''}${dcls==='today' ? ' · vence hoje' : ''}</span>`;
     }
     return `
-      <div class="task-card ${cardStateClass}" draggable="true" data-id="${t.id}">
+      <div class="task-card ${cardStateClass}" draggable="true" data-id="${t.id}" ${cardStyle}>
         ${t.image ? `<img src="${t.image}" class="task-card-image" alt="">` : ''}
         <div class="task-card-stripe" style="background:${color};"></div>
         <div class="task-card-inner">
@@ -1654,9 +1681,10 @@
   taskDiaInteiro.addEventListener('change', toggleAllDayRow);
 
   function populateColumnSelect(){
-    const current = taskColunaSelect.value;
-    taskColunaSelect.innerHTML = columns.map(c => `<option value="${c.id}">${escapeHTML(c.title)}</option>`).join('');
-    if (current && columns.some(c => c.id === current)) taskColunaSelect.value = current;
+    // campo oculto — se a coluna salva foi excluída, cai pra primeira coluna existente
+    if (columns.length && !columns.some(c => c.id === taskColunaSelect.value)) {
+      taskColunaSelect.value = columns[0].id;
+    }
   }
 
   function renderColorSwatches(selected){
