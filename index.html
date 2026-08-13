@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg-page:#f7f6f2;
+    --bg-page:#eaeff8;
     --bg-card:#ffffff;
     --panel:#ffffff;
     --text-primary:#1a1a1a;
@@ -366,7 +366,7 @@
   .kanban-board{display:none; gap:16px; align-items:flex-start;}
   .kanban-board.active{display:flex; overflow-x:auto; padding-bottom:6px;}
   .kanban-col{
-    background:#f2f1ec; border:1px solid var(--line); border-radius:12px;
+    background:#e3e9f4; border:1px solid var(--line); border-radius:12px;
     padding:14px; min-height:160px; max-height:48vh; display:flex; flex-direction:column;
     width:280px; flex-shrink:0;
   }
@@ -437,7 +437,7 @@
   }
   .task-card.overdue-card .task-desc{color:rgba(255,255,255,0.9) !important;}
 
-  .task-card-image{width:100%; height:110px; object-fit:cover; display:block; background:#e8e6df;}
+  .task-card-image{width:100%; height:110px; object-fit:cover; display:block; background:#dbe3f0;}
   .task-card-stripe{height:4px; width:100%; background:rgba(20,20,20,0.15);}
   .task-card-inner{padding:11px 12px;}
   .task-card-top{display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:5px;}
@@ -1369,6 +1369,7 @@
   let calRefDate = new Date(); // mês exibido na agenda
   let selectedDay = null; // 'YYYY-MM-DD'
   let notifyTimer = null;
+  let dueStatusTimer = null;
   const notifiedToday = new Set();
 
   // ---------- CORES DISPONÍVEIS PARA O CARTÃO (escolha manual) ----------
@@ -1426,6 +1427,10 @@
       console.error('Erro ao carregar tarefas:', err);
       showAppAlert('Não foi possível carregar suas tarefas. Verifique as regras do Firestore.');
     });
+
+    // recalcula "vencida"/"vence hoje" a cada minuto, mesmo sem nenhuma mudança nos dados
+    if (dueStatusTimer) clearInterval(dueStatusTimer);
+    dueStatusTimer = setInterval(() => { renderKanban(); renderAgenda(); }, 60 * 1000);
   }
   function stopTaskApp(){
     if (unsubTasks) { unsubTasks(); unsubTasks = null; }
@@ -1434,6 +1439,7 @@
     columns = [];
     currentUser = null;
     if (notifyTimer) { clearInterval(notifyTimer); notifyTimer = null; }
+    if (dueStatusTimer) { clearInterval(dueStatusTimer); dueStatusTimer = null; }
   }
 
   function renderAll(){
@@ -1501,10 +1507,18 @@
   }
 
   // ---------- RENDER KANBAN ----------
-  function dateBadgeClass(endDateStr){
+  function dateBadgeClass(endDateStr, endTime){
     if (!endDateStr) return '';
-    if (endDateStr < todayStr()) return 'overdue';
-    if (endDateStr === todayStr()) return 'today';
+    const today = todayStr();
+    if (endDateStr < today) return 'overdue';
+    if (endDateStr === today) {
+      if (endTime) {
+        const now = new Date();
+        const nowHHMM = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+        if (nowHHMM > endTime) return 'overdue';
+      }
+      return 'today';
+    }
     return '';
   }
   function fmtDate(dateStr){
@@ -1513,7 +1527,7 @@
   }
 
   function taskCardHTML(t){
-    const dcls = dateBadgeClass(t.endDate);
+    const dcls = dateBadgeClass(t.endDate, t.endTime);
     const isOverdue = dcls === 'overdue';
     const cardStateClass = isOverdue ? 'overdue-card' : '';
     const color = t.color || DEFAULT_CARD_COLOR;
