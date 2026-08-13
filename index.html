@@ -272,6 +272,13 @@
     text-transform:uppercase; letter-spacing:0.04em; cursor:pointer;
   }
   .logout-btn:hover{border-color:var(--alert); color:#ff8b85;}
+  .reset-all-btn{
+    background:transparent; border:1px solid rgba(224,67,60,0.35); color:var(--alert);
+    padding:9px 16px; border-radius:8px; font-size:12.5px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.04em; cursor:pointer;
+  }
+  .reset-all-btn:hover{background:rgba(224,67,60,0.1);}
+  .reset-all-btn:disabled{opacity:0.5; cursor:default;}
   .dash-note{
     border:1px dashed var(--line); border-radius:12px; padding:32px;
     color:rgba(20,20,20,0.55); font-size:14.5px; line-height:1.7; max-width:640px;
@@ -483,34 +490,35 @@
   .agenda-view.active{display:block;}
   .agenda-card{
     background:var(--panel); border:1px solid var(--line); border-radius:16px;
-    padding:22px; width:100%;
+    padding:16px; width:100%; max-width:520px; margin:0 auto;
+    max-height:42vh; overflow-y:auto;
   }
-  .agenda-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;}
+  .agenda-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;}
   .agenda-month{
-    font-family:'Anton',sans-serif; font-size:20px; text-transform:uppercase; letter-spacing:0.02em;
+    font-family:'Anton',sans-serif; font-size:16px; text-transform:uppercase; letter-spacing:0.02em;
   }
   .cal-nav{
-    width:34px; height:34px; border-radius:8px; border:1px solid var(--line);
-    background:transparent; color:var(--text-primary); font-size:17px; cursor:pointer;
+    width:28px; height:28px; border-radius:7px; border:1px solid var(--line);
+    background:transparent; color:var(--text-primary); font-size:15px; cursor:pointer;
   }
   .cal-nav:hover{border-color:var(--gold-bright); color:var(--gold-bright);}
   .cal-weekdays{
     display:grid; grid-template-columns:repeat(7, 1fr); text-align:center;
-    font-size:11px; color:rgba(20,20,20,0.4); font-weight:700; margin-bottom:8px;
+    font-size:10px; color:rgba(20,20,20,0.4); font-weight:700; margin-bottom:5px;
   }
-  .cal-grid{display:grid; grid-template-columns:repeat(7, 1fr); gap:4px;}
+  .cal-grid{display:grid; grid-template-columns:repeat(7, 1fr); gap:3px;}
   .cal-day{
-    aspect-ratio:1; border-radius:9px; display:flex; flex-direction:column;
-    align-items:center; justify-content:center; gap:4px; cursor:pointer;
-    font-size:13px; color:rgba(20,20,20,0.75); background:transparent;
+    aspect-ratio:1.15; border-radius:7px; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:2px; cursor:pointer;
+    font-size:11.5px; color:rgba(20,20,20,0.75); background:transparent;
     border:1px solid transparent; transition:border-color .15s ease, background .15s ease;
   }
   .cal-day:hover{border-color:var(--line); background:rgba(20,20,20,0.03);}
   .cal-day.empty{cursor:default; visibility:hidden;}
   .cal-day.today{border-color:var(--gold-bright); color:var(--gold-bright); font-weight:800;}
   .cal-day.selected{background:var(--gold-bright); color:#1a1a1a; font-weight:800;}
-  .cal-dots{display:flex; gap:3px;}
-  .cal-dots span{width:5px; height:5px; border-radius:50%;}
+  .cal-dots{display:flex; gap:2px;}
+  .cal-dots span{width:4px; height:4px; border-radius:50%;}
   .cal-legend{
     display:flex; gap:16px; margin-top:18px; padding-top:16px; border-top:1px solid var(--line);
     font-size:12px; color:rgba(20,20,20,0.5);
@@ -699,6 +707,8 @@
   @media (max-width: 720px){
     .kanban-col{width:88vw;}
     .field-row{grid-template-columns:1fr;}
+    .agenda-card{max-height:38vh; padding:12px;}
+    .cal-day{font-size:10px;}
   }
 
   @media (max-width: 880px){
@@ -833,6 +843,7 @@
       </div>
       <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
         <div class="dash-user-badge" id="dashEmailBadge">seuemail@exemplo.com</div>
+        <button class="reset-all-btn" id="btnResetAll" title="Apaga todas as colunas e tarefas">Zerar tudo</button>
         <button class="logout-btn" id="btnLogout">Sair</button>
       </div>
     </div>
@@ -1009,7 +1020,8 @@
   } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
   import {
     getFirestore, collection, query, where, onSnapshot,
-    addDoc, updateDoc, deleteDoc, doc, serverTimestamp
+    addDoc, updateDoc, deleteDoc, doc, serverTimestamp,
+    getDocs, writeBatch
   } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
   let app, auth, db;
@@ -1235,6 +1247,31 @@
     if (firebaseReady) await signOut(auth);
     setLoggedOutView();
     showPanel('login');
+  });
+
+  // ---------- ZERAR TUDO (apaga todas as colunas e tarefas do usuário) ----------
+  document.getElementById('btnResetAll').addEventListener('click', async () => {
+    if (!currentUser || !firebaseReady) return;
+    const ok1 = confirm('Isso vai apagar TODAS as suas colunas e tarefas, permanentemente. Deseja continuar?');
+    if (!ok1) return;
+    const ok2 = confirm('Tem certeza mesmo? Essa ação não pode ser desfeita.');
+    if (!ok2) return;
+
+    const btn = document.getElementById('btnResetAll');
+    btn.disabled = true; btn.textContent = 'Zerando...';
+    try {
+      const batch = writeBatch(db);
+      const tasksSnap = await getDocs(query(collection(db, 'tasks'), where('userId', '==', currentUser.uid)));
+      tasksSnap.forEach(d => batch.delete(d.ref));
+      const colsSnap = await getDocs(query(collection(db, 'columns'), where('userId', '==', currentUser.uid)));
+      colsSnap.forEach(d => batch.delete(d.ref));
+      await batch.commit();
+    } catch (err) {
+      console.error(err);
+      showAppAlert('Não foi possível zerar as informações. Verifique as regras do Firestore.');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Zerar tudo';
+    }
   });
 
   // ---------- OBSERVADOR DE ESTADO DE LOGIN ----------
