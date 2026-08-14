@@ -31,6 +31,12 @@
     align-items:stretch;
     overflow-x:hidden;
   }
+  /* fundo ilustrado da tela de login — some quando o dashboard entra (classe alternada via JS) */
+  body.auth-bg{
+    background:
+      linear-gradient(180deg, rgba(234,239,248,0.35) 0%, rgba(234,239,248,0.55) 100%),
+      url('login-bg.jpg') center/cover no-repeat fixed;
+  }
 
   /* ---------- BACKGROUND TEXTURE (futurista) ---------- */
   .stripes{
@@ -92,6 +98,7 @@
     line-height:0.9;
     letter-spacing:0.03em;
     margin-bottom:6px;
+    margin-right:-0.03em; /* compensa o espaço extra que o letter-spacing deixa depois da última letra */
     background:linear-gradient(115deg, #163055 0%, #2f5c94 30%, #1b3358 55%, #4a7ab8 75%, #163055 100%);
     background-size:220% 100%;
     -webkit-background-clip:text; background-clip:text; color:transparent;
@@ -105,7 +112,7 @@
   .brand-tagline{
     font-family:'Inter',sans-serif; font-weight:800; font-size:clamp(16px, 2vw, 20px);
     letter-spacing:0.08em; text-transform:uppercase; color:var(--text-primary);
-    margin-bottom:20px;
+    margin-bottom:20px; margin-right:-0.08em; /* mesma compensação, mesmo alinhamento óptico do JOMI acima */
     opacity:0.9;
   }
   .brand p{
@@ -122,15 +129,15 @@
   .card{
     width:100%; max-width:420px;
     position:relative;
-    background:rgba(255,255,255,0.72);
-    backdrop-filter:blur(18px);
-    -webkit-backdrop-filter:blur(18px);
-    border:1px solid rgba(27,51,88,0.25);
+    background:rgba(255,255,255,0.52);
+    backdrop-filter:blur(22px);
+    -webkit-backdrop-filter:blur(22px);
+    border:1px solid rgba(255,255,255,0.4);
     border-radius:18px;
     padding:34px 32px;
     box-shadow:
-      0 20px 50px rgba(20,20,20,0.12),
-      inset 0 1px 0 rgba(255,255,255,0.6);
+      0 20px 50px rgba(20,20,20,0.18),
+      inset 0 1px 0 rgba(255,255,255,0.5);
   }
   .card::before, .card::after,
   .card .hud-br, .card .hud-bl{
@@ -779,7 +786,7 @@
   :focus-visible{outline:2px solid var(--navy-bright); outline-offset:2px;}
 </style>
 </head>
-<body>
+<body class="auth-bg">
 
 <div class="stripes"></div>
 <div class="noise-glow"></div>
@@ -1147,6 +1154,7 @@
     document.querySelector('.brand').style.display = 'none';
     dash.classList.add('active');
     wrap.classList.add('dash-mode');
+    document.body.classList.remove('auth-bg');
     document.getElementById('dashNome').textContent = (user.displayName || user.email.split('@')[0]);
     document.getElementById('dashEmailBadge').textContent = user.email;
     startTaskApp(user);
@@ -1156,6 +1164,7 @@
     document.querySelector('.brand').style.display = 'flex';
     dash.classList.remove('active');
     wrap.classList.remove('dash-mode');
+    document.body.classList.add('auth-bg');
     stopTaskApp();
   }
 
