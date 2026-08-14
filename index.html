@@ -329,43 +329,43 @@
   }
   .app-alert.show{display:block;}
 
-  /* -- SPLIT LAYOUT: Kanban + Dashboard na metade de cima, Agenda embaixo em largura total -- */
+  /* -- SPLIT LAYOUT: Kanban + Notas na metade de cima, Agenda embaixo em largura total -- */
   .dash-body{display:flex; flex-direction:column; gap:20px;}
   @media (min-width: 1100px){
     .dash-body{
       display:grid;
       grid-template-columns: 1.9fr 1.1fr;
       grid-template-areas:
-        "kanban stats"
+        "kanban notes"
         "agenda agenda";
       align-items:start;
       gap:20px;
     }
     #kanbanBoard{grid-area:kanban; display:flex !important; overflow-x:auto; max-height:50vh;}
-    #statsView{grid-area:stats; display:block !important; max-height:50vh; overflow-y:auto;}
+    #notesView{grid-area:notes; display:block !important; max-height:50vh; overflow-y:auto;}
     #agendaView{grid-area:agenda; display:block !important;}
     .view-switch{display:none;}
   }
 
   /* -- SCROLLBAR DISCRETA -- */
-  .kanban-board, .kanban-col-body, .day-task-list, .stats-view, .agenda-card {
+  .kanban-board, .kanban-col-body, .day-task-list, .notes-view, .agenda-card {
     scrollbar-width: thin;
     scrollbar-color: rgba(20,20,20,0.18) transparent;
   }
   .kanban-board::-webkit-scrollbar, .kanban-col-body::-webkit-scrollbar,
-  .day-task-list::-webkit-scrollbar, .stats-view::-webkit-scrollbar, .agenda-card::-webkit-scrollbar {
+  .day-task-list::-webkit-scrollbar, .notes-view::-webkit-scrollbar, .agenda-card::-webkit-scrollbar {
     width:6px; height:6px;
   }
   .kanban-board::-webkit-scrollbar-track, .kanban-col-body::-webkit-scrollbar-track,
-  .day-task-list::-webkit-scrollbar-track, .stats-view::-webkit-scrollbar-track, .agenda-card::-webkit-scrollbar-track {
+  .day-task-list::-webkit-scrollbar-track, .notes-view::-webkit-scrollbar-track, .agenda-card::-webkit-scrollbar-track {
     background:transparent;
   }
   .kanban-board::-webkit-scrollbar-thumb, .kanban-col-body::-webkit-scrollbar-thumb,
-  .day-task-list::-webkit-scrollbar-thumb, .stats-view::-webkit-scrollbar-thumb, .agenda-card::-webkit-scrollbar-thumb {
+  .day-task-list::-webkit-scrollbar-thumb, .notes-view::-webkit-scrollbar-thumb, .agenda-card::-webkit-scrollbar-thumb {
     background:rgba(20,20,20,0.16); border-radius:10px;
   }
   .kanban-board::-webkit-scrollbar-thumb:hover, .kanban-col-body::-webkit-scrollbar-thumb:hover,
-  .day-task-list::-webkit-scrollbar-thumb:hover, .stats-view::-webkit-scrollbar-thumb:hover, .agenda-card::-webkit-scrollbar-thumb:hover {
+  .day-task-list::-webkit-scrollbar-thumb:hover, .notes-view::-webkit-scrollbar-thumb:hover, .agenda-card::-webkit-scrollbar-thumb:hover {
     background:rgba(20,20,20,0.3);
   }
 
@@ -591,50 +591,54 @@
   .cal-legend span{display:flex; align-items:center; gap:6px;}
   .cal-legend i{width:8px; height:8px; border-radius:50%; display:inline-block;}
 
-  /* -- DASHBOARD / ESTATÍSTICAS -- */
-  .stats-view{display:none;}
-  .stats-view.active{display:block;}
-  .stats-card{
-    background:var(--panel); border:1px solid var(--line); border-radius:16px;
-    padding:22px; width:100%;
-  }
-  .stats-title{
-    font-family:'Anton',sans-serif; font-size:18px; text-transform:uppercase; letter-spacing:0.02em;
-    margin-bottom:4px;
-  }
-  .stats-total{
-    font-family:'Space Mono',monospace; font-size:12px; color:rgba(20,20,20,0.5);
-    margin-bottom:20px;
-  }
-  .stats-row{margin-bottom:18px;}
-  .stats-row:last-child{margin-bottom:0;}
-  .stats-row-top{
-    display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;
-  }
-  .stats-row-label{
-    display:flex; align-items:center; gap:8px;
-    font-size:12.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.03em;
-    color:rgba(20,20,20,0.75);
-  }
-  .stats-row-nums{
-    font-family:'Space Mono',monospace; font-size:12px; color:rgba(20,20,20,0.5);
-  }
-  .stats-row-nums b{
-    font-size:20px; color:var(--text-primary); font-family:'Anton',sans-serif; margin-right:4px;
-  }
-  .stats-bar-track{
-    height:8px; border-radius:6px; background:rgba(20,20,20,0.06); overflow:hidden;
-  }
-  .stats-bar-fill{height:100%; border-radius:6px; transition:width .5s ease;}
-  .stats-bar-fill.fill-todo{background:#7a8bff;}
-  .stats-bar-fill.fill-doing{background:var(--navy-bright);}
-  .stats-bar-fill.fill-done{background:var(--ok);}
-  .stats-divider{border-top:1px solid var(--line); margin:20px 0;}
-  .stats-finalizadas{
+  /* -- BLOCO DE NOTAS (estilo post-its, salva automático) -- */
+  .notes-view{display:none;}
+  .notes-view.active{display:block;}
+  .notes-toolbar{
     display:flex; justify-content:space-between; align-items:center;
-    font-size:12.5px; color:rgba(20,20,20,0.5);
+    margin-bottom:14px;
   }
-  .stats-finalizadas b{color:var(--ok); font-family:'Space Mono',monospace; font-size:14px;}
+  .notes-title{
+    font-family:'Anton',sans-serif; font-size:18px; text-transform:uppercase; letter-spacing:0.02em;
+  }
+  .notes-board{
+    display:flex; flex-wrap:wrap; gap:14px; align-content:flex-start;
+    max-height:50vh; overflow-y:auto; padding-bottom:4px;
+  }
+  .note-card{
+    width:180px; min-height:150px; border-radius:10px; padding:12px;
+    display:flex; flex-direction:column; box-shadow:0 4px 14px rgba(20,20,20,0.1);
+    border:1px solid rgba(20,20,20,0.06);
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .note-card:hover{transform:translateY(-2px); box-shadow:0 8px 20px rgba(20,20,20,0.16);}
+  .note-card-top{display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;}
+  .note-color-swatches{display:flex; gap:4px;}
+  .note-color-dot{
+    width:11px; height:11px; border-radius:50%; cursor:pointer;
+    border:1.5px solid rgba(255,255,255,0.7);
+  }
+  .note-color-dot.selected{box-shadow:0 0 0 2px rgba(20,20,20,0.4);}
+  .note-delete-btn{
+    background:transparent; border:none; color:rgba(20,20,20,0.35);
+    font-size:13px; cursor:pointer; line-height:1; padding:0 2px;
+  }
+  .note-delete-btn:hover{color:var(--alert);}
+  .note-textarea{
+    flex:1; width:100%; resize:none; border:none; background:transparent;
+    font-family:'Inter',sans-serif; font-size:13px; line-height:1.5; color:rgba(20,20,20,0.85);
+    outline:none;
+  }
+  .note-textarea::placeholder{color:rgba(20,20,20,0.35);}
+  .note-saved-hint{
+    font-size:9px; color:rgba(20,20,20,0.3); text-align:right; margin-top:4px;
+    font-family:'Space Mono',monospace; text-transform:uppercase; letter-spacing:0.04em;
+    height:11px;
+  }
+  .notes-empty{
+    text-align:center; color:rgba(20,20,20,0.35); font-size:13px;
+    padding:32px 0; width:100%;
+  }
 
   /* -- MODALS -- */
   .modal-overlay{
@@ -917,7 +921,7 @@
       <div class="view-switch" id="viewSwitch">
         <button type="button" class="active" data-view="kanban">Kanban</button>
         <button type="button" data-view="agenda">Agenda</button>
-        <button type="button" data-view="stats">Dashboard</button>
+        <button type="button" data-view="notes">Notas</button>
       </div>
       <div class="toolbar-actions">
         <button type="button" class="btn-notify" id="btnNotify" title="Ativar notificações">🔔 Notificações</button>
@@ -948,20 +952,13 @@
       </div>
     </div>
 
-    <!-- DASHBOARD / ESTATÍSTICAS -->
-    <div class="stats-view" id="statsView">
-      <div class="stats-card">
-        <div class="stats-title">Dashboard</div>
-        <div class="stats-total" id="statsTotal">0 tarefas no total</div>
-
-        <div id="statsColumnsContainer"><!-- linhas por coluna renderizadas via JS --></div>
-
-        <div class="stats-divider"></div>
-        <div class="stats-finalizadas">
-          <span>Arquivadas</span>
-          <b id="statsArquivadas">0</b>
-        </div>
+    <!-- NOTAS (post-its, salva automático) -->
+    <div class="notes-view" id="notesView">
+      <div class="notes-toolbar">
+        <div class="notes-title">Notas</div>
+        <button type="button" class="kanban-add-btn" id="btnAddNote" style="margin-top:0;">+ Nova nota</button>
       </div>
+      <div class="notes-board" id="notesBoard"><!-- notas renderizadas via JS --></div>
     </div>
     </div>
 
@@ -1379,8 +1376,10 @@
   let currentUser = null;
   let unsubTasks = null;
   let unsubColumns = null;
+  let unsubNotes = null;
   let tasks = [];   // {id, title, description, label, columnId, color, archived, startDate, endDate, startTime, endTime, userId}
   let columns = []; // {id, title, order, userId}
+  let notes = [];   // {id, content, color, userId}
   let currentView = 'kanban';
   let calRefDate = new Date(); // mês exibido na agenda
   let selectedDay = null; // 'YYYY-MM-DD'
@@ -1422,6 +1421,7 @@
     if (!firebaseReady) return;
     if (unsubTasks) unsubTasks();
     if (unsubColumns) unsubColumns();
+    if (unsubNotes) unsubNotes();
 
     const qCols = query(collection(db, 'columns'), where('userId', '==', user.uid));
     unsubColumns = onSnapshot(qCols, (snap) => {
@@ -1444,6 +1444,16 @@
       showAppAlert('Não foi possível carregar suas tarefas. Verifique as regras do Firestore.');
     });
 
+    const qNotes = query(collection(db, 'notes'), where('userId', '==', user.uid));
+    unsubNotes = onSnapshot(qNotes, (snap) => {
+      notes = [];
+      snap.forEach(d => notes.push({ id: d.id, ...d.data() }));
+      renderNotes();
+    }, (err) => {
+      console.error('Erro ao carregar notas:', err);
+      showAppAlert('Não foi possível carregar suas notas. Verifique as regras do Firestore.');
+    });
+
     // recalcula "vencida"/"vence hoje" a cada minuto, mesmo sem nenhuma mudança nos dados
     if (dueStatusTimer) clearInterval(dueStatusTimer);
     dueStatusTimer = setInterval(() => { renderKanban(); renderAgenda(); }, 5 * 1000);
@@ -1451,8 +1461,10 @@
   function stopTaskApp(){
     if (unsubTasks) { unsubTasks(); unsubTasks = null; }
     if (unsubColumns) { unsubColumns(); unsubColumns = null; }
+    if (unsubNotes) { unsubNotes(); unsubNotes = null; }
     tasks = [];
     columns = [];
+    notes = [];
     currentUser = null;
     if (notifyTimer) { clearInterval(notifyTimer); notifyTimer = null; }
     if (dueStatusTimer) { clearInterval(dueStatusTimer); dueStatusTimer = null; }
@@ -1461,7 +1473,6 @@
   function renderAll(){
     renderKanban();
     renderAgenda();
-    renderStats();
     updateEtiquetaOptions();
     populateColumnSelect();
     checkDueSoon();
@@ -1473,7 +1484,7 @@
     el.classList.add('show');
   }
 
-  // ---------- ALTERNAR VISTA (Kanban / Agenda / Dashboard) ----------
+  // ---------- ALTERNAR VISTA (Kanban / Agenda / Notas) ----------
   document.getElementById('viewSwitch').addEventListener('click', (e) => {
     const btn = e.target.closest('button[data-view]');
     if (!btn) return;
@@ -1481,9 +1492,9 @@
     document.querySelectorAll('#viewSwitch button').forEach(b => b.classList.toggle('active', b === btn));
     document.getElementById('kanbanBoard').classList.toggle('active', currentView === 'kanban');
     document.getElementById('agendaView').classList.toggle('active', currentView === 'agenda');
-    document.getElementById('statsView').classList.toggle('active', currentView === 'stats');
+    document.getElementById('notesView').classList.toggle('active', currentView === 'notes');
     if (currentView === 'agenda') renderAgenda();
-    if (currentView === 'stats') renderStats();
+    if (currentView === 'notes') renderNotes();
   });
   // vista inicial
   document.getElementById('kanbanBoard').classList.add('active');
@@ -2086,33 +2097,98 @@
     }
   });
 
-  // ---------- DASHBOARD / ESTATÍSTICAS ----------
-  function renderStats(){
-    const ativas = tasks.filter(t => !t.archived);
-    const total = ativas.length;
-    const pct = n => total ? Math.round((n / total) * 100) : 0;
+  // ---------- BLOCO DE NOTAS (estilo post-its, salva automático) ----------
+  const noteSaveTimers = {}; // debounce por nota, pra não salvar a cada tecla
 
-    document.getElementById('statsTotal').textContent = `${total} tarefa${total === 1 ? '' : 's'} ativa${total === 1 ? '' : 's'} no total`;
+  function renderNotes(){
+    const board = document.getElementById('notesBoard');
+    if (!board) return;
 
-    const container = document.getElementById('statsColumnsContainer');
-    if (!columns.length) {
-      container.innerHTML = `<div class="empty-col">Nenhuma coluna criada ainda.</div>`;
-    } else {
-      container.innerHTML = columns.map(col => {
-        const count = ativas.filter(t => t.columnId === col.id).length;
-        return `
-          <div class="stats-row">
-            <div class="stats-row-top">
-              <span class="stats-row-label">${escapeHTML(col.title)}</span>
-              <span class="stats-row-nums"><b>${count}</b><span>${pct(count)}%</span></span>
-            </div>
-            <div class="stats-bar-track"><div class="stats-bar-fill" style="width:${pct(count)}%; background:var(--navy-bright);"></div></div>
-          </div>`;
-      }).join('');
+    // preserva o texto que a pessoa está digitando agora, sem sobrescrever no meio da digitação
+    const focused = document.activeElement;
+    const focusedNoteId = (focused && focused.classList.contains('note-textarea')) ? focused.dataset.id : null;
+    const focusedSelectionStart = focusedNoteId ? focused.selectionStart : null;
+    const focusedSelectionEnd = focusedNoteId ? focused.selectionEnd : null;
+
+    if (!notes.length) {
+      board.innerHTML = `<div class="notes-empty">Nenhuma nota ainda. Clique em "+ Nova nota" pra começar.</div>`;
+      return;
     }
 
-    document.getElementById('statsArquivadas').textContent = tasks.filter(t => t.archived).length;
+    board.innerHTML = notes.map(n => {
+      const color = n.color || DEFAULT_CARD_COLOR;
+      const swatches = CARD_COLORS.map(c => `<span class="note-color-dot ${c === color ? 'selected' : ''}" data-note-color="${c}" data-id="${n.id}" style="background:${c};"></span>`).join('');
+      return `
+        <div class="note-card" style="background:color-mix(in srgb, ${color} 16%, white); border-color:color-mix(in srgb, ${color} 30%, white);" data-note-id="${n.id}">
+          <div class="note-card-top">
+            <div class="note-color-swatches">${swatches}</div>
+            <button type="button" class="note-delete-btn" data-delete-note="${n.id}">✕</button>
+          </div>
+          <textarea class="note-textarea" data-id="${n.id}" placeholder="Escreva aqui...">${escapeHTML(n.content || '')}</textarea>
+          <div class="note-saved-hint" id="note-hint-${n.id}"></div>
+        </div>`;
+    }).join('');
+
+    // volta o foco e o cursor pro lugar certo, caso a pessoa ainda estivesse digitando
+    if (focusedNoteId) {
+      const ta = board.querySelector(`.note-textarea[data-id="${focusedNoteId}"]`);
+      if (ta) {
+        ta.focus();
+        try { ta.setSelectionRange(focusedSelectionStart, focusedSelectionEnd); } catch (e) {}
+      }
+    }
+
+    board.querySelectorAll('.note-textarea').forEach(ta => {
+      ta.addEventListener('input', () => {
+        const id = ta.dataset.id;
+        clearTimeout(noteSaveTimers[id]);
+        const hint = document.getElementById(`note-hint-${id}`);
+        if (hint) hint.textContent = 'salvando...';
+        noteSaveTimers[id] = setTimeout(async () => {
+          try {
+            await updateDoc(doc(db, 'notes', id), { content: ta.value });
+            if (hint) { hint.textContent = 'salvo'; setTimeout(() => { if (hint) hint.textContent = ''; }, 1500); }
+          } catch (err) {
+            console.error(err);
+            if (hint) hint.textContent = 'erro ao salvar';
+          }
+        }, 600);
+      });
+    });
+
+    board.querySelectorAll('[data-note-color]').forEach(dot => {
+      dot.addEventListener('click', async () => {
+        const id = dot.dataset.id;
+        const color = dot.dataset.noteColor;
+        try { await updateDoc(doc(db, 'notes', id), { color }); }
+        catch (err) { console.error(err); showAppAlert('Não foi possível trocar a cor da nota.'); }
+      });
+    });
+
+    board.querySelectorAll('[data-delete-note]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.dataset.deleteNote;
+        if (!confirm('Excluir esta nota?')) return;
+        try { await deleteDoc(doc(db, 'notes', id)); }
+        catch (err) { console.error(err); showAppAlert('Não foi possível excluir a nota.'); }
+      });
+    });
   }
+
+  document.getElementById('btnAddNote').addEventListener('click', async () => {
+    if (!currentUser) return;
+    try {
+      await addDoc(collection(db, 'notes'), {
+        content: '',
+        color: CARD_COLORS[0],
+        userId: currentUser.uid,
+        createdAt: serverTimestamp(),
+      });
+    } catch (err) {
+      console.error(err);
+      showAppAlert('Não foi possível criar a nota. Verifique as regras do Firestore.');
+    }
+  });
 
   // ---------- NOTIFICAÇÕES ----------
   const btnNotify = document.getElementById('btnNotify');
